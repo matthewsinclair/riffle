@@ -1,0 +1,19 @@
+---
+generator: intent todo
+---
+
+## DOING
+
+- [-] ST0001: Extricate Predicate and SIA from Multiplyer
+  - [ ] 01: D2 root-cause and verdict
+  - [ ] 02: Scaffolding and CI gate
+  - [ ] 03: Predicate engine port
+
+## TODO
+
+- [ ] ST0002: ctx-next: the Bowtie waist
+- [ ] ST0003: SIA pattern layer rewrite
+
+## DONE:2026-08-10T00:00:00Z
+
+_(none)_

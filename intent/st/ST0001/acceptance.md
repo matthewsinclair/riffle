@@ -1,5 +1,5 @@
 ---
-verblock: "10 Aug 2026:v0.1: matts - Initial version"
+verblock: "10 Aug 2026:v0.2: cc - Ratified contract authored (hv rulings 2026-08-10 applied)"
 st_id: ST0001
 title: "Extricate Predicate and SIA from Multiplyer -- acceptance contract"
 ---
@@ -17,25 +17,42 @@ title: "Extricate Predicate and SIA from Multiplyer -- acceptance contract"
 > Non-test ACs carry their state inline -- `-- evidence: <ref> -- satisfied: yes|no` on the AC line; test-backed ACs are satisfied by a green covering AT (computed, never written). Multi-AC coverage on an AT is comma-separated.
 >
 > Exemption (ST0048): the close-gate is fail-by-default -- a unit with an empty or missing contract is refused. A unit that is deliberately AC-free (eg a pure content / authorial task) declares `acceptance: exempt` in the frontmatter above; the gate then passes and announces the exemption. Omit it (the default) and the contract is enforced. Never inferred from emptiness; always declared.
+>
+> Ratified by hv 2026-08-10 with amendments: reference-material carry-over (former AC-04.1) removed -- nothing is copied from the source project; AC-03.2 strengthened to zero source-project traces of any kind in code.
 
 ## Acceptance Criteria
 
 ### ST-level
 
-[The "whole steel thread is done" bar, or "none -- WP-distributed".]
+None -- WP-distributed.
 
-### WP-01 -- [WP title] (status: ...)
+### WP-01 -- D2 root-cause and verdict (status: Not Started)
 
-[Add real AC lines at column 0 -- the parser and close-gate read only column-0 `- AC-` lines, so the indented examples below are inert guidance. Copy one to column 0 and fill it in:]
+- AC-01.1 (non-test) D2 root-caused with the engine-vs-glue verdict recorded, file:line evidence from real reads of the archive -- evidence: design.md "D2 verdict" section -- satisfied: no
 
-    - AC-01.1 [a test-backed criterion -- what must be verifiably true]
-    - AC-01.2 (non-test) [a doc / eyeball / gate criterion] -- evidence: [named evidence] -- satisfied: no
+### WP-02 -- Scaffolding and CI gate (status: Not Started)
+
+- AC-02.1 (non-test) CI runs format check + compile + test with warnings-as-errors covering test compilation, green on the skeleton before the port lands -- evidence: .github/workflows/ci.yml + green local gate run (upstream run on next hv push) -- satisfied: no
+
+### WP-03 -- Predicate engine port (status: Not Started)
+
+- AC-03.1 The ported engine and its full ported test suite are green under `mix test --warnings-as-errors` (D5 class structurally excluded)
+- AC-03.2 Zero source-project traces in `lib/` and `test/` -- modules, atoms, app-env keys, strings, comments, moduledocs (hv ruling 2026-08-10)
+- AC-03.3 Default-pipeline resolution is config-injected (`:riffle, :default_pipeline`); unset config surfaces an explicit error; the engine names no pattern-layer module
 
 ## Acceptance Tests
 
 ### WP-01
 
-[Add real AT lines at column 0 -- the parser reads only column-0 `- AT-` lines, so the indented examples below are inert guidance. Copy one to column 0 and fill it in:]
+- Coverage: AC-01.1 is non-test; evidence carried on the AC line.
 
-    - AT-01.1 [test path::name] -- covers AC-01.1 -- status: to-write (red-first)
-    - Coverage: [every AC has an AT, or list the uncovered ACs; non-test ACs carry evidence on the AC line]
+### WP-02
+
+- Coverage: AC-02.1 is non-test; evidence carried on the AC line.
+
+### WP-03
+
+- AT-03.1 full ported suite under `mix test --warnings-as-errors` -- covers AC-03.1 -- status: to-write (red-first)
+- AT-03.2 test/riffle/extrication_gate_test.exs::"lib/ and test/ carry zero source-project traces" -- covers AC-03.2 -- status: to-write (red-first)
+- AT-03.3 test/riffle/predicate/default_pipeline_resolution_test.exs::"configured module resolves; unset config errors explicitly" -- covers AC-03.3 -- status: to-write (red-first)
+- Coverage: complete -- AC-03.1..3 each covered by an AT above; non-test ACs (AC-01.1, AC-02.1) carry evidence inline.
