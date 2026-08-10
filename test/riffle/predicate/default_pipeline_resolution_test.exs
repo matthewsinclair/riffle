@@ -70,4 +70,39 @@ defmodule Riffle.Predicate.DefaultPipelineResolutionTest do
     Application.delete_env(:riffle, :default_pipeline)
     assert Riffle.Predicate.default_pipeline() == nil
   end
+
+  test "success: resolver falls back to the configured module for a nil source" do
+    Application.put_env(:riffle, :default_pipeline, ConfiguredPipeline)
+
+    assert {:ok, %{name: :always_true, function: function}} =
+             Riffle.Predicate.Resolver.resolve_predicate(nil, %{name: :always_true, inline: false})
+
+    assert function.(Item.new(["n"], ["1"])) == true
+  end
+
+  test "success: a nil source still hydrates an inline body without reading config" do
+    Application.delete_env(:riffle, :default_pipeline)
+
+    ref = %{name: :inline_pred, body: quote(do: fn _item -> true end)}
+
+    assert {:ok, %{name: :inline_pred, function: function}} =
+             Riffle.Predicate.Resolver.resolve_predicate(nil, ref)
+
+    assert function.(Item.new(["n"], ["1"])) == true
+  end
+
+  test "failure: a nil source with no configured default is a tagged no_source error" do
+    Application.delete_env(:riffle, :default_pipeline)
+
+    assert Riffle.Predicate.Resolver.resolve_predicate(nil, %{name: :always_true, inline: false}) ==
+             {:error, {:no_source, :always_true}}
+  end
+
+  test "failure: the no_source bang raise names the missing config key" do
+    Application.delete_env(:riffle, :default_pipeline)
+
+    assert_raise UnresolvedPredicateError, ~r/config :riffle, :default_pipeline/, fn ->
+      Riffle.Predicate.Resolver.resolve_predicate!(nil, %{name: :always_true, inline: false})
+    end
+  end
 end

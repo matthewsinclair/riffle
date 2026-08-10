@@ -302,7 +302,7 @@ defmodule Riffle.Predicate do
         # String-based expression
         case Evaluator.parse(expr) do
           {:ok, function} -> function
-          {:error, error} -> raise "Error parsing expression: #{inspect(error)}"
+          {:error, error} -> raise ArgumentError, "Error parsing expression: #{inspect(error)}"
         end
 
       # Handle keyword lists (which is what we expect from properly processed expr macros)
@@ -314,7 +314,8 @@ defmodule Riffle.Predicate do
             function
 
           {:error, error} ->
-            raise "Error parsing expression: #{inspect(expr_str)} - #{inspect(error)}"
+            raise ArgumentError,
+                  "Error parsing expression: #{inspect(expr_str)} - #{inspect(error)}"
         end
 
       # For other AST expressions (maps or tuples from Macro.escape)
@@ -326,9 +327,15 @@ defmodule Riffle.Predicate do
             function
 
           {:error, error} ->
-            raise "Error parsing expression: #{inspect(expr_str)} - #{inspect(error)}"
+            raise ArgumentError,
+                  "Error parsing expression: #{inspect(expr_str)} - #{inspect(error)}"
         end
     end
+  end
+
+  # Raw expr AST as parsed from .pred files: {:expr, meta, [expression]}.
+  def create({:expr, meta, [expression]}) when is_list(meta) do
+    create({:expr, expression})
   end
 
   def create({:__block__, _, _statements} = ast_body) do
