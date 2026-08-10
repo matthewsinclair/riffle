@@ -41,36 +41,36 @@ None -- WP-distributed.
 - AC-02.4 The knot emits the full typed stream unconditionally -- it takes no consumer, mask, or filter argument, and never branches its generation on who is listening
 - AC-02.5 Replay holds: a recorded perturbation sequence applied to the same initial Ctx reproduces an identical trajectory of `{ctx', emissions}` pairs
 
-### WP-03 -- Coverage, bedrock, and close (status: Not Started)
+### WP-03 -- Coverage, bedrock, and close (status: WIP)
 
 - AC-03.1 The measured surface is covered by enumeration, not assertion: every capability in the map is checked against the live catalogs and state reads, and a declared drop must carry its reason
-- AC-03.2 (non-test) `intent/docs/bedrock.md` records the commitments this thread fixes, the negations that matter, and the rule that a contradiction with it is a bug in the contradicting document -- evidence: the file, ratified by hv -- satisfied: no
-- AC-03.3 (non-test) Module registry and as-built design recorded -- evidence: MODULES.md rows for every new module; design.md approach + decisions + capability map -- satisfied: no
-- AC-03.4 (non-test) Rule-library conformance at ST0001's bar -- evidence: critic-elixir review + test-check on the new tree, zero CRITICAL and zero Highlander/PFIC WARNING -- satisfied: no
-- AC-03.5 (non-test) `mix gate` green (format, compile and test under warnings-as-errors, `credo --strict`) -- evidence: gate run cited in impl.md -- satisfied: no
-- AC-03.6 (non-test) The inherited "reference implementation" claim is struck from ST0002 info.md and `intent/docs/extrication-handoff.md` (hv ruling 2026-08-10) so it stops steering later sessions -- evidence: both files -- satisfied: no
+- AC-03.2 (non-test) `intent/docs/bedrock.md` records the commitments this thread fixes, the negations that matter, and the rule that a contradiction with it is a bug in the contradicting document -- evidence: `intent/docs/bedrock.md` (7 commitments, 5 negations, the fence table binding each commitment to its enforcement) -- satisfied: yes
+- AC-03.3 (non-test) Module registry and as-built design recorded -- evidence: MODULES.md "ctx-next (the waist)" section (6 rows incl. Catalog and the test-support helper); design.md DD-1..DD-7 + capability map; impl.md as-built -- satisfied: yes
+- AC-03.4 (non-test) Rule-library conformance at ST0001's bar -- evidence: two critic rounds (round 1: 1C/4W code, 6C test; round 2: 0C/3W code, 2C/3W test); every CRITICAL and every Highlander WARNING fixed at source, none suppressed -- incl. a genuinely dead fence (remote-type arity) and a text-scan fence defeatable by brace-alias syntax; residual WARNINGs are IN-EX-CODE-002 tagged-tuple judgement calls recorded in impl.md, below the ratified bar -- satisfied: yes
+- AC-03.5 (non-test) `mix gate` green (format, compile and test under warnings-as-errors, `credo --strict`) -- evidence: 318 passed (67 doctests, 251 tests), 556 mods/funs, zero credo findings -- satisfied: yes
+- AC-03.6 (non-test) The inherited "reference implementation" claim is struck from ST0002 info.md and `intent/docs/extrication-handoff.md` (hv ruling 2026-08-10) so it stops steering later sessions -- evidence: info.md Context rewritten; handoff carries a dated correction note rather than a silent deletion -- satisfied: yes
 
 ## Acceptance Tests
 
 ### WP-01
 
-- AT-01.1 test/riffle/ctx/ctx_test.exs::"invariant: the composite root is typed, with one declared overlay and no event accumulation" -- covers AC-01.1 -- status: green
+- AT-01.1 test/riffle/ctx/ctx_test.exs (3 invariants: the declared overlay is exactly metadata, every other slot carries a concrete type, no slot accumulates catalog types -- the last carries a positive control) -- covers AC-01.1 -- status: green
 - AT-01.2 test/riffle/ctx/catalog_fence_test.exs::"invariant: an unknown tag loud-fails at both catalogs" -- covers AC-01.2 -- status: green
-- AT-01.3 test/riffle/ctx/catalog_fence_test.exs::"fence: struct modules on disk are exactly the declared implementations, tags unique" -- covers AC-01.3 -- status: green
-- AT-01.4 test/riffle/ctx/boundary_fence_test.exs::"fence: the waist names no engine module" -- covers AC-01.4 -- status: green
+- AT-01.3 test/riffle/ctx/catalog_fence_test.exs (4 fences: per-catalog module/registry bijection, and per-catalog union-type/membership agreement) -- covers AC-01.3 -- status: green
+- AT-01.4 test/riffle/ctx/boundary_fence_test.exs::"fence: the waist names no engine module" (AST-based; carries a brace-alias positive control) -- covers AC-01.4 -- status: green
 - AT-01.5 test/riffle/ctx/boundary_fence_test.exs::"fence: the engine names no waist module" -- covers AC-01.5 -- status: green
 - Coverage: AC-01.1..5 covered above; AC-01.6 is non-test with evidence inline.
 
 ### WP-02
 
 - AT-02.1 test/riffle/ctx/purity_fence_test.exs (2 fences: the forbidden-call closure, and the closure staying inside the waist) -- covers AC-02.1 -- status: green
-- AT-02.2 test/riffle/ctx/knot_test.exs::"invariant: the same perturbation against the same ctx yields identical results" -- covers AC-02.2 -- status: green
-- AT-02.3 test/riffle/ctx/delivery_floor_fence_test.exs::"fence: every catalog perturbation yields at least one emission" -- covers AC-02.3 -- status: green
+- AT-02.2 test/riffle/ctx/knot_test.exs::"invariant: the same perturbation against the same ctx yields the same pinned result" -- covers AC-02.2 -- status: green
+- AT-02.3 test/riffle/ctx/delivery_floor_fence_test.exs::"fence: every catalog perturbation yields a real emission, never the floor" -- covers AC-02.3 -- status: green
 - AT-02.4 test/riffle/ctx/knot_test.exs::"invariant: the knot emits the full stream and takes no consumer argument" -- covers AC-02.4 -- status: green
-- AT-02.5 test/riffle/ctx/knot_test.exs::"invariant: a recorded perturbation sequence replays to an identical trajectory" -- covers AC-02.5 -- status: green
+- AT-02.5 test/riffle/ctx/knot_test.exs::"invariant: a recorded perturbation sequence replays to the pinned trajectory" -- covers AC-02.5 -- status: green
 - Coverage: complete -- AC-02.1..5 each covered by an AT above.
 
 ### WP-03
 
-- AT-03.1 test/riffle/ctx/measured_surface_fence_test.exs::"fence: every measured capability maps to a live expression or a declared drop" -- covers AC-03.1 -- status: to-write (red-first)
+- AT-03.1 test/riffle/ctx/measured_surface_fence_test.exs (3 fences: every capability resolves to a live tag, read, slot or reasoned drop; the composite root declares t(); every catalog type traces back to a capability or a declared exception) -- covers AC-03.1 -- status: green
 - Coverage: AC-03.1 covered above; AC-03.2..6 are non-test with evidence inline.

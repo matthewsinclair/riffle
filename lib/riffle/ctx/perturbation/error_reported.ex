@@ -3,7 +3,7 @@ defmodule Riffle.Ctx.Perturbation.ErrorReported do
   A source has observed an error. The run accumulates it; it does not vanish.
   """
 
-  @behaviour Riffle.Ctx.Perturbation.Kind
+  @behaviour Riffle.Ctx.Catalog
 
   @enforce_keys [:error]
   defstruct [:error]

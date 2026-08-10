@@ -3,7 +3,7 @@ defmodule Riffle.Ctx.Perturbation.RunStarted do
   A source has begun a run. The knot transitions the context out of `:pending`.
   """
 
-  @behaviour Riffle.Ctx.Perturbation.Kind
+  @behaviour Riffle.Ctx.Catalog
 
   defstruct []
 

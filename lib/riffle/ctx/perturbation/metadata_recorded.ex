@@ -3,7 +3,7 @@ defmodule Riffle.Ctx.Perturbation.MetadataRecorded do
   A source has recorded a metadata value against the run.
   """
 
-  @behaviour Riffle.Ctx.Perturbation.Kind
+  @behaviour Riffle.Ctx.Catalog
 
   @enforce_keys [:key, :value]
   defstruct [:key, :value]

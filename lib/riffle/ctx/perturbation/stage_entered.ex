@@ -3,7 +3,7 @@ defmodule Riffle.Ctx.Perturbation.StageEntered do
   A source has entered a named stage of work.
   """
 
-  @behaviour Riffle.Ctx.Perturbation.Kind
+  @behaviour Riffle.Ctx.Catalog
 
   @enforce_keys [:stage]
   defstruct [:stage]

@@ -3,7 +3,7 @@ defmodule Riffle.Ctx.Emission.StageCompleted do
   A named stage finished, carrying what it produced.
   """
 
-  @behaviour Riffle.Ctx.Emission.Kind
+  @behaviour Riffle.Ctx.Catalog
 
   @enforce_keys [:stage, :output]
   defstruct [:stage, :output]

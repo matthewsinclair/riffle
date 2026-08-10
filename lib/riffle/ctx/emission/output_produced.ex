@@ -3,7 +3,7 @@ defmodule Riffle.Ctx.Emission.OutputProduced do
   The run produced its output.
   """
 
-  @behaviour Riffle.Ctx.Emission.Kind
+  @behaviour Riffle.Ctx.Catalog
 
   @enforce_keys [:payload]
   defstruct [:payload]

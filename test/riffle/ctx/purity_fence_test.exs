@@ -2,6 +2,7 @@ defmodule Riffle.Ctx.PurityFenceTest do
   use ExUnit.Case, async: true
 
   alias Riffle.Ctx.Knot
+  alias Riffle.WaistHelpers
 
   # AC-02.1. Approximate purity is a failure, not a tolerance -- so this fence
   # reads compiled call targets rather than source text, and walks the whole
@@ -72,11 +73,14 @@ defmodule Riffle.Ctx.PurityFenceTest do
   end
 
   test "fence: the closure reachable from the knot stays inside the waist" do
+    calls = call_closure(Knot)
+
+    assert calls != []
+
     leaked =
-      Knot
-      |> call_closure()
+      calls
       |> Enum.map(fn {module, _function, _arity} -> module end)
-      |> Enum.filter(&(riffle_module?(&1) and not waist_module?(&1)))
+      |> Enum.filter(&(WaistHelpers.riffle_module?(&1) and not WaistHelpers.waist_module?(&1)))
       |> Enum.uniq()
 
     assert leaked == []
@@ -95,7 +99,9 @@ defmodule Riffle.Ctx.PurityFenceTest do
 
   defp visit(false, module, rest, visited, calls) do
     mfas = module_calls(module)
-    next = for {called, _function, _arity} <- mfas, riffle_module?(called), do: called
+
+    next =
+      for {called, _function, _arity} <- mfas, WaistHelpers.riffle_module?(called), do: called
 
     expand(rest ++ next, MapSet.put(visited, module), calls ++ mfas)
   end
@@ -118,8 +124,4 @@ defmodule Riffle.Ctx.PurityFenceTest do
 
   defp forbidden?({:erlang, function, _arity}), do: function in @forbidden_erlang_functions
   defp forbidden?({module, _function, _arity}), do: module in @forbidden_modules
-
-  defp riffle_module?(module), do: String.starts_with?(Atom.to_string(module), "Elixir.Riffle.")
-
-  defp waist_module?(module), do: String.starts_with?(Atom.to_string(module), "Elixir.Riffle.Ctx")
 end

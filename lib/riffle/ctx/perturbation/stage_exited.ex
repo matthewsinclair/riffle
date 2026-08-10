@@ -3,7 +3,7 @@ defmodule Riffle.Ctx.Perturbation.StageExited do
   A source has left a named stage, carrying what the stage produced.
   """
 
-  @behaviour Riffle.Ctx.Perturbation.Kind
+  @behaviour Riffle.Ctx.Catalog
 
   @enforce_keys [:stage, :output]
   defstruct [:stage, :output]

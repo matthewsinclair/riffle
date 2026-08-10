@@ -3,7 +3,7 @@ defmodule Riffle.Ctx.Perturbation.RunCompleted do
   A source has finished a run successfully, carrying the run's product.
   """
 
-  @behaviour Riffle.Ctx.Perturbation.Kind
+  @behaviour Riffle.Ctx.Catalog
 
   @enforce_keys [:output]
   defstruct [:output]

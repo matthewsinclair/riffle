@@ -109,23 +109,33 @@ defmodule Riffle.Ctx.Knot do
   # would mean silently repairing a future clause that forgot to emit; instead
   # the delivery-floor fence enumerates the catalog and fails the build, so the
   # clause gets fixed rather than papered over.
-  defp deliver({ctx, :unhandled}, perturbation),
-    do: {ctx, [default_pass(perturbation, :unhandled)]}
+  defp deliver({ctx, :unhandled}, perturbation), do: {ctx, [default_pass(perturbation)]}
 
   defp deliver({ctx, emissions}, _perturbation), do: {ctx, emissions}
 
-  defp default_pass(perturbation, reason) do
-    %Emission.DefaultPassed{perturbation_tag: catalog_tag!(perturbation), reason: reason}
+  # :unhandled is the only reason the floor can report. A clause that claimed a
+  # perturbation and emitted nothing cannot reach here -- the compiler proves
+  # every transition returns a non-empty list -- so there is no second reason to
+  # parameterise for.
+  defp default_pass(perturbation) do
+    %Emission.DefaultPassed{perturbation_tag: catalog_tag!(perturbation), reason: :unhandled}
   end
 
   # Loud by construction: a struct that is not a registered perturbation raises
   # here rather than being quietly passed off as one. The edge types its input
-  # before the knot ever sees it.
+  # before the knot ever sees it, so reaching this is a programming error and the
+  # message names what arrived.
   defp catalog_tag!(perturbation) do
     module = perturbation.__struct__
-    tag = module.tag()
-    {:ok, ^module} = Perturbation.fetch_by_tag(tag)
 
-    tag
+    registered!(module, module.tag(), Perturbation.fetch_by_tag(module.tag()))
+  end
+
+  defp registered!(module, tag, {:ok, module}), do: tag
+
+  defp registered!(module, tag, _miss) do
+    raise ArgumentError,
+          "#{inspect(module)} declares tag #{inspect(tag)} but is not registered in " <>
+            "Riffle.Ctx.Perturbation -- a struct reaches the knot only through the catalog"
   end
 end

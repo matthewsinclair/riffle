@@ -3,7 +3,7 @@ defmodule Riffle.Ctx.Perturbation.InputReceived do
   A source has supplied the run's input. The payload is opaque to the waist.
   """
 
-  @behaviour Riffle.Ctx.Perturbation.Kind
+  @behaviour Riffle.Ctx.Catalog
 
   @enforce_keys [:payload]
   defstruct [:payload]

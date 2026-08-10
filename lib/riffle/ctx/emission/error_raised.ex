@@ -3,7 +3,7 @@ defmodule Riffle.Ctx.Emission.ErrorRaised do
   An error was accumulated against the run.
   """
 
-  @behaviour Riffle.Ctx.Emission.Kind
+  @behaviour Riffle.Ctx.Catalog
 
   @enforce_keys [:error]
   defstruct [:error]

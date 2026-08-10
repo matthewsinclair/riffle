@@ -9,23 +9,35 @@ defmodule Riffle.Ctx.DeliveryFloorFenceTest do
   # AC-02.3. Delivery is total: an accepted perturbation never vanishes without
   # an observable trace. The fence enumerates the whole catalog and builds each
   # perturbation generically, so a type added tomorrow is covered the moment it
-  # joins the registry -- there is no hand-maintained list here to fall behind,
-  # and no allowlist of types exempt from the floor.
+  # joins the registry -- no hand-maintained list to fall behind, and no
+  # allowlist of types exempt from the floor.
 
   defmodule NotInTheCatalog do
     @moduledoc false
     defstruct []
   end
 
-  test "fence: every catalog perturbation yields at least one emission" do
-    ctx = Ctx.new(run_id: "delivery-floor")
+  defmodule Impostor do
+    @moduledoc false
+    @behaviour Riffle.Ctx.Catalog
 
-    # No non-emptiness guard needed: the registry is a closed literal list, so
-    # the type checker proves the enumeration is non-empty at compile time.
+    defstruct []
+
+    @impl true
+    def tag, do: :impostor
+  end
+
+  setup do
+    %{ctx: Ctx.new(run_id: "delivery-floor")}
+  end
+
+  test "fence: every catalog perturbation yields a real emission, never the floor", %{ctx: ctx} do
     results =
       Enum.map(Perturbation.implementations(), fn module ->
         {module, Knot.tick(ctx, sample(module))}
       end)
+
+    assert results != []
 
     silent = for {module, {_ctx, []}} <- results, do: module
 
@@ -42,18 +54,18 @@ defmodule Riffle.Ctx.DeliveryFloorFenceTest do
     assert defaulted == []
   end
 
-  test "invariant: a handled perturbation does not reach the delivery floor" do
-    ctx = Ctx.new(run_id: "delivery-floor")
-
-    {_ctx, emissions} = Knot.tick(ctx, %Perturbation.RunStarted{})
-
-    refute Enum.any?(emissions, &match?(%Emission.DefaultPassed{}, &1))
+  test "failure: a struct that declares a tag it never registered is named and refused", %{
+    ctx: ctx
+  } do
+    assert_raise ArgumentError, ~r/declares tag :impostor but is not registered/, fn ->
+      Knot.tick(ctx, %Impostor{})
+    end
   end
 
-  test "failure: a struct outside the catalog is rejected loudly, never default-passed" do
-    ctx = Ctx.new(run_id: "delivery-floor")
-
-    assert_raise UndefinedFunctionError, fn -> Knot.tick(ctx, %NotInTheCatalog{}) end
+  test "failure: a struct with no tag at all cannot reach the catalog check", %{ctx: ctx} do
+    assert_raise UndefinedFunctionError, ~r/NotInTheCatalog\.tag\/0 is undefined/, fn ->
+      Knot.tick(ctx, %NotInTheCatalog{})
+    end
   end
 
   # A struct built from the module's own fields: the fence never names them, so

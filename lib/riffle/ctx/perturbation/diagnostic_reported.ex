@@ -3,7 +3,7 @@ defmodule Riffle.Ctx.Perturbation.DiagnosticReported do
   A source has produced a diagnostic. The waist never writes it anywhere -- a consumer realises it.
   """
 
-  @behaviour Riffle.Ctx.Perturbation.Kind
+  @behaviour Riffle.Ctx.Catalog
 
   @enforce_keys [:level, :message]
   defstruct [:level, :message]

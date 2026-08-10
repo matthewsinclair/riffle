@@ -3,7 +3,7 @@ defmodule Riffle.Ctx.Emission.DefaultPassed do
   The delivery floor. A perturbation that produced no other emission surfaces here rather than vanishing.
   """
 
-  @behaviour Riffle.Ctx.Emission.Kind
+  @behaviour Riffle.Ctx.Catalog
 
   @enforce_keys [:perturbation_tag, :reason]
   defstruct [:perturbation_tag, :reason]

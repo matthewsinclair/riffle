@@ -3,7 +3,7 @@ defmodule Riffle.Ctx.Emission.Diagnostic do
   A diagnostic left the waist for whatever consumer wants it.
   """
 
-  @behaviour Riffle.Ctx.Emission.Kind
+  @behaviour Riffle.Ctx.Catalog
 
   @enforce_keys [:level, :message]
   defstruct [:level, :message]

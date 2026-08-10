@@ -3,7 +3,7 @@ defmodule Riffle.Ctx.Emission.MetadataSet do
   A metadata key was set on the run.
   """
 
-  @behaviour Riffle.Ctx.Emission.Kind
+  @behaviour Riffle.Ctx.Catalog
 
   @enforce_keys [:key, :value]
   defstruct [:key, :value]

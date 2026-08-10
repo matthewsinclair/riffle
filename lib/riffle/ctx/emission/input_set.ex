@@ -3,7 +3,7 @@ defmodule Riffle.Ctx.Emission.InputSet do
   The run's input was set to the carried payload.
   """
 
-  @behaviour Riffle.Ctx.Emission.Kind
+  @behaviour Riffle.Ctx.Catalog
 
   @enforce_keys [:payload]
   defstruct [:payload]

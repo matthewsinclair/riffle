@@ -8,10 +8,12 @@ defmodule Riffle.Ctx do
   `overlay_slots/0`, which the composite-root fence checks against the typespec.
   A slot that quietly became a map would fail the build.
 
-  This module exposes reads and construction only. There are no setters: the one
-  way to change a context is to apply a perturbation through `Riffle.Ctx.Knot`,
-  which is what makes the state transition a single auditable point rather than
-  seventy-six accessors any caller can reach for.
+  This module exposes construction, one overlay read, and one derived predicate.
+  The typed slots are read by dot -- `ctx.input`, `ctx.status` -- so there are no
+  pass-through accessors, which is where the seventy-six-function surface this
+  replaces began. There are no setters either: the one way to change a context
+  is to apply a perturbation through `Riffle.Ctx.Knot`, which makes the state
+  transition a single auditable point.
 
   `new/1` takes the run id rather than generating one. Generating an identifier
   would mean randomness, and randomness inside the waist would end the purity
@@ -52,28 +54,29 @@ defmodule Riffle.Ctx do
   """
   @spec new(keyword()) :: t()
   def new(opts) when is_list(opts) do
+    # validate! rather than fetch-what-we-know: a typo in an option name would
+    # otherwise be discarded in silence, which is the bag behaviour this module
+    # exists to refuse -- and the refusal has to reach the constructor too.
+    validated = Keyword.validate!(opts, [:run_id, metadata: %{}])
+
     %__MODULE__{
-      run_id: Keyword.fetch!(opts, :run_id),
-      metadata: opts |> Keyword.get(:metadata, %{}) |> Map.new()
+      run_id: Keyword.fetch!(validated, :run_id),
+      metadata: validated |> Keyword.fetch!(:metadata) |> Map.new()
     }
   end
-
-  @doc "The run's input, as supplied. Opaque to the waist."
-  @spec get_input(t()) :: term()
-  def get_input(%__MODULE__{input: input}), do: input
-
-  @doc "The run's output, as produced. Opaque to the waist."
-  @spec get_output(t()) :: term()
-  def get_output(%__MODULE__{output: output}), do: output
 
   @doc """
   Reads a key from the metadata overlay.
 
   Keyed access is what an overlay is for; the typed slots are reached by dot.
+
+  Tagged rather than bare, and for a concrete reason: a recorded metadata value
+  may itself be `nil`, so a bare read cannot distinguish "absent" from "present
+  and nil". This is the same shape the catalogs' `fetch_by_tag/1` uses.
   """
-  @spec get_metadata(t(), atom()) :: term()
-  def get_metadata(%__MODULE__{metadata: metadata}, key) when is_atom(key),
-    do: Map.get(metadata, key)
+  @spec fetch_metadata(t(), atom()) :: {:ok, term()} | :error
+  def fetch_metadata(%__MODULE__{metadata: metadata}, key) when is_atom(key),
+    do: Map.fetch(metadata, key)
 
   @doc "Whether the run has accumulated any error."
   @spec has_errors?(t()) :: boolean()

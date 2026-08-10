@@ -3,7 +3,7 @@ defmodule Riffle.Ctx.Emission.StageProgress do
   A named stage reported progress.
   """
 
-  @behaviour Riffle.Ctx.Emission.Kind
+  @behaviour Riffle.Ctx.Catalog
 
   @enforce_keys [:stage, :progress]
   defstruct [:stage, :progress]

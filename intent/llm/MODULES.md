@@ -32,10 +32,12 @@
 
 | Concern                                 | THE Module                          | Notes                                                                          |
 | --------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------ |
-| Run state (typed composite root)        | Riffle.Ctx                          | typed slots + ONE declared overlay (metadata); no event/emission accumulation  |
-| State transition (the pure knot)        | Riffle.Ctx.Knot                     | apply/2; pure, total, multi-clause; the single transition point (DD-4)         |
-| Typed inputs + their closed registry    | Riffle.Ctx.Perturbation             | tag registry; structs under Riffle.Ctx.Perturbation.*; unknown tag loud-fails  |
-| Typed outputs + their closed registry   | Riffle.Ctx.Emission                 | tag registry; structs under Riffle.Ctx.Emission.*; payloads opaque to the waist |
+| Run state (typed composite root)        | Riffle.Ctx                          | typed slots read by dot + ONE declared overlay; no pass-through accessors      |
+| State transition (the pure knot)        | Riffle.Ctx.Knot                     | tick/2; pure, total, multi-clause; the single transition point (DD-4)          |
+| Catalog mechanism + the type contract   | Riffle.Ctx.Catalog                  | THE registry machine; both catalogs use it; duplicate tags fail at compile time |
+| Typed inputs (membership + union)       | Riffle.Ctx.Perturbation             | structs under Riffle.Ctx.Perturbation.*; unknown tag loud-fails                |
+| Typed outputs (membership + union)      | Riffle.Ctx.Emission                 | structs under Riffle.Ctx.Emission.*; payloads opaque to the waist              |
+| Waist identity + fence introspection    | Riffle.WaistHelpers (test/support)  | namespace, source paths, typespec + alias walks shared by every waist fence    |
 
 <!-- Add entries as modules are created. Group by domain. Example:
 

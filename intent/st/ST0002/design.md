@@ -75,7 +75,9 @@ The minimum surface is measured, not guessed: the Ctx functions the extricated c
 | `add_error` (8)                                | errors slot + `ErrorRaised` emission                                   |
 | `set_input` (6), `with_inputs` (5)             | input slot, written by applying a perturbation                         |
 | `set_output` (4)                               | output slot + `OutputProduced` emission                                |
-| `get_input` (4), `get_output` (2), `has_errors?` (3), `get_metadata` (1) | state reads on the composite root           |
+| `get_input` (4), `get_output` (2)               | typed slots, read by dot -- a pass-through accessor is where a 76-function surface starts |
+| `has_errors?` (3)                              | a derived predicate on the composite root                              |
+| `get_metadata` (1)                             | `fetch_metadata/2`, tagged -- a recorded value may itself be nil       |
 
 Dropped, each with its reason:
 

@@ -3,7 +3,7 @@ defmodule Riffle.Ctx.Perturbation.StageProgressed do
   A source reports progress within a stage it has entered.
   """
 
-  @behaviour Riffle.Ctx.Perturbation.Kind
+  @behaviour Riffle.Ctx.Catalog
 
   @enforce_keys [:stage, :progress]
   defstruct [:stage, :progress]

@@ -3,7 +3,7 @@ defmodule Riffle.Ctx.Perturbation.RunFailed do
   A source has ended a run unsuccessfully, carrying the reason.
   """
 
-  @behaviour Riffle.Ctx.Perturbation.Kind
+  @behaviour Riffle.Ctx.Catalog
 
   @enforce_keys [:reason]
   defstruct [:reason]

@@ -3,7 +3,7 @@ defmodule Riffle.Ctx.Emission.StageStarted do
   A named stage of work began.
   """
 
-  @behaviour Riffle.Ctx.Emission.Kind
+  @behaviour Riffle.Ctx.Catalog
 
   @enforce_keys [:stage]
   defstruct [:stage]

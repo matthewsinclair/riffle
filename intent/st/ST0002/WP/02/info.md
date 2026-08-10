@@ -3,7 +3,7 @@ verblock: "10 Aug 2026:v0.1: matts - Initial version"
 wp_id: WP-02
 title: "The pure knot"
 scope: Small
-status: WIP
+status: Done
 ---
 
 # WP-02: The pure knot

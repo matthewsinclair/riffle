@@ -2,58 +2,78 @@ defmodule Riffle.CtxTest do
   use ExUnit.Case, async: true
 
   alias Riffle.Ctx
+  alias Riffle.WaistHelpers
 
-  # DD-2: the composite root is typed, not a bag. The fence reads the declared
-  # `t()` typespec rather than trusting the struct's runtime values, so a slot
-  # typed `map()` cannot hide behind a well-behaved default. DD-6: no slot
-  # accumulates perturbations or emissions -- they enter and leave, never stay.
+  # DD-2: the composite root is typed, not a bag. DD-6: no slot accumulates
+  # perturbations or emissions -- they enter and leave, never stay. Each
+  # invariant is its own test so a failure names its own claim.
 
   describe "the composite root" do
-    test "invariant: the composite root is typed, with one declared overlay and no event accumulation" do
-      field_types = field_types!(Ctx)
+    test "invariant: the declared overlay is exactly the metadata slot" do
+      assert Ctx.overlay_slots() == [:metadata]
+    end
+
+    test "invariant: every slot but the declared overlay carries a concrete type" do
+      overlays =
+        for {field, type} <- WaistHelpers.field_types!(Ctx), overlay_type?(type), do: field
+
+      assert Enum.sort(overlays) == [:metadata]
+    end
+
+    test "invariant: no slot accumulates perturbations or emissions" do
+      field_types = WaistHelpers.field_types!(Ctx)
 
       assert field_types != %{}
 
-      overlays = for {field, type} <- field_types, overlay_type?(type), do: field
-
-      assert Enum.sort(overlays) == Enum.sort(Ctx.overlay_slots())
-      assert length(Ctx.overlay_slots()) <= 1
+      # The positive control. None of the real slots reference a catalog type,
+      # so without this the discriminator could stop working entirely and the
+      # fence would still pass -- which is exactly what happened once already.
+      assert references_catalog?(catalog_typed_slot())
 
       accumulators = for {field, type} <- field_types, references_catalog?(type), do: field
 
       assert accumulators == []
     end
+  end
 
+  describe "new/1" do
     test "success: a new context starts pending, error-free, and carries its options" do
-      ctx = Ctx.new(run_id: "run-1")
+      ctx = Ctx.new(run_id: "run-1", metadata: %{source: "fixture"})
 
+      assert ctx.run_id == "run-1"
       assert ctx.status == :pending
       assert ctx.errors == []
-      assert ctx.metadata == %{}
-      assert ctx.run_id == "run-1"
+      assert ctx.input == nil
+      assert ctx.output == nil
+      assert ctx.metadata == %{source: "fixture"}
     end
 
-    test "success: reads on the composite root answer from the declared slots" do
-      ctx = Ctx.new(run_id: "run-1")
+    test "failure: an unrecognised option is rejected rather than discarded" do
+      assert_raise ArgumentError, ~r/unknown keys \[:metadatra\]/, fn ->
+        Ctx.new(run_id: "run-1", metadatra: %{source: "fixture"})
+      end
+    end
 
-      assert Ctx.get_input(ctx) == nil
-      assert Ctx.get_output(ctx) == nil
-      assert Ctx.get_metadata(ctx, :absent) == nil
-      refute Ctx.has_errors?(ctx)
+    test "failure: a context without a run id is refused, naming what is missing" do
+      assert_raise KeyError, ~r/key :run_id not found/, fn -> Ctx.new([]) end
     end
   end
 
-  # -- typespec introspection -------------------------------------------------
+  describe "reads" do
+    test "success: the typed slots answer with what was threaded into them" do
+      ctx = Ctx.new(run_id: "run-1")
 
-  defp field_types!(module) do
-    {:ok, types} = Code.Typespec.fetch_types(module)
+      assert ctx.input == nil
+      assert ctx.output == nil
+      refute Ctx.has_errors?(ctx)
+    end
 
-    {:type, {:t, {:type, _line, :map, fields}, []}} =
-      Enum.find(types, &match?({:type, {:t, _, []}}, &1))
+    test "success: a metadata read distinguishes absent from present-and-nil" do
+      ctx = Ctx.new(run_id: "run-1", metadata: %{present: nil})
 
-    fields
-    |> Map.new(fn {:type, _, :map_field_exact, [{:atom, _, field}, type]} -> {field, type} end)
-    |> Map.delete(:__struct__)
+      assert Ctx.fetch_metadata(ctx, :present) == {:ok, nil}
+      assert Ctx.fetch_metadata(ctx, :absent) == :error
+    end
   end
 
   # A bare map type is an overlay. A struct type is also an Erlang map type, so
@@ -70,30 +90,15 @@ defmodule Riffle.CtxTest do
   end
 
   defp references_catalog?(type) do
-    type |> remote_modules() |> Enum.any?(&catalog_module?/1)
+    type |> WaistHelpers.remote_modules() |> Enum.any?(&WaistHelpers.catalog_module?/1)
   end
 
-  defp remote_modules({:remote_type, _, [{:atom, _, module}, args]}) do
-    [module | Enum.flat_map(args, &remote_modules/1)]
-  end
+  # What a slot accumulating catalog types would look like in the typespec.
+  # Taken from a real compiled typespec rather than hand-built, so if the Erlang
+  # type representation ever changes, the control breaks and says so.
+  defp catalog_typed_slot do
+    {:type, {:t, definition, []}} = WaistHelpers.fetch_type!(Riffle.Ctx.Perturbation, :t)
 
-  defp remote_modules({:type, _, _kind, args}) when is_list(args),
-    do: Enum.flat_map(args, &remote_modules/1)
-
-  defp remote_modules({:ann_type, _, args}) when is_list(args),
-    do: Enum.flat_map(args, &remote_modules/1)
-
-  defp remote_modules({:user_type, _, _name, args}) when is_list(args),
-    do: Enum.flat_map(args, &remote_modules/1)
-
-  defp remote_modules(_type), do: []
-
-  # Atom.to_string rather than Module.split/1: the walk can surface an Erlang
-  # module, which Module.split/1 raises on.
-  defp catalog_module?(module) do
-    String.starts_with?(Atom.to_string(module), [
-      "Elixir.Riffle.Ctx.Perturbation",
-      "Elixir.Riffle.Ctx.Emission"
-    ])
+    definition
   end
 end
