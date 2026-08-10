@@ -89,12 +89,27 @@ project:
   # switched off by hand, and a built-in added to devbin later cannot appear
   # uninvited in a project whose language it does not match.
   #
-  # Same axis as Intent's own intent/.config/config.json `languages`. Keeping
-  # the two in step is a person's job: devbin does not read Intent's config, and
-  # would need a JSON parser to do it, which is the dependency D7 exists to
-  # refuse. (This comment claimed `devbin doctor` reported the divergence, until
-  # WP-09 came to build doctor and found nothing had ever implemented it -- a
-  # documented check that does not run is the prose form of a false green.)
+  # NOT the same fact as Intent's own intent/.config/config.json `languages`,
+  # and the two are not meant to match. This key is GATE SCOPE -- what devbin
+  # should offer to run here. Intent's list is PROJECT COMPOSITION -- what the
+  # source is written in. Prolix is the reference case: it is an Elixir project
+  # with a real Swift app at native/ios, so Intent declares both while this key
+  # may declare elixir alone, because arming a gate is a decision and having a
+  # language is not. Mirroring either list into the other is the defect, not the
+  # divergence (ST0002 WP-04).
+  #
+  # One built-in reads INTENT's list rather than this one, deliberately:
+  # `check critic` (lib/cmd/check), because a critic reviews SOURCE and the
+  # rules belong to the language the source is written in. That is also the only
+  # place devbin needs jq, and it requires it by name at the point of use.
+  #
+  # (This comment previously claimed devbin never reads Intent's config at all,
+  # while `check critic` had been reading it with jq for as long as it existed;
+  # and before that it claimed `devbin doctor` reported the divergence, until
+  # WP-09 came to build doctor and found nothing had ever implemented it. Twice
+  # now this block has described a devbin that does not exist -- a documented
+  # check that does not run, and a documented abstinence that is not observed,
+  # are the same prose-shaped false green.)
   languages:
     - elixir
     - rust

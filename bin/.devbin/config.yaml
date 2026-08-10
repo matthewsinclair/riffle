@@ -1,12 +1,16 @@
-# Riffle -- devbin configuration.
+# riffle -- devbin configuration.
 #
 # Written by: devbin install. Every key, annotated, is vendored beside this
 # file at bin/.devbin/lib/config.reference.yaml.
 
 project:
-  name: Riffle
-  # languages:            # elixir, rust, swift, lua, shell -- this is what
-  #   - elixir            # activates the built-in gates (design D11)
+  name: riffle
+  # GATE SCOPE, not a description of the project. Left commented out by
+  # install, which meant NO gate was active: `test` shipped but could run
+  # nothing, so devbin withheld it -- correctly, since an empty `test all`
+  # would seal success having run zero gates. Declared 2026-08-10.
+  languages:
+    - elixir
 
 # The devbin this project expects. Enforced by: devbin doctor
 devbin_version: "^0.1.0"

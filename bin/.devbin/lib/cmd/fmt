@@ -30,6 +30,11 @@ _fmt_skip_without() {
 }
 
 # builtin_fmt_swift -- swift-format over the project's Swift sources.
+#
+# `format --in-place`, with the subcommand SPELLED OUT even though `format` is
+# swift-format's default. This half worked either way, which is exactly why its
+# twin's breakage went unseen for so long: the two lines no longer looked like
+# a pair, so nothing invited the comparison that would have caught `--lint`.
 builtin_fmt_swift() {
   _fmt_skip_without swift-format "brew install swift-format" || return 0
   # Build directories hold generated and vendored sources; formatting those
@@ -38,7 +43,7 @@ builtin_fmt_swift() {
     -not -path '*/build/*' \
     -not -path '*/.build/*' \
     -not -path '*/Carthage/*' \
-    -print0 | xargs -0 swift-format --in-place
+    -print0 | xargs -0 swift-format format --in-place
 }
 
 # builtin_fmt_md -- prettier over Markdown.
