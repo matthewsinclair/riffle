@@ -22,8 +22,9 @@
 | Default-pipeline config surface         | Riffle.Predicate.default_pipeline/0 | config :riffle, :default_pipeline; DefaultPipelineConfig is the use-macro side |
 | Pipeline-config behaviour               | Riffle.Predicate.PipelineConfig     | get_pipeline/get_loop/get_predicate callbacks                                  |
 | DSL compile-time macros                 | Riffle.Predicate.Dsl.Macro          | defpredicate/defloop/defpipeline + expr; generated fns call the Resolver       |
+| DSL block statement-shape ladder        | Riffle.Predicate.Dsl.Statements     | THE in-block grammar (refs + inline defs); Macro and Parser both consume it    |
 | DSL expr evaluation                     | Riffle.Predicate.Dsl.Evaluator      | @field syntax; CoercionError converts to no-match at create_function/1         |
-| .pred parsing                           | Riffle.Predicate.Dsl.Parser         | in-block junk raises; top-level catch-alls are kind-selectors                  |
+| .pred parsing                           | Riffle.Predicate.Dsl.Parser         | one top-level dispatch (extract_definitions!); junk raises at every level      |
 | .pred loading + instance creation       | Riffle.Predicate.Dsl.Loader         | user-input boundary: raises become tagged errors                               |
 | OTP application                         | Riffle.Application                  | supervises the Cache                                                           |
 

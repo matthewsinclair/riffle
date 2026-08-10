@@ -1,33 +1,27 @@
 ---
-verblock: "10 Aug 2026:v0.4: cc - WP-04 c1..c10 + R4a landed; R4b + close remaining"
+verblock: "10 Aug 2026:v0.5: cc - ST0001 CLOSED (11/11); ST0002 kickoff next, pending hv"
 ---
 
 # Work In Progress
 
 ## Current Focus
 
-**ST0001: Extricate Predicate and SIA from Multiplyer** -- WP-01..03 DONE; WP-04 ~90% done (twelve gate-green commits 2026-08-10), R4b + close remaining.
-
-- Resolver (DD-9) is THE resolution+hydration path; macro/loop/pipeline/registry/loader all route through it; one evaluation entry point (streams cached); STD twin dead; silent drops raise; expr tests consolidated; Coerce strict (DD-8); test/support canonical fixtures
-- Critic re-runs: test-check 0 CRITICAL / 2 WARNING (fixed in R4a); code 0 CRITICAL / 6 WARNING (5 fixed in R4a; the macro/parser extraction twin remains = R4b)
-- Suite 282 green; CI green on first Actions run; both remotes pushed at fold
+**ST0001 is CLOSED** (2026-08-10, gate 11/11 satisfied; moved to `intent/st/COMPLETED/ST0001`). The Predicate engine is extricated, PFIC-transformed, and critic-clean: one resolution path (Resolver, DD-9), one evaluation entry point (Loop.process, streams cached), one coercion contract (Coerce strict, DD-8), one DSL block grammar (Dsl.Statements), one top-level dispatch whose catch-all is the completeness check, and a genuinely working STD surface (`call` head + `expand_std/1` at `Predicate.create/1` -- R4b exposed and fixed the advertised-but-dead call syntax). Suite 286 green under `mix gate`; day total fourteen gate-green engine commits.
 
 ## Active Steel Threads
 
-- ST0001 (WIP): WP-04 R4b (shared Dsl.Statements ladder + loader top-level completeness) -> AC-04.2 verify -> `intent wp done ST0001/04`
-- ST0002 (Not Started): ctx-next, the Bowtie waist
+- ST0002 (Not Started): ctx-next, the Bowtie waist -- needs hv assignment/plan ratification
 - ST0003 (Not Started): SIA pattern layer rewrite -- D2 implications recorded in ST0001 design.md (deliver results via emissions; no lying availability flag)
 
 ## Upcoming Work
 
-- WP-04 R4b + close (see intent/restart.md for the exact order)
-- Backlog (filed, unscheduled): Cache perf fix (persistent_term flag + ets counters -- DD-9/M4); socrates handoff on Macro vs DefaultPipelineConfig accessor generation; diogenes test-spec pass; cache key source-qualification (documented limitation)
-- Then ST0002 kickoff (needs hv assignment/plan ratification)
+- ST0002 kickoff (pending hv)
+- Backlog (filed, unscheduled): Cache perf fix (persistent_term flag + ets counters -- DD-9/M4); socrates handoff on Macro vs DefaultPipelineConfig accessor generation; socrates question on a single definition-argument-shape recogniser in Dsl.Statements (R4b critic, deferred with calibration reasoning); one error vocabulary for malformed DSL text at the loader boundary (public-shape decision); diogenes test-spec pass; cache key source-qualification (documented limitation)
 
 ## Notes
 
-Zero-trace rule (DD-2) enforced structurally by `test/riffle/extrication_gate_test.exs`. Rulings log: ST0001 design.md DD-1..DD-9; verbatim session logs in `intent/whiteboard/cc/.history/20260810/`. Push policy: hv authorised 2026-08-10 ("push away"); cc pushes at chunk boundaries, CI runs `mix gate` identically to local.
+Zero-trace rule (DD-2) enforced structurally by `test/riffle/extrication_gate_test.exs`. Rulings log: ST0001 design.md DD-1..DD-9 (now under COMPLETED/); verbatim session logs in `intent/whiteboard/cc/.history/20260810/`. Push policy: hv authorised ("push away"); cc pushes at chunk boundaries; CI runs `mix gate` identically to local. Peer-session work landed on main this evening (hv-driven): the bin/riffle launcher rename (026310b) and credo + fleet .credo.exs (fb3e34a) -- credo cleanup of the 21 remaining baseline findings belongs to that workstream, not cc (R4b's delta: -1, zero added).
 
 ## Context for LLM
 
-Read ST0001's design.md (DD-1..DD-9) and impl.md (as-built incl. critic reports) before touching the engine; intent/restart.md carries the bounce-point work order; the whiteboard node board carries live session state.
+Read `intent/st/COMPLETED/ST0001/design.md` (DD-1..DD-9) and `impl.md` (as-built incl. all critic reports) before touching the engine; `intent/restart.md` carries the bounce point; the whiteboard node board carries live session state.

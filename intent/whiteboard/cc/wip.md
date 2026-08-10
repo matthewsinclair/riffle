@@ -3,33 +3,35 @@ node: cc
 name: Control Claude
 role: control
 session_id: 8b09c4df-a4be-4d1c-87d9-7b8a76293477
-heartbeat_at: 2026-08-10T20:08Z
-status: paused
-focus: "ST0001 WP-04: PFIC transform + hydration consolidation"
-claims: [ST0001]
+heartbeat_at: 2026-08-10T20:42Z
+status: active
+focus: "ST0001 CLOSED; idle pending hv assignment (ST0002 next)"
+claims: []
 ---
 
 # Control Claude (cc)
 
 ## DOING
 
-- (paused at localfold #2, 2026-08-10) WP-04 c1..c10 + R4a DONE (twelve gate-green commits, 282 tests, CI green, both remotes pushed). Next on pickup: R4b per intent/restart.md. Session archives: .history/20260810/wip.md.
+- (2026-08-10) ST0001 CLOSED -- gate 11/11, docs moved to intent/st/COMPLETED/ST0001. R4b landed (7c3c940): Dsl.Statements shared ladder, one top-level dispatch, STD surface made real (call head + expand_std). Critics: code 0C/0W on the DSL files; test-check's 1 CRITICAL exposed-and-fixed. Gate 286 green, zero warnings. Awaiting hv for ST0002.
 
 ## TODO
 
-- WP-04 R4b: Dsl.Statements shared ladder (kills the last Highlander WARNING) + loader top-level completeness pass -> AC-04.2 verify -> `intent wp done ST0001/04` -> fold -> push
-- ST0002 / ST0003 queued behind ST0001 close
+- ST0002 (ctx-next, Bowtie waist) -- blocked on hv assignment/plan ratification
+- ST0003 (SIA rewrite) queued behind ST0002; D2 obligations recorded in ST0001 design.md
 
 ## Watch-outs
 
 - Engine must NEVER reference the pattern layer -- resolution only via `config :riffle, :default_pipeline`; the stitch must not re-form.
 - Archive (`~/Devel/_Archive/Multiplyer`) is read-only forensics: no new work lands in its history.
-- No silent failures anywhere: unresolvable references raise; rescue-and-swallow forbidden (D9 shape).
-- Warnings-as-errors covers TEST compilation; `mix gate` green before every commit.
+- No silent failures anywhere: unresolvable references raise; rescue-and-swallow forbidden.
+- One resolution path (Resolver), one evaluation entry point (Loop.process), one coercion contract (Coerce), one block grammar (Dsl.Statements), one top-level dispatch -- no parallel paths.
 - Zero source-project traces in lib/ + test/ -- extrication_gate_test enforces; keep it green.
+- Peer sessions (hv-driven) land commits on main: launcher 026310b, credo fb3e34a. Credo baseline cleanup (21 findings) is THEIR workstream; cc keeps its own delta at zero-added. Commit by explicit pathspec, never -A.
 
 ## Decisions
 
-- (2026-08-10) All session rulings settled and recorded permanently: ST0001 design.md DD-1..DD-7 (+ D2 verdict), intent/wip.md, intent/restart.md. Verbatim log archived in .history/20260810/wip.md.
-- (2026-08-10) hv post-compact: coercion contract STRICT by default (`:loose` param only if trivially cheap) -- AC-04.5 unblocked, recorded as DD-8. Push AUTHORISED ("push away") -- first upstream push today fires CI's first Actions run (DD-6 note).
-- (2026-08-10) Session-2 rulings + critic verdicts recorded permanently in design.md DD-8/DD-9 as-built notes + impl.md WP-04 sections. Verbatim log: .history/20260810/wip.md "Session 2".
+- (2026-08-10) All session rulings settled and recorded permanently: ST0001 design.md DD-1..DD-9, intent/wip.md, intent/restart.md. Verbatim logs archived in .history/20260810/wip.md.
+- (2026-08-10) hv mid-session 3: credo added by peer sessions; cc ruled to ignore it ("I will get another Opus session to fix it") -- cc verifies only that its own commits add zero findings.
+- (2026-08-10) cc R4b deviation from restart.md's accept-list design, recorded in impl.md: the completeness check is the top-level dispatch's catch-all (one home), because a head-only accept-list still silently dropped recognised-head-malformed-shape statements.
+- (2026-08-10) cc: STD surface -- alias injection deleted as theatre; STD binds at body evaluation (Predicate.create/1 expand_std); .pred alias statements now reject rather than accept-and-ignore.

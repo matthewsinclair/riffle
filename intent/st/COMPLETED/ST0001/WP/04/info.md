@@ -3,7 +3,7 @@ verblock: "10 Aug 2026:v0.1: matts - Initial version"
 wp_id: WP-04
 title: "PFIC transform and hydration consolidation"
 scope: Medium
-status: WIP
+status: Done
 ---
 
 # WP-04: PFIC transform and hydration consolidation

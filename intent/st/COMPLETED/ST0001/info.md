@@ -1,10 +1,10 @@
 ---
 verblock: "10 Aug 2026:v0.1: matts - Initial version"
 intent_version: 2.18.0
-status: WIP
+status: Completed
 slug: extricate-predicate-and-sia-from-multiplyer
 created: 20260810
-completed:
+completed: 2026-08-10T20:41:48Z
 ---
 
 # ST0001: Extricate Predicate and SIA from Multiplyer

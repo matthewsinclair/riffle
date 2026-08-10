@@ -39,7 +39,7 @@
 - [x] macro/parser block-level silent drops -> raise; loader converts to {:invalid_dsl, msg} (c8)
 - [x] Consolidate expr-macro test family: 5 files -> 1 canonical + shared in-file fixture; scratch deleted (c9)
 - [x] hv ruling applied (strict, DD-8); Riffle.Predicate.Coerce canonical, Evaluator + StandardLib routed (c10)
-- [ ] critic-elixir re-run: zero CRITICAL, zero Highlander/PFIC WARNINGs
+- [x] critic-elixir re-run to zero: R4a (d8cac87) test-support home + Coerce-complete operators; R4b (7c3c940) Dsl.Statements shared ladder + top-level completeness dispatch + the STD surface made real (call head + expand_std at create/1)
 
 ## Task Notes
 
