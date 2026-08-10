@@ -3,7 +3,7 @@ verblock: "10 Aug 2026:v0.1: matts - Initial version"
 wp_id: WP-01
 title: "The staged edge"
 scope: Small
-status: WIP
+status: Done
 ---
 
 # WP-01: The staged edge

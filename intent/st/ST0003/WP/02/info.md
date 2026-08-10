@@ -3,7 +3,7 @@ verblock: "10 Aug 2026:v0.1: matts - Initial version"
 wp_id: WP-02
 title: "Pipeline sources and the characterisation contract"
 scope: Small
-status: Not Started
+status: WIP
 ---
 
 # WP-02: Pipeline sources and the characterisation contract

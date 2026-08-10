@@ -2,7 +2,7 @@ defmodule Riffle.Sia do
   @moduledoc """
   THE pattern layer: a staged run over the waist.
 
-      run(ctx, pipeline, input) -> {ctx', emissions}
+      run(ctx, source, input, opts) -> {ctx', emissions}
 
   This is the edge where the two independent halves of Riffle meet. The engine
   evaluates predicates and is impure -- evaluation reaches a cache owned by a
@@ -30,7 +30,7 @@ defmodule Riffle.Sia do
         -> per loop: StageEntered -> (evaluate) -> StageProgressed -> StageExited
         -> MetadataRecorded -> RunCompleted
 
-  Results are returned, not stashed. `run/3` hands back the final context and
+  Results are returned, not stashed. `run/4` hands back the final context and
   the emissions in firing order; what to do with them is the caller's business.
 
   ## Why the shape is this careful
@@ -58,6 +58,7 @@ defmodule Riffle.Sia do
   alias Riffle.Predicate.Item
   alias Riffle.Predicate.Loop
   alias Riffle.Predicate.Pipeline
+  alias Riffle.Sia.Pipelines
 
   @metadata_keys [:stage_counts]
 
@@ -76,7 +77,7 @@ defmodule Riffle.Sia do
   def metadata_keys, do: @metadata_keys
 
   @doc """
-  Runs `input` through `pipeline`, one stage per loop, threading `ctx`.
+  Runs `input` through the pipeline `source` names, one stage per loop.
 
   Returns the final context and every emission the run produced, in firing
   order. The context is supplied by the caller rather than minted here, so the
@@ -85,6 +86,13 @@ defmodule Riffle.Sia do
   `input` is an enumerable of field maps or `Riffle.Predicate.Item` structs.
   Ingest is eager and total over those two shapes; anything else raises naming
   what arrived, before the first perturbation is applied.
+
+  `source` is any shape `Riffle.Sia.Pipelines` accepts, and `:pipeline` in
+  `opts` names which pipeline to take from it. A source that cannot produce
+  that pipeline **fails the run** -- status `:failed`, the reason in
+  `ctx.errors`, an `ErrorRaised` emission -- rather than raising, or worse,
+  completing with nothing. A run that started is recorded as a run, whichever
+  way it ends.
 
   ## Examples
 
@@ -95,16 +103,35 @@ defmodule Riffle.Sia do
       iex> {ctx.status, length(ctx.output), hd(ctx.output).tags}
       {:completed, 1, [:doc_active_p]}
   """
-  @spec run(Ctx.t(), Pipeline.t(), Enumerable.t()) :: {Ctx.t(), [Emission.t()]}
-  def run(%Ctx{} = ctx, %Pipeline{} = pipeline, input) do
+  @spec run(Ctx.t(), Pipelines.source(), Enumerable.t(), keyword()) ::
+          {Ctx.t(), [Emission.t()]}
+  def run(%Ctx{} = ctx, source, input, opts \\ []) do
     items = ingest(input)
+    requested = opts |> Keyword.validate!([:pipeline]) |> Keyword.get(:pipeline)
 
-    {ctx, [], items}
-    |> perturb(%Perturbation.RunStarted{})
-    |> perturb(%Perturbation.InputReceived{payload: items})
-    |> stage(pipeline.loops)
-    |> record_counts()
-    |> complete()
+    started =
+      {ctx, [], items}
+      |> perturb(%Perturbation.RunStarted{})
+      |> perturb(%Perturbation.InputReceived{payload: items})
+
+    # Resolution happens after the run has started, and is sequenced here
+    # rather than passed as an argument to `dispatch/2`: it reads configuration
+    # and the filesystem, and an impure step buried in an argument position is
+    # ordered by evaluation rules rather than by anything a reader can see.
+    dispatch(started, Pipelines.fetch(source, requested))
+  end
+
+  defp dispatch(state, {:ok, %Pipeline{} = pipeline}) do
+    state |> stage(pipeline.loops) |> record_counts() |> complete()
+  end
+
+  # One perturbation, not two: `RunFailed` already accumulates the reason,
+  # changes the status and raises the error emission. Reporting the error
+  # separately first would record it twice, which is its own small dishonesty.
+  defp dispatch(state, {:error, reason}) do
+    {ctx, emissions, _items} = perturb(state, %Perturbation.RunFailed{reason: reason})
+
+    {ctx, emissions}
   end
 
   # -- ingest -----------------------------------------------------------------

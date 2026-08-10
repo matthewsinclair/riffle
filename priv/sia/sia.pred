@@ -1,0 +1,85 @@
+# Riffle's sense-infer-act definitions, in file form.
+#
+# `Riffle.Sia.DefaultPipeline` carries the same definitions as compiled
+# Elixir. The two are kept identical on purpose: a run from this file and a
+# run from that module must produce the same items with the same tags, and a
+# test in test/riffle/sia/sources_test.exs holds them to it.
+#
+# Sense, infer and act are three loops, and the pattern layer takes each loop
+# as one stage. Nothing here is special to the layer -- a pipeline with four
+# loops runs as four stages, with no code change.
+
+# -- sense: what the raw fields say ------------------------------------------
+
+predicate(:signal_high_activity, "Users with high login activity") do
+  expr(@login_count > 50)
+end
+
+predicate(:signal_churn_risk, "Active users who have not logged in recently") do
+  expr(@days_since_login > 30 && @subscription_status == "active")
+end
+
+predicate(:signal_premium_account, "Users on a premium account") do
+  expr(@account_type == "premium")
+end
+
+# -- infer: what the signals mean --------------------------------------------
+
+predicate(:inference_high_value_user, "Identifies high-value users") do
+  expr(
+    has_tag(:signal_high_activity) ||
+      (has_tag(:signal_premium_account) && has_tag(:signal_high_activity))
+  )
+end
+
+predicate(:inference_upsell_opportunity, "Identifies upsell opportunities") do
+  expr(has_tag(:signal_high_activity) && !has_tag(:signal_premium_account))
+end
+
+# -- act: what follows from the inferences -----------------------------------
+
+predicate(:action_send_promotion, "Sends a promotion to high-value users") do
+  expr(has_tag(:inference_high_value_user))
+end
+
+predicate(:action_create_upsell, "Creates an upsell opportunity") do
+  expr(has_tag(:inference_upsell_opportunity))
+end
+
+# -- the stages --------------------------------------------------------------
+
+loop(:signal_loop, "Signal detection") do
+  predicate(:signal_high_activity)
+  predicate(:signal_churn_risk)
+  predicate(:signal_premium_account)
+end
+
+loop(:inference_loop, "Inference generation") do
+  predicate(:inference_high_value_user)
+  predicate(:inference_upsell_opportunity)
+end
+
+loop(:action_loop, "Action execution") do
+  predicate(:action_send_promotion)
+  predicate(:action_create_upsell)
+end
+
+# -- the entry points --------------------------------------------------------
+#
+# A loop ORs its predicates and a pipeline ANDs its loops, so each pipeline
+# below is a strictly narrower cut than the one before it.
+
+pipeline(:sense_pipeline, "Signal detection only") do
+  loop(:signal_loop)
+end
+
+pipeline(:infer_pipeline, "Signal detection and inference") do
+  loop(:signal_loop)
+  loop(:inference_loop)
+end
+
+pipeline(:main, "The complete sense-infer-act pipeline") do
+  loop(:signal_loop)
+  loop(:inference_loop)
+  loop(:action_loop)
+end

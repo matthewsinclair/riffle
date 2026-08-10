@@ -43,7 +43,7 @@ title: "SIA pattern layer rewrite -- acceptance contract"
 - AC-02.2 The five archived characterisation assertions, every one pinned at `assert [] = results`, are green in Riffle in their strengthened form: each asserts the concrete surviving items and the concrete tags those items carry, not a shape
 - AC-02.3 The four archived tests that asserted nothing -- missing file, missing pipeline name from a module, missing name from a file, empty input -- each assert a concrete outcome here
 - AC-02.4 An unresolvable source fails the run as a typed signal: status `:failed`, the reason in `ctx.errors`, an `ErrorRaised` emission carrying it, and no results claimed anywhere in the stream
-- AC-02.5 (non-test) Riffle ships its own sense/infer/act pipeline definition in both source forms -- evidence: `priv/sia/sia.pred` and `lib/riffle/sia/default_pipeline.ex` -- satisfied: no
+- AC-02.5 (non-test) Riffle ships its own sense/infer/act pipeline definition in both source forms -- evidence: priv/sia/sia.pred and lib/riffle/sia/default_pipeline.ex -- same definitions in both source forms, held identical by sources_test with the cache off -- satisfied: yes
 - AC-02.6 The file source and the module source agree: the same definitions over the same input produce identical results, item for item and tag for tag
 
 ### WP-03 -- Record and close (status: WIP)
@@ -58,22 +58,22 @@ title: "SIA pattern layer rewrite -- acceptance contract"
 
 ### WP-01
 
-- AT-01.1 test/riffle/sia/sia_test.exs::"invariant: a run stages every loop through the knot, in order" -- covers AC-01.1 -- status: to-write (red-first)
-- AT-01.2 test/riffle/sia/evidence_fence_test.exs::"fence: a completed run's results are the same value in all three places" -- covers AC-01.2 -- status: to-write (red-first)
-- AT-01.3 test/riffle/sia/evidence_fence_test.exs::"fence: every derived fact arrives with its evidence" -- covers AC-01.3 -- status: to-write (red-first)
-- AT-01.4 test/riffle/single_transition_fence_test.exs::"fence: the knot is the only place a context is updated" (AST-based, with a positive control) -- covers AC-01.4 -- status: to-write (red-first)
-- AT-01.5 test/riffle/sia/no_rescue_fence_test.exs (2: the AST fence over the layer, and a raising predicate propagating out of a run) -- covers AC-01.5 -- status: to-write (red-first)
-- AT-01.6 test/riffle/boundary_fence_test.exs::"fence: the engine names no pattern-layer module" -- covers AC-01.6 -- status: to-write (red-first)
-- AT-01.7 test/riffle/boundary_fence_test.exs::"fence: the waist names no pattern-layer module" -- covers AC-01.7 -- status: to-write (red-first)
-- AT-01.8 test/riffle/sia/sia_test.exs (2: field maps and Item structs both ingest; anything else raises naming what arrived) -- covers AC-01.8 -- status: to-write (red-first)
+- AT-01.1 test/riffle/sia/sia_test.exs::"invariant: a run stages every loop through the knot, in order" -- covers AC-01.1 -- status: green
+- AT-01.2 test/riffle/sia/evidence_fence_test.exs::"fence: a completed run's results are the same value in all three places" -- covers AC-01.2 -- status: green
+- AT-01.3 test/riffle/sia/evidence_fence_test.exs::"fence: every derived fact arrives with its evidence" -- covers AC-01.3 -- status: green
+- AT-01.4 test/riffle/single_transition_fence_test.exs (3: no Ctx struct-update outside the waist, no map update at all in the layer, and a control proving the walk sees both update spellings and neither construction nor match) -- covers AC-01.4 -- status: green
+- AT-01.5 test/riffle/sia/no_rescue_fence_test.exs (2: the AST fence over the layer, and a raising predicate propagating out of a run) -- covers AC-01.5 -- status: green
+- AT-01.6 test/riffle/boundary_fence_test.exs::"fence: the engine names no pattern-layer module" -- covers AC-01.6 -- status: green
+- AT-01.7 test/riffle/boundary_fence_test.exs::"fence: the waist names no pattern-layer module" -- covers AC-01.7 -- status: green
+- AT-01.8 test/riffle/sia/sia_test.exs (2: field maps and Item structs both ingest; anything else raises naming what arrived) -- covers AC-01.8 -- status: green
 - Coverage: complete -- AC-01.1..8 each covered by an AT above.
 
 ### WP-02
 
-- AT-02.1 test/riffle/sia/sources_test.exs::"invariant: the source vocabulary is closed and an unknown source raises" -- covers AC-02.1 -- status: to-write (red-first)
-- AT-02.2 test/riffle/sia/characterisation_test.exs (5: main and sense from a module, main, sense and infer from a file -- each pinning the surviving items and their tags) -- covers AC-02.2 -- status: to-write (red-first)
-- AT-02.3 test/riffle/sia/characterisation_test.exs (4: the tests that asserted nothing, each now asserting a concrete outcome) -- covers AC-02.3, AC-02.4 -- status: to-write (red-first)
-- AT-02.4 test/riffle/sia/sources_test.exs::"invariant: the file source and the module source produce identical results" -- covers AC-02.6 -- status: to-write (red-first)
+- AT-02.1 test/riffle/sia/sources_test.exs::"invariant: the source vocabulary is closed and an unknown source raises" -- covers AC-02.1 -- status: green
+- AT-02.2 test/riffle/sia/characterisation_test.exs (5: main and sense from a module, main, sense and infer from a file -- each pinning the surviving items and their tags) -- covers AC-02.2 -- status: green
+- AT-02.3 test/riffle/sia/characterisation_test.exs (4: the tests that asserted nothing, each now asserting a concrete outcome) -- covers AC-02.3, AC-02.4 -- status: green
+- AT-02.4 test/riffle/sia/sources_test.exs::"invariant: the file source and the module source produce identical results" -- covers AC-02.6 -- status: green
 - Coverage: AC-02.1..4 and AC-02.6 covered above; AC-02.5 is non-test with evidence inline.
 
 ### WP-03
