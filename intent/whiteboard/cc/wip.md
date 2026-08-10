@@ -3,17 +3,17 @@ node: cc
 name: Control Claude
 role: control
 session_id: 8b09c4df-a4be-4d1c-87d9-7b8a76293477
-heartbeat_at: 2026-08-10T21:31Z
-status: paused
-focus: "ST0001 closed; next up ST0002 (ctx-next) then ST0003 (SIA rewrite)"
-claims: []
+heartbeat_at: 2026-08-10T21:41Z
+status: active
+focus: "ST0002 (ctx-next, the Bowtie waist) -- acceptance contract first, then WPs; ST0003 after"
+claims: [ST0002, ST0003]
 ---
 
 # Control Claude (cc)
 
 ## DOING
 
-- (paused at localfold #3, 2026-08-10) ST0001 CLOSED (11/11) and credo at zero inside the gate. Next on pickup: ST0002 per intent/restart.md -- author `intent/st/ST0002/acceptance.md` (still the unfilled template) and get hv's ratification BEFORE any code, then WP breakdown. ST0003 follows. Session archives: .history/20260810/wip.md.
+- (session 4, from 2026-08-10T21:41Z) ST0002 + ST0003 claimed. Spec read (Bowtie whitepaper + Lamplight 210-bowtie as-built) and measured surface re-read. Day plan presented to hv; awaiting ratification of the ST0002 acceptance boundary before `acceptance.md` is written and any code lands. Session archives: .history/20260810/wip.md.
 
 ## TODO
 

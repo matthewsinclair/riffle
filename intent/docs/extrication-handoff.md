@@ -6,7 +6,9 @@ Source repo: `~/Devel/_Archive/Multiplyer` (post-archive). It is a fully runnabl
 
 ## Mission
 
-Riffle = the SIA sense->infer->act pattern + the Predicate engine, extricated from Multiplyer, on a context waist (`ctx-next`) rebuilt to The Bowtie Pattern (Sinclair, Feb 2026; canonical doc: Lamplight `docs/external/whitepapers/bowtie/the_bowtie_pattern.md`). Riffle is intended as the pattern's open-source reference implementation.
+Riffle = the SIA sense->infer->act pattern + the Predicate engine, extricated from Multiplyer, on a context waist (`ctx-next`) rebuilt to The Bowtie Pattern (Sinclair, Feb 2026; canonical doc: Lamplight `docs/external/whitepapers/bowtie/the_bowtie_pattern.md`).
+
+> Correction (hv ruling, 2026-08-10): this document originally closed the paragraph above with "Riffle is intended as the pattern's open-source reference implementation." That is not a requirement. The Bowtie is a conceptual idea and Riffle is an example of it -- nothing in Riffle exists to demonstrate the pattern's generality. The sentence is struck because it was read as a requirement and steered ST0002's first design.
 
 ## Bill of materials
 

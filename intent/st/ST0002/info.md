@@ -17,7 +17,7 @@ The minimum surface it must serve is measured, not guessed: the 24 Ctx functions
 
 ## Context
 
-Riffle is intended as the open-source reference implementation of the published Bowtie pattern -- this thread is where that claim is made true. The Predicate engine (ST0001) is Ctx-free; only the SIA pattern layer (ST0003) and any datasource consume this waist.
+Riffle is an example of the Bowtie pattern, not its reference implementation (hv ruling 2026-08-10, correcting the inherited framing). The pattern is a conceptual shape; this thread follows it because the discipline earns its keep, not to demonstrate generality. The Predicate engine (ST0001) is Ctx-free; only the SIA pattern layer (ST0003) and any datasource consume this waist.
 
 ## Acceptance
 

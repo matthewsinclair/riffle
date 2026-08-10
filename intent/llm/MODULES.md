@@ -28,6 +28,15 @@
 | .pred loading + instance creation       | Riffle.Predicate.Dsl.Loader         | user-input boundary: raises become tagged errors                               |
 | OTP application                         | Riffle.Application                  | supervises the Cache                                                           |
 
+### ctx-next (the waist)
+
+| Concern                                 | THE Module                          | Notes                                                                          |
+| --------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------ |
+| Run state (typed composite root)        | Riffle.Ctx                          | typed slots + ONE declared overlay (metadata); no event/emission accumulation  |
+| State transition (the pure knot)        | Riffle.Ctx.Knot                     | apply/2; pure, total, multi-clause; the single transition point (DD-4)         |
+| Typed inputs + their closed registry    | Riffle.Ctx.Perturbation             | tag registry; structs under Riffle.Ctx.Perturbation.*; unknown tag loud-fails  |
+| Typed outputs + their closed registry   | Riffle.Ctx.Emission                 | tag registry; structs under Riffle.Ctx.Emission.*; payloads opaque to the waist |
+
 <!-- Add entries as modules are created. Group by domain. Example:
 
 ### Auth
