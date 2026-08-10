@@ -1,50 +1,51 @@
 ---
-verblock: "10 Aug 2026:v0.5: cc - Restart context at localfold #4; ST0002 closed, ST0003 next, running autonomously"
+verblock: "11 Aug 2026:v0.6: cc - All three threads closed; the extraction is done and the queue is empty"
 ---
 
 # Restart Context
 
-## Where things stand (2026-08-10, localfold #4)
+## Where things stand (2026-08-11)
 
-Two threads closed today. **ST0001** (extricate the Predicate engine) and **ST0002** (ctx-next, the Bowtie waist) are both in `intent/st/COMPLETED/`, gates 11/11 and 17/17. Twenty-two commits pushed, CI green throughout, `mix gate` green (318 passed, credo zero).
+**The extraction is complete.** ST0001 (the Predicate engine), ST0002 (the Bowtie waist) and ST0003 (the SIA pattern layer) are all closed, gates 11/11, 17/17 and 22/22. `mix gate` is green -- 363 passed, zero credo findings, and zero critic findings at any severity across all 86 files. CI runs the same alias.
 
-**hv has authorised running autonomously from here** ("I let you run on your own until you can't go any further"). So: pick up ST0003 and take it as far as it goes, without waiting for a ruling on anything hv has already settled. The scope calls ST0003 owns were ratified in advance -- see below.
+**There is nothing queued.** hv's autonomous run reached the end of the work that had been sanctioned. What comes next is a decision, not a continuation -- see "Where to go next" below.
 
 ## Read these first
 
-- `intent/docs/bedrock.md` -- **the architectural commitments**. A contradiction with it is a bug in the contradicting document, not a choice. Read it before writing any code.
-- `intent/st/COMPLETED/ST0002/design.md` -- DD-1..DD-7, and the capability map.
-- `intent/st/COMPLETED/ST0002/impl.md` -- as-built, both critic rounds, and the mutation checks.
-- `intent/docs/extrication-handoff.md` -- the defect ledger and the stitch that must not re-form.
-- `intent/llm/MODULES.md` -- the Highlander registry, now covering the waist.
+- `intent/docs/bedrock.md` -- **the architectural commitments**, eight of them, each bound to the fence that holds it. A contradiction with this document is a bug in the contradicting document, not a choice. Read it before writing any code.
+- `intent/wip.md` -- the state of play, the backlog, and what each backlog item is waiting on.
+- `intent/st/COMPLETED/ST0003/{design,impl}.md` -- the pattern layer: DD-1..DD-10, the eleven mutations, and two departures recorded rather than glossed.
+- `intent/st/COMPLETED/ST0002/{design,impl}.md` -- the waist. `ST0001/` -- the engine.
+- `intent/llm/MODULES.md` -- the Highlander registry, now covering all three parts and the test-support modules.
 
-## Next unit of work: ST0003, SIA on the waist
+## The shape, in one line
 
-**First act, before any code:** `intent/st/ST0003/acceptance.md` is still the unfilled Intent template. Author the AC/AT contract -- the close-gate is fail-by-default and no WP can close against an empty one. Then `intent wp new` for the breakdown. ST0002's contract is the model: conformance fences where the property is a whole-class invariant, example tests only where it genuinely is an example.
+The engine names nothing. The waist names nothing. The pattern layer names both and is named by neither. Every clause of that is held by a fence, in all four directions.
 
-**The design constraint that dominates this thread (ST0002 DD-5).** The Predicate engine is an *inferential edge*, not part of the knot. It is a rules engine -- which is inference -- and it is concretely impure, since evaluation runs through an ETS cache owned by a GenServer. Putting evaluation inside the knot would break purity outright. So SIA's shape is: an edge component evaluates predicates and feeds the typed result in as a perturbation; the knot threads run state and produces emissions. Both directions are fenced already (`boundary_fence_test`), so neither half can name the other -- the composition happens in ST0003's edge.
+```
+raw rows --> Riffle.Sia (the edge) --> {ctx, emissions}
+                |          |
+                |          +--> Riffle.Ctx.Knot.tick/2   (pure, total, the only transition)
+                +--> Riffle.Predicate.Loop.filter/2      (impure: cache behind a process)
+```
 
-**What the thread delivers.** The five Multiplyer characterisation tests, pinned at `assert [] = results`, become this thread's ATs strengthened to `assert [%Item{} | _] = results`. Results are delivered **via emissions** -- D2's obligation, with no lying availability flag. D9's rescue-all swallow must not reproduce: real errors surface.
+`Riffle.Sia.run(ctx, source, input, opts)` stages a pipeline one loop at a time. Each stage is bracketed by perturbations; the impure evaluation happens strictly between two `tick/2` calls, never inside one.
 
-**Scope calls hv already ratified** (do not re-ask):
+## Where to go next
 
-- `.pred` file pipelines are **in**. The loader is built, tested and green from ST0001; excluding it would leave working code unreachable.
-- The CSV datasource is **out**, replaced by a plain ingest perturbation. It is a fan-in source, and a natural later addition that would then prove source independence.
+Nothing is queued and the next unit is hv's call. `intent/wip.md` lays out three candidates -- a second consumer, a thin CLI, or publishing -- with the reasoning. The first is the one that would teach the most: every mechanism in Riffle currently has exactly one consumer, which is the honest reason several were not built, and a second consumer is what would show whether the separation is real or merely declared.
 
-**A likely shape, not a mandate.** The waist already carries `StageEntered` / `StageProgressed` / `StageExited` perturbations and their emission twins, which the sense/infer/act staging was sized for. Whether SIA needs domain perturbations beyond those is a real design question for the thread -- and adding a type means the two-step registry ritual plus a knot clause, with the delivery-floor fence catching a forgotten clause.
-
-## Open items for hv (filed, not blocking)
-
-- Two socrates handoffs from ST0002: the perturbation/emission structural twins (7 of 10 pairs are field-for-field, and 4 transitions are pure renames); and whether the measured-surface fence should parse `extrication-handoff.md` rather than hold a transcription of it.
-- A diogenes spec pass on the seven ctx fence files.
-- Cache perf (persistent_term + ets counters, ST0001 DD-9/M4); loader error-vocabulary unification (public contract change).
+The backlog is filed in `intent/wip.md` with each item labelled by what it is waiting on. Most need an hv ruling; two need a thread of their own; one needs only an agent invocation.
 
 ## Invariants (do not regress)
 
-- Zero source-project traces in `lib/` + `test/` -- `extrication_gate_test.exs` enforces structurally
-- The engine and the waist name each other in neither direction -- `boundary_fence_test.exs`, AST-based
+- Zero source-project traces in `lib/` + `test/` -- `extrication_gate_test.exs` enforces structurally; `intent/` and the README are the declared exception
+- The engine, the waist and the pattern layer name each other only in the one permitted direction -- `boundary_fence_test.exs`, AST-based, four directions
 - The knot stays unconditionally pure -- `purity_fence_test.exs` walks the compiled call closure
+- The knot is the only transition -- `single_transition_fence_test.exs`, both spellings of update syntax
 - Every perturbation yields a real emission, never the delivery floor -- `delivery_floor_fence_test.exs`
-- A fence that cannot fail is not a fence: mutation-check every new one, and give it a positive control when its discriminator would otherwise never fire
+- No derived claim outlives its evidence -- `sia/evidence_fence_test.exs`, over a declared matrix of run shapes
+- The pattern layer swallows nothing -- `sia/no_rescue_fence_test.exs`, with positive controls for both AST forms
+- A fence that cannot fail is not a fence: mutation-check every new one, and give it a positive control when its discriminator would otherwise never fire. Two threads running, mutation testing has caught the *test estate* rather than the code
 - `mix gate` green before every commit; it includes `credo --strict`, and warnings-as-errors covers test compilation
 - Archive (`~/Devel/_Archive/Multiplyer`) is read-only forensics

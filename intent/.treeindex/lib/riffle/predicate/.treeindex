@@ -1,0 +1,23 @@
+<!-- treeindex v1 fingerprint:b6d41451 generated:2026-08-10T23:11:15Z -->
+
+# predicate/
+
+Core system for evaluating predicates against items through pipelines and loops, with caching, resolution, and a DSL for defining reusable processing chains.
+
+## Dirs
+
+- `dsl/` -- DSL macro expansion, evaluator, and .pred file loader
+
+## Files
+
+- `item.ex` -- Item struct: field data, tags, and metadata
+- `predicate.ex` -- Core predicate interface and evaluation with caching
+- `loop.ex` -- Loop struct: collection of predicates with ORed matching
+- `pipeline.ex` -- Pipeline struct: sequence of loops with ANDed filtering
+- `pipeline_config.ex` -- PipelineConfig behaviour for configuration modules
+- `resolver.ex` -- Resolution path for predicate/loop/pipeline references and hydration
+- `registry.ex` -- GenServer registry for compile-time and runtime definitions
+- `default_pipeline_config.ex` -- Standard PipelineConfig implementation via macro
+- `cache.ex` -- ETS-based caching for predicate evaluation results
+- `coerce.ex` -- Strict type coercion contract for numbers and booleans
+- `standard_lib.ex` -- Standard predicate library with Text comparison submodule

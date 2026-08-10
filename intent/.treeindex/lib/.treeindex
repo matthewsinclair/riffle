@@ -1,0 +1,15 @@
+<!-- treeindex v1 fingerprint:24871f6a generated:2026-08-10T23:12:17Z -->
+
+Based on the project structure shown, here's the .treeindex for lib/:
+
+# lib/
+
+Root module layer for Riffle's core system. Exports the main Riffle module and delegates domain logic to the specialized subdomains (context, predicates, staging) organized under the `riffle/` namespace.
+
+## Dirs
+
+- `riffle/` -- Sense-infer-act pipeline runtime with context management, predicate evaluation, and staged processing
+
+## Files
+
+- `riffle.ex` -- Root application module; documents the Riffle streaming and predicate evaluation philosophy

@@ -3,39 +3,43 @@ node: cc
 name: Control Claude
 role: control
 session_id: 8b09c4df-a4be-4d1c-87d9-7b8a76293477
-heartbeat_at: 2026-08-10T22:37Z
-status: active
-focus: "ST0003 (SIA on the waist) -- contract authored, building red-first, running autonomously"
-claims: [ST0003]
+heartbeat_at: 2026-08-10T23:15Z
+status: paused
+focus: "All three threads CLOSED -- the extraction is complete and the queue is empty; next unit is hv's call"
+claims: []
 ---
 
 # Control Claude (cc)
 
 ## DOING
 
-- (paused at localfold #4, 2026-08-10) ST0002 CLOSED 17/17 -- ctx-next built, fenced, and recorded; `intent/docs/bedrock.md` now carries the commitments. Next on pickup: ST0003, per intent/restart.md. hv has authorised running autonomously from here to the end of what is reachable. First act: author `intent/st/ST0003/acceptance.md` (still the unfilled template) -- the close-gate is fail-by-default. Session archives: .history/20260810/wip.md.
+- (paused at localfold #5, 2026-08-10) Nothing in flight. ST0003 CLOSED 22/22, joining ST0001 (11/11) and ST0002 (17/17). The extraction Riffle was created to perform is done: engine, waist, and the pattern layer that composes them. `mix gate` green -- 363 passed, zero credo findings, zero critic findings at any severity across 86 files. Globalfold complete (wip v0.8, restart v0.6, .claude/restart.md, README, treeindex, todo). Session archives: .history/20260810/wip.md (Sessions 1-5).
 
 ## TODO
 
-- ST0003 (SIA on the waist): acceptance contract -> WPs -> red-first. The five characterisation tests become ATs strengthened to `assert [%Item{} | _] = results`; results delivered via emissions (D2's obligation, no lying availability flag); D9's rescue-all must not reproduce.
-- ST0003 scope calls hv already ratified: `.pred` file pipelines IN (built and green from ST0001); CSV datasource OUT, replaced by a plain ingest perturbation.
-- Backlog needing an hv call: two socrates handoffs from ST0002 (perturbation/emission twins; whether the measured-surface fence parses the handoff doc); diogenes spec pass on the ctx fences; Cache perf (DD-9/M4); loader error-vocabulary unification.
+- **Nothing queued.** hv's call on the next unit. `intent/wip.md` lays out three candidates with reasoning: a second consumer (teaches the most -- every mechanism here currently has exactly one, which is the honest reason several were not built), a thin CLI, or publishing.
+- Backlog needing an hv ruling: socrates on the perturbation/emission structural twins; whether the measured-surface fence should parse the handoff doc rather than transcribe it; one error vocabulary for malformed DSL text at the loader boundary (public contract change); socrates on a single definition-argument-shape recogniser in `Dsl.Statements`.
+- Backlog needing a thread: Cache perf (ST0001 DD-9/M4); cache key source-qualification (the key is the predicate's *name*, so two sources defining the same name share an entry).
+- Open question filed for hv: should Riffle ship a `config/` pointing `:default_pipeline` at `Riffle.Sia.DefaultPipeline`? It would make `:default_module` work out of the box and also wire the example in as everyone's default. Left unconfigured.
 
 ## Watch-outs
 
-- **The engine is an inferential edge, never inside the knot** (ST0002 DD-5). It is a rules engine and it is impure (ETS cache behind a GenServer). ST0003's stages evaluate predicates at the edge and feed typed results in as perturbations. Both directions are fenced -- neither half may name the other.
-- `intent/docs/bedrock.md` is bedrock: a contradiction with it is a bug in the contradicting document, not a choice. Changing a commitment is argued there, never taken locally inside a WP.
-- A fence that cannot fail is not a fence. Mutation-check every new one; give it a positive control when its discriminator would otherwise never fire. One of ST0002's was dead for exactly that reason.
+- **`intent/docs/bedrock.md` is bedrock**: eight commitments, seven negations, each bound to the fence that holds it. A contradiction with it is a bug in the contradicting document. Changing a commitment is argued there, never taken locally inside a WP.
+- **The shape is which part may name which**: the engine names nothing, the waist names nothing, the pattern layer names both and is named by neither. Fenced in all four directions, AST-based.
+- **A fence that cannot fail is not a fence.** Mutation-check every new one; give it a positive control when its discriminator would otherwise never fire. Two threads running, mutation testing has caught the *test estate* rather than the code -- a dead fence in ST0002, a cache-masked source in ST0003.
+- **The evaluation cache keys on the predicate's NAME.** Two sources defining the same predicate name share one entry. Any test comparing two sources must disable the cache or it compares one source with itself.
+- **A ruling is not applied until it is applied everywhere.** ST0002 struck the "reference implementation" claim from two documents and missed the README. Grep before closing.
 - Source-text scanning is a weak instrument: `alias Riffle.{Ctx}` defeats it, and that form is already in the tree. Use the parsed AST or the compiled call closure.
-- No silent failures: unresolvable references raise; rescue-and-swallow forbidden; every perturbation yields a real emission.
-- `mix gate` is format + compile + test (warnings-as-errors, incl. test compile) + `credo --strict`, and CI runs the same alias. Keep credo at zero.
-- Zero source-project traces in lib/ + test/ -- extrication_gate_test enforces; keep it green.
-- Peer sessions (hv-driven) land commits on main. Commit by explicit pathspec, never -A.
+- No silent failures: a path or name a correct program can get wrong is a tagged error; a value outside a declared vocabulary raises. Neither is ever a quiet empty result.
+- `mix gate` is format + compile + test (warnings-as-errors, incl. test compile) + `credo --strict`, and CI runs the same alias. `intent critic elixir` is the headless rule-library sweep; keep both at zero.
+- Zero source-project traces in lib/ + test/ -- `extrication_gate_test` enforces. `intent/` and the README are the declared exception.
+- Peer sessions (hv-driven) land commits on main. Commit by explicit pathspec, never `-A`. Remotes are `local` and `upstream`; there is no `origin`.
 
 ## Decisions
 
-- (2026-08-10) hv: Riffle is an EXAMPLE of the Bowtie pattern, not its reference implementation. The pattern is a conceptual idea. No mechanism exists in the waist without a Riffle consumer. Permanent record: ST0002 design.md DD-1, intent/docs/bedrock.md.
+- (2026-08-10) hv: Riffle is an EXAMPLE of the Bowtie pattern, not its reference implementation. Permanent record: ST0002 design.md DD-1, `intent/docs/bedrock.md`.
 - (2026-08-10) hv: apply the Lamplight discipline in full -- conformance fences over example tests, spec-first per WP.
-- (2026-08-10) hv: ST0002 acceptance contract ratified as proposed (3 WPs).
-- (2026-08-10) hv: run autonomously from localfold #4 to the end of what is reachable.
-- (2026-08-10) All ST0002 rulings recorded permanently in intent/st/COMPLETED/ST0002/{design,impl}.md and intent/docs/bedrock.md; verbatim session logs in .history/20260810/wip.md (Sessions 1-4).
+- (2026-08-10) hv: ST0002 and ST0003 scope calls ratified; run autonomously from localfold #4 to the end of what is reachable.
+- (2026-08-10) cc: the Predicate engine is an inferential edge, never inside the knot. ST0003 built that edge; both directions remain fenced.
+- (2026-08-10) cc: a stage is a loop (ST0003 DD-2); results in three places that must agree (DD-3); one statistic, computed as a projection (DD-4); two kinds of failure kept different (DD-8).
+- (2026-08-10) All ST0003 rulings recorded permanently in `intent/st/COMPLETED/ST0003/{design,impl}.md` and `intent/docs/bedrock.md`; verbatim session logs in `.history/20260810/wip.md` (Sessions 1-5).

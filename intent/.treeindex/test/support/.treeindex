@@ -1,0 +1,13 @@
+<!-- treeindex v1 fingerprint:155b9479 generated:2026-08-10T23:11:59Z -->
+
+# support/
+
+Test support modules for Riffle's suites, consolidating duplicated setup logic and fixture definitions into single-source-of-truth highlanders. Provides cache configuration, DSL fixtures, pipeline test inputs, and module introspection helpers shared across the test suite.
+
+## Files
+
+- `fence_helpers.ex` -- Project namespaces (waist, engine, pattern layer) and module introspection; shared by three fence files
+- `cache_helpers.ex` -- Cache suite preconditions and spy predicates for evaluation-counting assertions
+- `config_helpers.ex` -- Application-environment preconditions for default-pipeline module configuration across three test suites
+- `dsl_fixtures.ex` -- Canonical DSL fixture corpus: UserPredicates macro module and `.pred` source definitions
+- `sia_fixtures.ex` -- Pattern layer test inputs: staging/characterisation pipelines and input datasets

@@ -1,0 +1,9 @@
+<!-- treeindex v1 fingerprint:9bfc32ae generated:2026-08-10T23:11:45Z -->
+
+# users/
+
+Data directory containing sample user account records and metadata. Serves as test data and reference for user analytics, account status tracking, and login activity.
+
+## Files
+
+- `users_small.csv` -- user account records (id, email, last login, status, login count)

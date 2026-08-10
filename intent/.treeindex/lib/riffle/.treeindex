@@ -1,0 +1,15 @@
+<!-- treeindex v1 fingerprint:58a52bc9 generated:2026-08-10T23:11:49Z -->
+
+# riffle/
+
+Root application for the Riffle predicate evaluation system. Implements a deterministic, auditable pipeline for processing items through typed contexts and sense-infer-act orchestration. The core layers compose pure state machines, predicate evaluation, and staged processing into a coherent system with typed I/O and no silent failures.
+
+## Dirs
+
+- `ctx/` -- Typed run context and state machine; the pure waist through which all transformations flow
+- `predicate/` -- Predicate evaluation engine with caching, pipelines, loops, and DSL support
+- `sia/` -- Sense-infer-act pattern layer; orchestrates staged runs with typed perturbations and emissions
+
+## Files
+
+- `application.ex` -- OTP application entry point; supervises predicate cache and manages lifecycle

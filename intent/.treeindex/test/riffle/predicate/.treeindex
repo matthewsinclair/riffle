@@ -1,0 +1,22 @@
+<!-- treeindex v1 fingerprint:5eeddda5 generated:2026-08-10T23:11:22Z -->
+
+# predicate/
+
+Comprehensive test suite for the Riffle predicate system. Covers the core evaluation engine (Item, Predicate, Loop, Pipeline), type coercion, caching layer, resolution and registration, and standard library predicates. Includes end-to-end integration tests with DSL loading and CSV processing.
+
+## Files
+
+- `item_test.exs` -- Item: field storage, tag management, metadata operations
+- `predicate_test.exs` -- Predicate evaluation: matching, tag collection, cache integration
+- `coerce_test.exs` -- Type coercion: integer, float, text, number, boolean conversions
+- `loop_test.exs` -- Loop composition and predicate filtering
+- `pipeline_test.exs` -- Pipeline processing and CSV input handling
+- `standard_lib_test.exs` -- Standard predicates: text, numeric, boolean, collection, date operations
+- `resolver_test.exs` -- Predicate and loop resolution from modules and inline code
+- `registry_test.exs` -- Module-based predicate registration and lookup
+- `default_pipeline_config_test.exs` -- DefaultPipelineConfig implementation
+- `default_pipeline_resolution_test.exs` -- Default pipeline fallback resolution
+- `cache_test.exs` -- Cache: put, get, expiration, TTL, statistics
+- `predicate_cache_integration_test.exs` -- Predicate evaluation with caching
+- `loop_cache_integration_test.exs` -- Loop filtering with caching
+- `user_test.exs` -- End-to-end: DSL loading, CSV processing, filtering workflows

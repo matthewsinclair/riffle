@@ -4,7 +4,7 @@ generator: intent todo
 
 ## DOING
 
-- [-] ST0003: SIA pattern layer rewrite
+_(none)_
 
 ## TODO
 
@@ -21,3 +21,7 @@ _(none)_
   - [x] 01: Ctx and the typed catalogs
   - [x] 02: The pure knot
   - [x] 03: Coverage, bedrock, and close
+- [x] ST0003: SIA pattern layer rewrite
+  - [x] 01: The staged edge
+  - [x] 02: Pipeline sources and the characterisation contract
+  - [x] 03: Record and close

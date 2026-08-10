@@ -1,0 +1,12 @@
+<!-- treeindex v1 fingerprint:131cb8d0 generated:2026-08-10T23:11:35Z -->
+
+# ctx/
+
+THE typed run context and pure state machine. Defines the typed composite root that threads immutably through the knot, the registries of perturbations (inputs) and emissions (outputs), and the pure function that applies state transitions deterministically. Every context change is auditable, and the purity fence ensures replay fidelity.
+
+## Files
+- `knot.ex` -- The pure function at the waist; the only way contexts transition
+- `ctx.ex` -- The typed composite root and context construction
+- `perturbation.ex` -- Closed registry of typed inputs to the knot
+- `emission.ex` -- Closed registry of typed outputs from the knot
+- `catalog.ex` -- Registry mechanism and dual-use contract for I/O types

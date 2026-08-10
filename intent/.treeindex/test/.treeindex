@@ -1,0 +1,20 @@
+<!-- treeindex v1 fingerprint:e1147824 generated:2026-08-10T23:13:37Z -->
+
+I don't have file write access in this session, but here's the .treeindex content for test/:
+
+```
+# test/
+
+Comprehensive test suites for Riffle with structural fences enforcing architectural constraints. Tests validate the state machine (Ctx), predicates, pattern layer (Sia), waist, and engine modules against the boundary, extrication, single-transition, no-rescue, and evidence fences.
+
+## Dirs
+
+- `support/` -- test support modules consolidating setup logic and shared fixtures; highlanders for cache configuration, DSL fixtures, pipeline test inputs, and module introspection
+
+## Files
+
+- `test_helper.exs` -- ExUnit configuration and startup
+- `riffle_test.exs` -- main doctest suite
+```
+
+You can save this to `/Users/matts/Devel/prj/Riffle/test/.treeindex`.

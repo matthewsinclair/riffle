@@ -3,7 +3,7 @@ verblock: "10 Aug 2026:v0.1: matts - Initial version"
 wp_id: WP-03
 title: "Record and close"
 scope: Small
-status: WIP
+status: Done
 ---
 
 # WP-03: Record and close

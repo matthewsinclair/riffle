@@ -1,10 +1,10 @@
 ---
 verblock: "10 Aug 2026:v0.1: matts - Initial version"
 intent_version: 2.18.0
-status: WIP
+status: Completed
 slug: sia-pattern-layer-rewrite
 created: 20260810
-completed:
+completed: 2026-08-10T23:09:11Z
 ---
 
 # ST0003: SIA pattern layer rewrite

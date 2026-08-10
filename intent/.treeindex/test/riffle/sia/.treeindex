@@ -1,0 +1,13 @@
+<!-- treeindex v1 fingerprint:bdda6fba generated:2026-08-10T23:10:38Z -->
+
+# sia/
+
+Test suite for the Sia pattern evaluation and pipeline processing engine. Tests cover core staging and execution semantics, pipeline source resolution from modules/files/structs, structural fences for the no-rescue guarantee and evidence consistency, and the characterisation contract inherited from the previous layer.
+
+## Files
+
+- `sia_test.exs` -- Core tests for run staging, emissions, results, and metadata tracking
+- `sources_test.exs` -- Pipeline source resolution: modules, files, structs, defaults, and error cases
+- `characterisation_test.exs` -- Concrete result assertions and the inherited characterisation contract from the replaced layer
+- `evidence_fence_test.exs` -- Structural fence (D2): results are consistent across all three places they appear and evidence pairs with derived facts
+- `no_rescue_fence_test.exs` -- Structural fence (D9): exceptions propagate and rescue/catch/after patterns are absent from the pattern layer

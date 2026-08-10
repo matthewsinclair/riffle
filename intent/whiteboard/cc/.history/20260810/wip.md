@@ -73,3 +73,32 @@
 - cc (DD-5): the Predicate engine is an INFERENTIAL EDGE, never inside the knot. It is a rules engine (inference) and concretely impure (ETS cache behind a GenServer). Both directions fenced. This shapes ST0003 more than anything else in ST0002.
 - cc (DD-4): multi-clause dispatch, not a subscriber routing table -- trade-off named, delivery-floor fence covers it.
 - cc: filed for hv -- socrates on the perturbation/emission structural twins (7 of 10 pairs), socrates on whether the measured-surface fence should parse the handoff doc, diogenes spec pass on the seven fence files.
+
+## Session 5 (post-compact bounce; ST0003 run autonomously to the end of the queue)
+
+### DOING (completed)
+
+- ST0003 acceptance contract authored first, before any code (22 ACs across 3 WPs), shaped by three things settled in advance: the D2 root cause from ST0001, bedrock commitment 6, and hv's ratified scope calls (`.pred` in, CSV datasource out).
+- WP-01 a92f01d: `Riffle.Sia` -- the staged edge. A stage IS a loop; the pipeline's loop sequence is the staging and a stage's identity is the loop's own name, so sense/infer/act is what a definition file says rather than a shape the runner imposes.
+- WP-01 fences: results agree in three places; every derived fact arrives with its evidence; no rescue/catch/after in the layer (AST, positive controls for both forms); the knot is the only transition (both spellings of update syntax); and two new boundary directions -- neither the engine nor the waist may name the layer.
+- `Riffle.WaistHelpers` became `Riffle.FenceHelpers` and the boundary fence moved from `test/riffle/ctx/` to `test/riffle/`: both were project-level despite their names, and a second helper module for the layer's fences would have duplicated the AST walk that consolidation exists to prevent.
+- WP-02 2b674c2: the closed source vocabulary (`%Pipeline{}`, `{:module,_}`, `{:file,_}`, `:default_module`), `Riffle.Sia.DefaultPipeline` and `priv/sia/sia.pred` carrying the same definitions both ways.
+- The nine inherited tests now assert something. The five pinned at `assert [] = results` pin the concrete surviving rows and their tags -- two of four through main, three through sense, two through infer. The four that asserted nothing assert concrete outcomes.
+- WP-03: critic rounds, remediation, bedrock, and close. ST0003 CLOSED (gate 22/22), docs at `intent/st/COMPLETED/ST0003/`.
+- Globalfold: `intent/wip.md` v0.8, `intent/restart.md` v0.6, `.claude/restart.md` written, treeindex refreshed over lib/ and test/, `intent todo update`, README rewritten.
+
+### Findings worth carrying forward
+
+- **Mutation testing caught the test estate, not the code -- for the second thread running.** M9 (drift the `.pred` file from its module twin) should have taken four tests red and took one. The evaluation cache keys on the predicate's *name*, and the file and the module share every name, so the first run warmed the cache and every later run answered from that one entry whichever source it came from. The three "from a file" tests were proving the file parses, not that it works. Characterisation suite now runs with the cache off; the same mutation takes four red.
+- **ST0002's correction of the "reference implementation" claim missed the README** -- the most public document in the repo kept the struck sentence for a day. A ruling is not applied until it is applied everywhere; grep for it before closing.
+- **A whole-tree critic sweep at the lowest severity found seven inherited CRITICALs** in files ST0003 never touched (`assert is_map(pipeline)` over the ST0001 port). Fixed out of scope and deliberately: closing a thread whose subject is assertions that assert nothing, while leaving seven in the tree, would be incoherent.
+- **WP-02 was not written red-first** and that is recorded in impl.md rather than glossed. The mutation checks stand in for the red phase, and M9 is the evidence that the substitution is not free.
+
+### Decisions this session
+
+- cc (DD-2): a stage is a loop. No stage registry, no behaviour, no tag-prefix convention -- the layer would otherwise parse names it does not own and break silently for any pipeline that had not adopted the convention.
+- cc (DD-3/DD-4): results in three places that must agree, and the one recorded statistic is a projection of emitted facts rather than a parallel tally. This is the anti-D2 shape, and `results_available` has no way back in.
+- cc (DD-7): `ctx.input` holds the ingested items, not the raw rows, so a run replays from `ctx.input` alone without depending on an unrecorded conversion.
+- cc (DD-8): two kinds of failure, kept deliberately different. A path or a name a correct program can get wrong at runtime is a tagged error that fails the run as a typed signal; a value outside a declared vocabulary raises.
+- cc: bedrock gains commitment 8 (no derived claim outlives its evidence), commitments 6 and 7 extended, two negations added.
+- cc: filed for hv -- whether Riffle should ship a `config/` pointing `:default_pipeline` at the example module. Left unconfigured, because wiring the example in as everyone's default is the framework smell the project has been avoiding.

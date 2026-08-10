@@ -1,0 +1,18 @@
+<!-- treeindex v1 fingerprint:56a9773a generated:2026-08-10T23:11:38Z -->
+
+# ctx/
+
+Core state machine and event system for the Riffle pipeline. Ctx is the typed composite root that threads state through a sequence of perturbations (input events) and yields emissions (output observations). The Knot module executes state transitions, and the Emission and Perturbation catalogs are closed registries of event types enforced by fences.
+
+## Dirs
+
+- `emission/` -- concrete emission implementations (closed registry of observable output events)
+- `perturbation/` -- concrete perturbation implementations (closed registry of input events)
+
+## Files
+
+- `ctx.ex` -- composite root; typed slots for status, input, output, errors, metadata; DD-2 and DD-6 fences
+- `knot.ex` -- pure state machine ticker; dispatches perturbations to emit streams, threads status through the pipeline
+- `catalog.ex` -- behavior protocol for emission and perturbation catalogs
+- `emission.ex` -- emission catalog registry and `t()` union type; AC-02.3 and AC-03.1 fences
+- `perturbation.ex` -- perturbation catalog registry and `t()` union type; bijection and union fences

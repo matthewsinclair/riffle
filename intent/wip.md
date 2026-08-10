@@ -1,32 +1,50 @@
 ---
-verblock: "10 Aug 2026:v0.7: cc - ST0002 CLOSED (the waist); ST0003 next, running autonomously"
+verblock: "11 Aug 2026:v0.8: cc - ST0003 CLOSED; all three threads complete, the extraction is done"
 ---
 
 # Work In Progress
 
 ## Current Focus
 
-**ST0002 is CLOSED** (2026-08-10, gate 17/17; moved to `intent/st/COMPLETED/ST0002`), joining ST0001. `ctx-next` is built to the Bowtie shape and fenced rather than merely intended: a typed composite root with one declared overlay and no pass-through accessors, a pure total knot (`Riffle.Ctx.Knot.tick/2`) whose purity is proved by walking the compiled call closure, two closed catalogs sharing one registry mechanism, and a delivery floor no perturbation escapes. The measured 24-function surface is covered by enumeration in both directions. `intent/docs/bedrock.md` now records the commitments, the negations, and the fence holding each one.
+**Nothing in flight. All three steel threads are closed** and the extraction Riffle was created to perform is complete.
 
-Two critic rounds ran and everything at or above the ratified bar was fixed at source. The instructive finding: one of my own fences was dead -- the Erlang remote-type form carries three list elements and I matched two, so the "no slot accumulates catalog types" check had been unfalsifiable since it was written. Two fences now carry positive controls, and every fence in the thread was mutation-checked.
+- **ST0001** -- the Predicate engine, ported with its tests, the one stitch inside ported code severed (11/11).
+- **ST0002** -- `ctx-next`, the Bowtie waist: typed composite root, pure total knot, closed catalogs, delivery floor (17/17).
+- **ST0003** -- the SIA pattern layer: the edge where the engine and the waist compose (22/22).
 
-**Next: ST0003**, running autonomously (hv, 2026-08-10). Its acceptance contract is the first act -- see `intent/restart.md`.
+The system now has a shape that can be stated in one line and is held mechanically rather than by convention: **the engine names nothing, the waist names nothing, and the pattern layer names both while being named by neither.** `intent/docs/bedrock.md` carries the eight commitments, the seven negations, and the fence enforcing each.
+
+The defect that started the whole extraction is gone at the level of *class*, not instance. The source layer computed correct results, derived statistics from them, discarded the results, and recorded a flag saying they were available -- and its tests read a structural default, so nothing could see it. In Riffle a completed run's results appear in three places that must agree, and the one statistic recorded is a projection of facts already emitted rather than a tally kept beside them. Both are fenced, both mutation-checked. Bedrock commitment 8 states the general form: no derived claim outlives its evidence.
 
 ## Active Steel Threads
 
-- ST0003 (WIP, unstarted): SIA on the waist -- red-first; the five characterisation tests pinned at `assert [] = results` become its ATs, strengthened to `assert [%Item{} | _] = results`. Results delivered via emissions (D2; no lying availability flag); D9 rescue-all must not reproduce. Dominated by ST0002 DD-5: the Predicate engine is an inferential edge, never inside the knot, so SIA composes the two halves at that edge.
+None. ST0001, ST0002 and ST0003 are all under `intent/st/COMPLETED/`.
 
 ## Upcoming Work
 
-- ST0003 kickoff: author acceptance.md, then WP breakdown (scope calls already ratified: `.pred` in, CSV datasource out)
-- Backlog (filed, unscheduled): Cache perf fix (persistent_term flag + ets counters -- DD-9/M4); socrates handoff on Macro vs DefaultPipelineConfig accessor generation; socrates on the perturbation/emission structural twins and on whether the measured-surface fence should parse the handoff doc; diogenes spec pass on the seven ctx fences; socrates question on a single definition-argument-shape recogniser in Dsl.Statements (R4b critic, deferred with calibration reasoning); one error vocabulary for malformed DSL text at the loader boundary (public-shape decision); diogenes test-spec pass; cache key source-qualification (documented limitation)
+Nothing is queued, and the next unit of work is hv's call. Three shapes it could take, roughly in order of how much they would teach:
+
+1. **A second consumer.** Everything in Riffle currently has exactly one consumer, which is the honest reason several mechanisms were not built (no fan-out registry, no subscriber table, no datasource layer). A second consumer -- a fan-in source, or a second pattern layer over the same waist -- is what would show whether the separation is real or merely declared.
+2. **A thin CLI.** The handoff always assumed Riffle would grow its own rather than port one. It is the smallest thing that makes the library usable by someone who is not writing Elixir.
+3. **Publishing.** `mix hex.publish` is wired but deliberately off. The README, the licence and the module docs are in shape; the decision is whether the library is worth a version number yet.
+
+## Backlog (filed, unscheduled -- most need an hv call)
+
+- **Needs a ruling:** socrates handoff on the perturbation/emission structural twins (7 of 10 pairs are field-for-field, 4 knot transitions are pure renames -- is that duplication or is it the type system doing its job?); whether the measured-surface fence should parse `extrication-handoff.md` rather than hold a transcription of it; one error vocabulary for malformed DSL text at the loader boundary (a public contract change); socrates on a single definition-argument-shape recogniser in `Dsl.Statements`.
+- **Needs a thread:** Cache perf (persistent_term flag + ets counters -- ST0001 DD-9/M4); cache key source-qualification (documented limitation -- the key is the predicate's *name*, so two sources defining the same name share an entry; ST0003 works around it by disabling the cache where equivalence is under test).
+- **Does not need hv, but does need an agent invocation:** diogenes spec pass over the ten fence files.
+- **Open question raised by ST0003:** should Riffle ship a `config/` that points `:default_pipeline` at `Riffle.Sia.DefaultPipeline`? It would make `:default_module` work out of the box, and it would also wire the example in as the default for everyone -- which is the framework smell the whole project has been avoiding. Left unconfigured; tests set it explicitly and the moduledoc says how.
 
 ## Notes
 
-CI/CD state (2026-08-10): CI is `.github/workflows/ci.yml` on push-to-main + all PRs, running the same `mix gate` alias as local (one gate definition, two callers); green on every run today. `mix gate` is now format + compile + test + `credo --strict`, so CI enforces the static-analysis baseline too; `bin/riffle test all` is green end to end (286 tests, 411 mods/funs, zero credo findings). `main` is branch-protected upstream -- required check `gate`, strict, force-push and deletion blocked, `enforce_admins: false` so the direct-to-main push policy is unchanged (GitHub reports each direct push as a logged bypass). There is NO CD by decision: devbin ships no `release`, and its opt-in `publish` (default `mix hex.publish`) stays off until Riffle is more than the engine half.
+**Gate.** `mix gate` = format + compile (`--warnings-as-errors --force`) + test (`--warnings-as-errors`, covering test compilation) + `credo --strict`. One definition, run identically by local and CI (`.github/workflows/ci.yml`, push-to-main and all PRs). Final state: **363 passed** (68 doctests, 295 tests), 642 mods/funs, zero credo findings, and zero `intent critic elixir` findings at *any* severity across all 86 files.
 
-Zero-trace rule (DD-2) enforced structurally by `test/riffle/extrication_gate_test.exs`. Rulings log: ST0001 design.md DD-1..DD-9 (now under COMPLETED/); verbatim session logs in `intent/whiteboard/cc/.history/20260810/`. Push policy: hv authorised ("push away"); cc pushes at chunk boundaries; CI runs `mix gate` identically to local. Peer-session work landed on main this evening (hv-driven): the bin/riffle launcher rename (026310b) and credo + fleet .credo.exs (fb3e34a) -- credo cleanup of the 21 remaining baseline findings belongs to that workstream, not cc (R4b's delta: -1, zero added).
+**Two things ST0003 found that are worth remembering.** First, mutation testing caught the test estate rather than the code, for the second thread running: the evaluation cache keys on a predicate's *name*, and the `.pred` file and its module twin share every name, so the "from a file" tests were proving the file parses rather than that it works. Only a deliberate drift between the two sources exposed it. Second, ST0002's correction of the "reference implementation" claim missed the README -- the most public document in the repo kept the struck sentence for a day. A ruling is not applied until it is applied everywhere; grep for it.
+
+**Zero-trace rule** enforced structurally by `test/riffle/extrication_gate_test.exs`. `intent/` and the README are the declared scope exception.
+
+**Push policy:** hv authorised; cc pushes at chunk boundaries. `main` is branch-protected upstream (required check `gate`, `enforce_admins: false`, so a direct push is a logged bypass). Remotes are `local` and `upstream` -- there is no `origin`.
 
 ## Context for LLM
 
-Read `intent/docs/bedrock.md` FIRST -- it is the architectural contract, and a contradiction with it is a bug in the contradicting document. Then `intent/st/COMPLETED/ST0002/{design,impl}.md` for the waist and `intent/st/COMPLETED/ST0001/{design,impl}.md` for the engine; `intent/restart.md` carries the bounce point; the whiteboard node board carries live session state.
+Read `intent/docs/bedrock.md` FIRST -- it is the architectural contract, and a contradiction with it is a bug in the contradicting document. Then `intent/st/COMPLETED/ST0003/{design,impl}.md` for the pattern layer, `ST0002/` for the waist, `ST0001/` for the engine. `intent/restart.md` carries the bounce point; the whiteboard node board carries live session state.

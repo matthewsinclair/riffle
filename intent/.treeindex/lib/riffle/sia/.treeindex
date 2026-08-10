@@ -1,0 +1,11 @@
+<!-- treeindex v1 fingerprint:673d5a34 generated:2026-08-10T23:10:51Z -->
+
+# sia/
+
+Implements the sense-infer-act pattern layer: predicates flow through three stages (signal, inference, action) backed by loops. `Riffle.Sia` is the boundary between the pure pipeline waist and the impure engine; it orchestrates staged runs with typed perturbations bracketing each stage and emits results without silent failures.
+
+## Files
+
+- `sia.ex` -- Pattern layer coordinator; orchestrates staged runs through pipelines, threading context and emissions through typed perturbations from RunStarted to RunCompleted.
+- `default_pipeline.ex` -- Canonical sense-infer-act definitions in module form; signal predicates detect raw states, inferences reason over signals, actions follow from inferences.
+- `pipelines.ex` -- Pipeline source resolver; fetches named pipelines from struct, module, file, or configured default, with typed errors for failures and exceptions for invalid sources.

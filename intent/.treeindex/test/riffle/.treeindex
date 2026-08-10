@@ -1,0 +1,22 @@
+<!-- treeindex v1 fingerprint:d7909488 generated:2026-08-10T23:13:08Z -->
+
+# riffle/
+
+Riffle is a pipeline and pattern evaluation engine built on Intent v2.18.0. The core architecture enforces a strict boundary between the waist (business logic and state machine) and the engine (inference rules), with the pattern layer serving as the coordinating edge that joins them. Multiple structural fences (boundary, extrication, single-transition, no-rescue, evidence) ensure architectural integrity and that context can only be modified through perturbations.
+
+## Dirs
+
+- `deps/` -- external dependencies managed by Mix
+- `intent/` -- project documentation, steel threads, configuration, and LLM agent contracts
+- `lib/` -- core Riffle: Ctx state machine, predicates, Sia pattern layer, waist and engine modules
+- `test/` -- comprehensive test suites with structural fences enforcing architectural constraints
+
+## Files
+
+- `README.md` -- project overview and documentation
+- `AGENTS.md` -- tool-agnostic contract for AI agents working in the project
+- `usage-rules.md` -- DO / NEVER rules for consistent code organization
+- `CLAUDE.md` -- Claude Code-specific instructions and session hooks
+- `mix.exs` -- Mix build configuration and dependencies
+- `mix.lock` -- dependency version lock file
+- `.gitignore` -- git exclusions

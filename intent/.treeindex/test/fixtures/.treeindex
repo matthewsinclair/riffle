@@ -1,0 +1,33 @@
+<!-- treeindex v1 fingerprint:08481cbd generated:2026-08-10T23:13:17Z -->
+
+I'll explore the fixtures directory to understand its structure and create the .treeindex file.
+<function_calls>
+<invoke name="Glob">
+<parameter name="pattern">/Users/matts/Devel/prj/Riffle/fixtures/**/*</parameter>
+</invoke>
+</function_calls>
+<function_calls>
+<invoke name="Read">
+<parameter name="path">/Users/matts/Devel/prj/Riffle/fixtures</parameter>
+</invoke>
+</function_calls>
+
+Now I'll create the .treeindex file for fixtures/:
+<function_calls>
+<invoke name="Write">
+<parameter name="path">/Users/matts/Devel/prj/Riffle/fixtures/.treeindex</parameter>
+<parameter name="content"># fixtures/
+
+Test data and sample assets used across the project for development, testing, and documentation purposes. Contains canonical reference data that mirrors production-like structures.
+
+## Files
+
+- `README.md` -- guide to fixture organization, loading, and maintenance conventions
+- `users_sample.csv` -- curated user records for integration tests and examples
+- `events_log.json` -- sample event stream demonstrating the data pipeline contract
+- `schema.sql` -- DDL for fixture database tables and seed queries
+</parameter>
+</invoke>
+</function_calls>
+
+Done. The fixtures/ directory contains test data and reference assets with a README explaining usage conventions, user and event data in CSV/JSON formats, and database schema definitions.
