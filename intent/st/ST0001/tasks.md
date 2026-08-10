@@ -32,13 +32,13 @@
 
 ### WP-04 -- PFIC transform and hydration consolidation (DD-7)
 
-- [ ] socrates design pass on the single-resolver consolidation
-- [ ] One resolver module; route pipeline/loop/registry/loader/macro through it
-- [ ] Collapse Loop process/filter onto one evaluation entry point (cache honoured)
-- [ ] Delete the STD twin; one access path
-- [ ] macro/parser block-level silent drops -> raise
-- [ ] Consolidate expr-macro test family; delete scratch files
-- [ ] hv ruling on DSL coercion contract; canonical coercion module
+- [x] socrates design pass on the single-resolver consolidation -- verdicts + signatures recorded as DD-9
+- [x] One resolver module (c1, red-first, 27 tests); routed macro (c2), loop (c3), pipeline (c4), registry (c5), loader (c6) through it
+- [x] Collapse Loop process/filter onto one evaluation entry point, cache honoured on streams (c3, AT-04.3 red-first)
+- [x] Delete the STD twin; STD = the StandardLib alias, injected once (c7)
+- [x] macro/parser block-level silent drops -> raise; loader converts to {:invalid_dsl, msg} (c8)
+- [x] Consolidate expr-macro test family: 5 files -> 1 canonical + shared in-file fixture; scratch deleted (c9)
+- [x] hv ruling applied (strict, DD-8); Riffle.Predicate.Coerce canonical, Evaluator + StandardLib routed (c10)
 - [ ] critic-elixir re-run: zero CRITICAL, zero Highlander/PFIC WARNINGs
 
 ## Task Notes

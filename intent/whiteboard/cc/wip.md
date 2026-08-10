@@ -3,8 +3,8 @@ node: cc
 name: Control Claude
 role: control
 session_id: 8b09c4df-a4be-4d1c-87d9-7b8a76293477
-heartbeat_at: 2026-08-10T18:21Z
-status: active
+heartbeat_at: 2026-08-10T20:08Z
+status: paused
 focus: "ST0001 WP-04: PFIC transform + hydration consolidation"
 claims: [ST0001]
 ---
@@ -13,11 +13,11 @@ claims: [ST0001]
 
 ## DOING
 
-- WP-04 IN PROGRESS (post-compact pickup 2026-08-10): socrates design pass on the single resolver, then red-first resolver build. Session archive: .history/20260810/wip.md.
+- (paused at localfold #2, 2026-08-10) WP-04 c1..c10 + R4a DONE (twelve gate-green commits, 282 tests, CI green, both remotes pushed). Next on pickup: R4b per intent/restart.md. Session archives: .history/20260810/wip.md.
 
 ## TODO
 
-- WP-04 remaining: resolver -> route call sites -> one evaluation entry point -> STD twin removal -> expr-family test consolidation -> coercion module (strict, hv-ruled) -> critic re-run clean
+- WP-04 R4b: Dsl.Statements shared ladder (kills the last Highlander WARNING) + loader top-level completeness pass -> AC-04.2 verify -> `intent wp done ST0001/04` -> fold -> push
 - ST0002 / ST0003 queued behind ST0001 close
 
 ## Watch-outs
@@ -32,3 +32,4 @@ claims: [ST0001]
 
 - (2026-08-10) All session rulings settled and recorded permanently: ST0001 design.md DD-1..DD-7 (+ D2 verdict), intent/wip.md, intent/restart.md. Verbatim log archived in .history/20260810/wip.md.
 - (2026-08-10) hv post-compact: coercion contract STRICT by default (`:loose` param only if trivially cheap) -- AC-04.5 unblocked, recorded as DD-8. Push AUTHORISED ("push away") -- first upstream push today fires CI's first Actions run (DD-6 note).
+- (2026-08-10) Session-2 rulings + critic verdicts recorded permanently in design.md DD-8/DD-9 as-built notes + impl.md WP-04 sections. Verbatim log: .history/20260810/wip.md "Session 2".

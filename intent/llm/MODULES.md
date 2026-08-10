@@ -6,8 +6,26 @@
 
 ## Registry
 
-| Concern | THE Module | Notes |
-| ------- | ---------- | ----- |
+### Predicate engine
+
+| Concern                                 | THE Module                          | Notes                                                                          |
+| --------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------ |
+| Item shape + field/tag/metadata access  | Riffle.Predicate.Item               | fieldnames/fields/tags/metadata; add_tag prepends + dedups                     |
+| Predicate definition + evaluation       | Riffle.Predicate                    | evaluate/2 is the one cached entry; create/1 the one body-to-function path     |
+| Predicate grouping (OR-any)             | Riffle.Predicate.Loop               | filter/2 rides process/2 -- one evaluation path, cache honoured on streams     |
+| Loop sequencing (AND of ORs)            | Riffle.Predicate.Pipeline           | struct paths only; map shapes normalise through the Resolver                   |
+| Reference resolution + hydration        | Riffle.Predicate.Resolver           | THE path (DD-9); tagged core + bang wrappers; sources: module, defs-map, nil   |
+| Coercion (numeric parse, truthiness)    | Riffle.Predicate.Coerce             | strict, tagged (DD-8); consumed by Evaluator + StandardLib                     |
+| Evaluation cache                        | Riffle.Predicate.Cache              | ETS + GenServer; exact-term {predicate, item} keys                             |
+| Runtime definition registry             | Riffle.Predicate.Registry           | GenServer; its state is a Resolver defs-map source                             |
+| Standard predicate library              | Riffle.Predicate.StandardLib        | Text/Numeric/Boolean/Collection/Date; STD is its alias, nothing else           |
+| Default-pipeline config surface         | Riffle.Predicate.default_pipeline/0 | config :riffle, :default_pipeline; DefaultPipelineConfig is the use-macro side |
+| Pipeline-config behaviour               | Riffle.Predicate.PipelineConfig     | get_pipeline/get_loop/get_predicate callbacks                                  |
+| DSL compile-time macros                 | Riffle.Predicate.Dsl.Macro          | defpredicate/defloop/defpipeline + expr; generated fns call the Resolver       |
+| DSL expr evaluation                     | Riffle.Predicate.Dsl.Evaluator      | @field syntax; CoercionError converts to no-match at create_function/1         |
+| .pred parsing                           | Riffle.Predicate.Dsl.Parser         | in-block junk raises; top-level catch-alls are kind-selectors                  |
+| .pred loading + instance creation       | Riffle.Predicate.Dsl.Loader         | user-input boundary: raises become tagged errors                               |
+| OTP application                         | Riffle.Application                  | supervises the Cache                                                           |
 
 <!-- Add entries as modules are created. Group by domain. Example:
 

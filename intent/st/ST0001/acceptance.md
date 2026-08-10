@@ -41,13 +41,13 @@ None -- WP-distributed.
 - AC-03.3 Default-pipeline resolution is config-injected (`:riffle, :default_pipeline`); unset config surfaces an explicit error; the engine names no pattern-layer module
 - AC-03.4 (non-test) Ported code and tests remediated against the rule library -- critic-elixir run on the ported tree with CRITICAL/HIGH findings fixed (hv rewrite-flexibility ruling 2026-08-10; DD-4 as amended) -- evidence: critic reports (11 CRITICAL: 5 lib + 6 test, all fixed in commits 29eac91, 335a655, bea85fa; structural WARNINGs dispositioned to WP-04 per DD-7) -- satisfied: yes
 
-### WP-04 -- PFIC transform and hydration consolidation (status: Not Started)
+### WP-04 -- PFIC transform and hydration consolidation (status: WIP)
 
 - AC-04.1 One hydration/resolution path: pipeline.ex, loop.ex, registry.ex, loader.ex, and macro-generated functions resolve references through a single loud resolver; no residual ad-hoc resolution
 - AC-04.2 (non-test) Engine conditional shapes conform to PFIC; critic-elixir re-run on lib/riffle/ reports zero CRITICAL and zero Highlander/PFIC WARNINGs -- evidence: critic report -- satisfied: no
 - AC-04.3 Loop single-item and stream paths share one evaluation entry point, cache honoured on both
-- AC-04.4 (non-test) expr-macro test family consolidated to one canonical file + shared support helper; scratch files deleted; suite green -- evidence: tree + gate run -- satisfied: no
-- AC-04.5 (non-test) DSL coercion contract (numeric parse, truthiness) ratified by hv and enforced in one canonical module -- evidence: hv ruling recorded in design.md + coercion module -- satisfied: no
+- AC-04.4 (non-test) expr-macro test family consolidated to one canonical file + shared support helper; scratch files deleted; suite green -- evidence: c9 (c0d80fa): five scratch files deleted, `test/riffle/predicate/dsl/expr_test.exs` canonical with ONE shared in-file DSL fixture module (support-helper judgement recorded in impl.md: single consumer, no test/support indirection); gate 274 green -- satisfied: yes
+- AC-04.5 (non-test) DSL coercion contract (numeric parse, truthiness) ratified by hv and enforced in one canonical module -- evidence: hv ruling 2026-08-10 (strict; DD-8 as-built note incl. `:loose` deferral) + `Riffle.Predicate.Coerce` consumed by Evaluator and StandardLib (c10, 577d4f5); coerce_test.exs + evaluator strict-boundary suite -- satisfied: yes
 
 ## Acceptance Tests
 
@@ -68,6 +68,6 @@ None -- WP-distributed.
 
 ### WP-04
 
-- AT-04.1 resolver unit tests + un-neutered filtering suite (pins carry over) -- covers AC-04.1 -- status: to-write (red-first)
-- AT-04.3 cache-integration coverage extended to the stream/filter path -- covers AC-04.3 -- status: to-write (red-first)
+- AT-04.1 test/riffle/predicate/resolver_test.exs (23 tests, red-first at c1: both source kinds, chains, cycles, invalid refs, bang messages) + default_pipeline_resolution_test.exs nil-source additions + the un-neutered filtering suite's pins holding across the reroute -- covers AC-04.1 -- status: green
+- AT-04.3 test/riffle/predicate/loop_cache_integration_test.exs::"invariant: the stream filter path shares the cached evaluation entry point" (red-first at c3: the stream path was re-evaluating cached items) -- covers AC-04.3 -- status: green
 - Coverage: AC-04.1, AC-04.3 covered above; AC-04.2, AC-04.4, AC-04.5 are non-test with evidence inline.

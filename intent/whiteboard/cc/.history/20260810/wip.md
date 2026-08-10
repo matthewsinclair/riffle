@@ -18,3 +18,17 @@
 - hv (mid-session): fresh-start flexibility -- rewrite whatever needs rewriting, code AND tests (DD-4 amended); critic pass is remediation; AC-03.4 added.
 - hv (mid-session 2): PFIC the ported engine -- merged with hydration consolidation as WP-04 (DD-7).
 - cc: WP-01 verdict as above; D2 dies in ST0003's rewrite, delivery-of-results becomes its AT contract.
+
+## Session 2 (post-compact bounce, archived at localfold #2)
+
+### DOING (completed)
+
+- hv rulings applied at pickup: coercion STRICT (DD-8; :loose only-if-trivial -> assessed, deferred), push AUTHORISED. First upstream push fired CI's first Actions run -- green, 23s.
+- WP-04 c1..c10 (all gate-green): Resolver + 27 red-first tests (5acf8e8); macro reroute (4fdbb66); one evaluation entry point, streams cached, AT-04.3 red-first (ae19111); Pipeline 6-clause maze -> 2 clauses (4c88826); Registry tagged Resolver calls, lossy callable dead (dcc43c0); Loader dependency-ordered resolution, nil-entries dead (8168ea0); STD twin dead (5e196fb); in-block silent drops raise (682824f); expr family 5 files -> 1 (c0d80fa); Coerce strict + CoercionError no-match boundary (577d4f5).
+- Critic re-runs: test-check 0C/2W; code 0C/6W. R4a (d8cac87): test/support (CacheHelpers, DslFixtures), DefaultPipelineConfig canonical-map membership (reflection leak was a REAL defect exposed by the new exhaustive pin), Evaluator operator layer Coerce-complete (to_text; missing fields never glide-match; logical operands through the enumeration), within_last_days construction-bound. 282 green.
+
+### Decisions this session
+
+- cc (DD-9, socrates-reviewed): resolver design as recorded in design.md.
+- cc: :loose coercion mode deferred (not the trivial default hv conditioned it on) -- recorded in DD-8.
+- cc: R4b (extraction-ladder dedup + loader top-level completeness) split to next session at hv's fold call.
