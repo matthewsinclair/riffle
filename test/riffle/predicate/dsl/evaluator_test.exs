@@ -137,6 +137,31 @@ defmodule Riffle.Predicate.Dsl.EvaluatorTest do
       assert func.(Item.new(["flag"], ["banana"])) == false
       assert func.(Item.new(["flag"], ["yes"])) == true
     end
+
+    test "failure: starts_with on a missing field never matches, even with an empty prefix" do
+      {:ok, func} = Evaluator.parse(~s|starts_with(@missing, "")|)
+
+      assert func.(Item.new(["present"], ["x"])) == false
+    end
+
+    test "failure: two missing fields are not equal" do
+      {:ok, func} = Evaluator.parse("@left == @right")
+
+      assert func.(Item.new(["present"], ["x"])) == false
+    end
+
+    test "failure: negating a missing field never matches" do
+      {:ok, func} = Evaluator.parse("!@missing")
+
+      assert func.(Item.new(["present"], ["x"])) == false
+    end
+
+    test "success: logical operands accept the truthiness enumeration and reject garbage" do
+      {:ok, func} = Evaluator.parse(~s|@flag && @status == "active"|)
+
+      assert func.(Item.new(["flag", "status"], ["yes", "active"])) == true
+      assert func.(Item.new(["flag", "status"], ["banana", "active"])) == false
+    end
   end
 
   test "string operation helpers" do

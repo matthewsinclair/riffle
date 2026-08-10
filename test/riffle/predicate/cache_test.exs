@@ -6,11 +6,7 @@ defmodule Riffle.Predicate.CacheTest do
   alias Riffle.Predicate.Item
 
   setup do
-    # Clear the cache before each test
-    :ok = Cache.clear()
-
-    # Configure with default settings
-    {:ok, _} = Cache.configure(enabled: true, max_size: 10_000, ttl: 3600)
+    :ok = Riffle.CacheHelpers.reset_cache()
 
     # Create a test item
     item = Item.new(["status", "tier"], ["active", "premium"])

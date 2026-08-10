@@ -7,61 +7,12 @@ defmodule Riffle.Predicate.Dsl.LoaderTest do
   @moduletag :tmp_dir
 
   setup %{tmp_dir: tmp_dir} do
-    File.write!(Path.join(tmp_dir, "basic.pred"), """
-    predicate(:active, "Active users") do
-      fn item -> item.fields["status"] == "active" end
-    end
-
-    predicate(:premium, "Premium users") do
-      fn item -> item.fields["tier"] == "premium" end
-    end
-
-    loop(:user_signals, "User signal detection") do
-      predicate(:active)
-      predicate(:premium)
-    end
-
-    pipeline(:user_pipeline, "User processing pipeline") do
-      loop(:user_signals)
-    end
-    """)
+    File.write!(Path.join(tmp_dir, "basic.pred"), Riffle.DslFixtures.basic_source())
 
     File.mkdir_p!(Path.join(tmp_dir, "nested"))
+    File.write!(Path.join(tmp_dir, "nested/trial.pred"), Riffle.DslFixtures.trial_source())
 
-    File.write!(Path.join(tmp_dir, "nested/trial.pred"), """
-    predicate(:trial, "Trial users") do
-      fn item -> item.fields["tier"] == "trial" end
-    end
-
-    loop(:trial_signals) do
-      predicate(:trial)
-    end
-
-    pipeline(:trial_pipeline) do
-      loop(:trial_signals)
-    end
-    """)
-
-    File.write!(Path.join(tmp_dir, "complex.pred"), """
-    pipeline(:complex_pipeline, "Complex processing pipeline") do
-      loop(:signal_detection, "Signal detection loop") do
-        predicate(:active)
-
-        predicate(:new_user, "New user detection") do
-          fn item ->
-            created_at = item.fields["created_at"]
-            now = DateTime.utc_now() |> DateTime.to_unix()
-            created_unix = DateTime.from_iso8601(created_at)
-                        |> elem(1)
-                        |> DateTime.to_unix()
-            now - created_unix < 86400 * 30 # Less than 30 days
-          end
-        end
-      end
-
-      loop(:trial_signals)
-    end
-    """)
+    File.write!(Path.join(tmp_dir, "complex.pred"), Riffle.DslFixtures.complex_source())
 
     {:ok, fixtures_dir: tmp_dir}
   end

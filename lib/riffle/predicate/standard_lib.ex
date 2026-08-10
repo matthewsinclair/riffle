@@ -953,10 +953,13 @@ defmodule Riffle.Predicate.StandardLib do
     @spec within_last_days(String.t(), integer()) :: (Item.t() -> boolean())
     def within_last_days(field, days)
         when is_binary(field) and is_integer(days) and days > 0 do
-      fn item ->
-        today = Elixir.Date.utc_today()
-        days_ago = Elixir.Date.add(today, -days)
+      # The window is fixed at construction, like the sibling date
+      # predicates: a cached evaluation must not flip when the wall-clock
+      # day rolls over mid-TTL.
+      today = Elixir.Date.utc_today()
+      days_ago = Elixir.Date.add(today, -days)
 
+      fn item ->
         field_value = Item.get_field(item, field)
 
         case parse_date(field_value) do

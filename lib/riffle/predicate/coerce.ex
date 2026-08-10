@@ -93,6 +93,24 @@ defmodule Riffle.Predicate.Coerce do
   def to_number(_other), do: :error
 
   @doc """
+  Coerces a value to text. Binaries pass through; numbers stringify; anything
+  else -- including nil -- is an error, so absent data never becomes `""`.
+
+  ## Examples
+
+      iex> Riffle.Predicate.Coerce.to_text("abc")
+      {:ok, "abc"}
+      iex> Riffle.Predicate.Coerce.to_text(42)
+      {:ok, "42"}
+      iex> Riffle.Predicate.Coerce.to_text(nil)
+      :error
+  """
+  @spec to_text(term()) :: {:ok, String.t()} | :error
+  def to_text(value) when is_binary(value), do: {:ok, value}
+  def to_text(value) when is_number(value), do: {:ok, to_string(value)}
+  def to_text(_other), do: :error
+
+  @doc """
   Coerces a value to a boolean via the defined enumeration. Booleans pass
   through; `1`/`0` mirror their string forms; strings match case-insensitively.
 

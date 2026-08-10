@@ -2,31 +2,11 @@ defmodule Riffle.Predicate.RegistryTest do
   # Per-test registry names + per-test tmp_dir fixtures: fully isolated.
   use ExUnit.Case, async: true
 
+  alias Riffle.DslFixtures.UserPredicates
   alias Riffle.Predicate.Registry
   alias Riffle.Predicate.Item
 
   @moduletag :tmp_dir
-
-  defmodule TestPredicates do
-    use Riffle.Predicate.Dsl.Macro
-
-    defpredicate :active, "Active users" do
-      fn item -> item.fields["status"] == "active" end
-    end
-
-    defpredicate :premium do
-      fn item -> item.fields["tier"] == "premium" end
-    end
-
-    defloop :user_signals, "User signal detection" do
-      predicate(:active)
-      predicate(:premium)
-    end
-
-    defpipeline :user_pipeline, "User processing pipeline" do
-      loop(:user_signals)
-    end
-  end
 
   setup %{tmp_dir: tmp_dir} do
     # Start a registry for each test with a unique name; the test supervisor
@@ -35,27 +15,14 @@ defmodule Riffle.Predicate.RegistryTest do
     start_supervised!({Registry, [name: registry_name]})
 
     pred_file = Path.join(tmp_dir, "test.pred")
-
-    File.write!(pred_file, """
-    predicate(:trial, "Trial users") do
-      fn item -> item.fields["tier"] == "trial" end
-    end
-
-    loop(:trial_signals, "Trial signals") do
-      predicate(:trial)
-    end
-
-    pipeline(:trial_pipeline, "Trial pipeline") do
-      loop(:trial_signals)
-    end
-    """)
+    File.write!(pred_file, Riffle.DslFixtures.trial_source())
 
     {:ok, registry: registry_name, fixtures_dir: tmp_dir, pred_file: pred_file}
   end
 
   describe "register_module/2" do
     test "registers predicates, loops, and pipelines from a module", %{registry: registry} do
-      assert :ok = Registry.register_module(TestPredicates, registry)
+      assert :ok = Registry.register_module(UserPredicates, registry)
 
       # Check if predicates are registered
       predicates = Registry.list_predicates(registry)
@@ -74,7 +41,7 @@ defmodule Riffle.Predicate.RegistryTest do
     test "retrieves hydrated predicate definitions that evaluate correctly", %{
       registry: registry
     } do
-      Registry.register_module(TestPredicates, registry)
+      Registry.register_module(UserPredicates, registry)
 
       {:ok, active_pred} = Registry.get_predicate(:active, registry)
 
@@ -86,7 +53,7 @@ defmodule Riffle.Predicate.RegistryTest do
     end
 
     test "retrieves loop instances that work correctly", %{registry: registry} do
-      Registry.register_module(TestPredicates, registry)
+      Registry.register_module(UserPredicates, registry)
 
       {:ok, user_signals} = Registry.get_loop(:user_signals, registry)
       assert user_signals.name == :user_signals
@@ -212,7 +179,7 @@ defmodule Riffle.Predicate.RegistryTest do
   describe "clear/1" do
     test "removes all registered entities", %{registry: registry, pred_file: pred_file} do
       # Register a module and load a file
-      Registry.register_module(TestPredicates, registry)
+      Registry.register_module(UserPredicates, registry)
       Registry.load_file(pred_file, registry)
 
       # Verify entities are registered
@@ -233,7 +200,7 @@ defmodule Riffle.Predicate.RegistryTest do
   describe "integration" do
     test "combines entities from different sources", %{registry: registry, pred_file: pred_file} do
       # Register from module and load from file
-      Registry.register_module(TestPredicates, registry)
+      Registry.register_module(UserPredicates, registry)
       Registry.load_file(pred_file, registry)
 
       # Access entities from both sources

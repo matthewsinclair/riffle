@@ -7,35 +7,24 @@ defmodule Riffle.Predicate.LoopCacheIntegrationTest do
   alias Riffle.Predicate.Loop
 
   setup do
-    # Ensure cache is enabled and clear it before each test
-    {:ok, _} = Predicate.configure_cache(enabled: true, max_size: 10_000, ttl: 3600)
-    :ok = Predicate.clear_cache()
+    :ok = Riffle.CacheHelpers.reset_cache()
 
-    :ok = Riffle.Predicate.Cache.reset_stats()
-
-    # Create counters to track evaluations
+    # Spy predicates count their evaluations per counter slot
     counters = :counters.new(3, [:atomics])
 
-    # Create test predicates with evaluation tracking
-    active_pred = fn item ->
-      :counters.add(counters, 1, 1)
-      item.fields["status"] == "active"
-    end
+    active =
+      Riffle.CacheHelpers.spy_predicate(:active, counters, 1, &(&1.fields["status"] == "active"))
 
-    premium_pred = fn item ->
-      :counters.add(counters, 2, 1)
-      item.fields["tier"] == "premium"
-    end
+    premium =
+      Riffle.CacheHelpers.spy_predicate(:premium, counters, 2, &(&1.fields["tier"] == "premium"))
 
-    verified_pred = fn item ->
-      :counters.add(counters, 3, 1)
-      item.fields["verified"] == "true"
-    end
-
-    # Create predicate definitions
-    active = Predicate.new(:active, "Active users", active_pred)
-    premium = Predicate.new(:premium, "Premium users", premium_pred)
-    verified = Predicate.new(:verified, "Verified users", verified_pred)
+    verified =
+      Riffle.CacheHelpers.spy_predicate(
+        :verified,
+        counters,
+        3,
+        &(&1.fields["verified"] == "true")
+      )
 
     # Create a loop with these predicates
     loop = Loop.new(:user_signals, "User signals loop", [active, premium, verified])

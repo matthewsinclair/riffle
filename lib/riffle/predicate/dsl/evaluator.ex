@@ -183,126 +183,57 @@ defmodule Riffle.Predicate.Dsl.Evaluator do
     Map.get(item.metadata, key)
   end
 
-  # Type conversion helpers. Strict (DD-8): full parses and the defined
-  # truthiness enumeration only; garbage raises CoercionError, which the
-  # predicate boundary (create_function/1) converts to no-match.
-  def evaluate({:to_integer, _, [expr]}, item) do
-    value = evaluate(expr, item)
+  # Type conversion helpers. Strict (DD-8): full parses, real text, and the
+  # defined truthiness enumeration only; garbage raises CoercionError, which
+  # the predicate boundary (create_function/1) converts to no-match.
+  def evaluate({:to_integer, _, [expr]}, item), do: coerce!(:to_integer, evaluate(expr, item))
+  def evaluate({:to_float, _, [expr]}, item), do: coerce!(:to_float, evaluate(expr, item))
+  def evaluate({:to_string, _, [expr]}, item), do: coerce!(:to_text, evaluate(expr, item))
+  def evaluate({:to_boolean, _, [expr]}, item), do: coerce!(:to_boolean, evaluate(expr, item))
 
-    case Coerce.to_integer(value) do
-      {:ok, integer} ->
-        integer
-
-      :error ->
-        raise CoercionError,
-          message: "to_integer: cannot coerce #{inspect(value)} (full parses only)"
-    end
-  end
-
-  def evaluate({:to_float, _, [expr]}, item) do
-    value = evaluate(expr, item)
-
-    case Coerce.to_float(value) do
-      {:ok, float} ->
-        float
-
-      :error ->
-        raise CoercionError,
-          message: "to_float: cannot coerce #{inspect(value)} (full parses only)"
-    end
-  end
-
-  def evaluate({:to_string, _, [expr]}, item) do
-    value = evaluate(expr, item)
-    to_string(value)
-  end
-
-  def evaluate({:to_boolean, _, [expr]}, item) do
-    value = evaluate(expr, item)
-
-    case Coerce.to_boolean(value) do
-      {:ok, boolean} ->
-        boolean
-
-      :error ->
-        raise CoercionError,
-          message: "to_boolean: #{inspect(value)} is outside the truthiness enumeration"
-    end
-  end
-
-  # String operations
+  # String operations. Operands are implicit coercions: a missing field or
+  # non-text value never matches (StandardLib.Text parity) -- it must never
+  # glide to "" and positively match absent data.
   def evaluate({:contains, _, [string, substring]}, item) do
-    string_val = evaluate(string, item) |> to_string()
-    substring_val = evaluate(substring, item) |> to_string()
-    String.contains?(string_val, substring_val)
+    text_compare(string, substring, item, &String.contains?/2)
   end
 
   def evaluate({:starts_with, _, [string, prefix]}, item) do
-    string_val = evaluate(string, item) |> to_string()
-    prefix_val = evaluate(prefix, item) |> to_string()
-    String.starts_with?(string_val, prefix_val)
+    text_compare(string, prefix, item, &String.starts_with?/2)
   end
 
   def evaluate({:ends_with, _, [string, suffix]}, item) do
-    string_val = evaluate(string, item) |> to_string()
-    suffix_val = evaluate(suffix, item) |> to_string()
-    String.ends_with?(string_val, suffix_val)
+    text_compare(string, suffix, item, &String.ends_with?/2)
   end
 
-  # Comparison operators. Implicit mixed-type coercion is strict (DD-8): a
-  # string compared against a number must parse fully, and a failed parse is
-  # simply false -- the comparison is already the boolean boundary.
+  # Comparison operators. The mixed-type arms share one coercion ladder
+  # (coerced_compare/3); same-type and nil handling stay per-operator --
+  # equality is total, ordering is not. A missing field equals nothing, not
+  # even another missing field.
   def evaluate({:==, _, [left, right]}, item) do
     left_val = evaluate(left, item)
     right_val = evaluate(right, item)
 
-    case {left_val, right_val} do
-      {l, r} when is_number(l) and is_binary(r) ->
-        case Coerce.to_number(r) do
-          {:ok, num} -> l == num
-          :error -> false
-        end
-
-      {l, r} when is_binary(l) and is_number(r) ->
-        case Coerce.to_number(l) do
-          {:ok, num} -> num == r
-          :error -> false
-        end
-
-      {l, r} ->
-        l == r
+    case coerced_compare(&==/2, left_val, right_val) do
+      {:ok, result} -> result
+      :pass when is_nil(left_val) or is_nil(right_val) -> false
+      :pass -> left_val == right_val
     end
   end
 
   def evaluate({:!=, _, [left, right]}, item) do
-    !evaluate({:==, nil, [left, right]}, item)
+    not evaluate({:==, nil, [left, right]}, item)
   end
 
   def evaluate({:>, _, [left, right]}, item) do
     left_val = evaluate(left, item)
     right_val = evaluate(right, item)
 
-    case {left_val, right_val} do
-      {l, r} when is_number(l) and is_binary(r) ->
-        case Coerce.to_number(r) do
-          {:ok, num} -> l > num
-          :error -> false
-        end
-
-      {l, r} when is_binary(l) and is_number(r) ->
-        case Coerce.to_number(l) do
-          {:ok, num} -> num > r
-          :error -> false
-        end
-
-      {l, r} when is_number(l) and is_number(r) ->
-        l > r
-
-      {l, r} when is_binary(l) and is_binary(r) ->
-        l > r
-
-      _ ->
-        false
+    case coerced_compare(&>/2, left_val, right_val) do
+      {:ok, result} -> result
+      :pass when is_number(left_val) and is_number(right_val) -> left_val > right_val
+      :pass when is_binary(left_val) and is_binary(right_val) -> left_val > right_val
+      :pass -> false
     end
   end
 
@@ -310,27 +241,11 @@ defmodule Riffle.Predicate.Dsl.Evaluator do
     left_val = evaluate(left, item)
     right_val = evaluate(right, item)
 
-    case {left_val, right_val} do
-      {l, r} when is_number(l) and is_binary(r) ->
-        case Coerce.to_number(r) do
-          {:ok, num} -> l < num
-          :error -> false
-        end
-
-      {l, r} when is_binary(l) and is_number(r) ->
-        case Coerce.to_number(l) do
-          {:ok, num} -> num < r
-          :error -> false
-        end
-
-      {l, r} when is_number(l) and is_number(r) ->
-        l < r
-
-      {l, r} when is_binary(l) and is_binary(r) ->
-        l < r
-
-      _ ->
-        false
+    case coerced_compare(&</2, left_val, right_val) do
+      {:ok, result} -> result
+      :pass when is_number(left_val) and is_number(right_val) -> left_val < right_val
+      :pass when is_binary(left_val) and is_binary(right_val) -> left_val < right_val
+      :pass -> false
     end
   end
 
@@ -342,17 +257,19 @@ defmodule Riffle.Predicate.Dsl.Evaluator do
     evaluate({:<, nil, [left, right]}, item) || evaluate({:==, nil, [left, right]}, item)
   end
 
-  # Logical operators
+  # Logical operators. Operands go through the Coerce truthiness enumeration
+  # (DD-8) -- raw Elixir truthiness would make any unenumerated string (and
+  # `!` on a missing field) silently match.
   def evaluate({:&&, _, [left, right]}, item) do
-    evaluate(left, item) && evaluate(right, item)
+    boolean_operand!(evaluate(left, item)) and boolean_operand!(evaluate(right, item))
   end
 
   def evaluate({:||, _, [left, right]}, item) do
-    evaluate(left, item) || evaluate(right, item)
+    boolean_operand!(evaluate(left, item)) or boolean_operand!(evaluate(right, item))
   end
 
   def evaluate({:!, _, [expr]}, item) do
-    !evaluate(expr, item)
+    not boolean_operand!(evaluate(expr, item))
   end
 
   # Literals and fallbacks
@@ -367,6 +284,66 @@ defmodule Riffle.Predicate.Dsl.Evaluator do
 
   def evaluate(other, _item) do
     raise ArgumentError, "Unsupported expression: #{inspect(other)}"
+  end
+
+  # The one explicit-coercion boundary: every to_* helper goes through here.
+  defp coerce!(kind, value) do
+    case apply_coercion(kind, value) do
+      {:ok, coerced} ->
+        coerced
+
+      :error ->
+        raise CoercionError,
+          message: "#{kind}: cannot coerce #{inspect(value)} under the strict contract (DD-8)"
+    end
+  end
+
+  defp apply_coercion(:to_integer, value), do: Coerce.to_integer(value)
+  defp apply_coercion(:to_float, value), do: Coerce.to_float(value)
+  defp apply_coercion(:to_text, value), do: Coerce.to_text(value)
+  defp apply_coercion(:to_boolean, value), do: Coerce.to_boolean(value)
+
+  # Text operands are implicit coercions: non-text (including a missing
+  # field's nil) is simply no-match at this boolean boundary.
+  defp text_compare(left, right, item, op) do
+    with {:ok, left_text} <- Coerce.to_text(evaluate(left, item)),
+         {:ok, right_text} <- Coerce.to_text(evaluate(right, item)) do
+      op.(left_text, right_text)
+    else
+      :error -> false
+    end
+  end
+
+  # The one implicit mixed-type comparison ladder (DD-8): a string against a
+  # number must parse fully, and a failed parse is false at this boolean
+  # boundary -- never a fabricated value that matches.
+  defp coerced_compare(op, left, right) when is_number(left) and is_binary(right) do
+    case Coerce.to_number(right) do
+      {:ok, number} -> {:ok, op.(left, number)}
+      :error -> {:ok, false}
+    end
+  end
+
+  defp coerced_compare(op, left, right) when is_binary(left) and is_number(right) do
+    case Coerce.to_number(left) do
+      {:ok, number} -> {:ok, op.(number, right)}
+      :error -> {:ok, false}
+    end
+  end
+
+  defp coerced_compare(_op, _left, _right), do: :pass
+
+  defp boolean_operand!(value) do
+    case Coerce.to_boolean(value) do
+      {:ok, boolean} ->
+        boolean
+
+      :error ->
+        raise CoercionError,
+          message:
+            "logical operator operand #{inspect(value)} is outside the truthiness " <>
+              "enumeration -- compare explicitly or use to_boolean/1"
+    end
   end
 end
 

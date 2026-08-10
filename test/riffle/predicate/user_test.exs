@@ -40,21 +40,13 @@ defmodule Riffle.Predicate.UserTest do
     # Step 5: Process through the suspended users loop
     filtered_items = Loop.filter(suspended_loop, items) |> Enum.to_list()
 
-    # Step 6: Verify results
-    refute Enum.empty?(filtered_items)
+    # Step 6: Verify results. users_small.csv is static: exactly 26 of its
+    # 100 rows are suspended -- a literal pin, not a mirror of the predicate.
+    assert length(filtered_items) == 26
 
     Enum.each(filtered_items, fn item ->
       assert item.fields["account_status"] == "suspended"
       assert Item.has_tag?(item, :user_suspended)
     end)
-
-    # Count suspended users in original file for reference
-    suspended_count =
-      Enum.count(items, fn item ->
-        item.fields["account_status"] == "suspended"
-      end)
-
-    # Verify we found all suspended users
-    assert length(filtered_items) == suspended_count
   end
 end

@@ -6,21 +6,19 @@ defmodule Riffle.Predicate.CacheIntegrationTest do
   alias Riffle.Predicate.Item
 
   setup do
-    # Ensure cache is enabled and clear it before each test
-    {:ok, _} = Predicate.configure_cache(enabled: true, max_size: 10_000, ttl: 3600)
-    :ok = Predicate.clear_cache()
+    :ok = Riffle.CacheHelpers.reset_cache()
 
-    :ok = Riffle.Predicate.Cache.reset_stats()
-
-    # Create a spy predicate that tracks how many times it's evaluated
+    # A spy predicate that counts how many times it is evaluated
     counter = :counters.new(1, [:atomics])
 
-    predicate_fn = fn item ->
-      :counters.add(counter, 1, 1)
-      item.fields["status"] == "active"
-    end
+    predicate =
+      Riffle.CacheHelpers.spy_predicate(
+        :test_cached,
+        counter,
+        1,
+        &(&1.fields["status"] == "active")
+      )
 
-    predicate = Predicate.new(:test_cached, "Test cached predicate", predicate_fn)
     item = Item.new(["status"], ["active"])
 
     # Return test setup

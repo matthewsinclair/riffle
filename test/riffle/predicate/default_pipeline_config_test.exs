@@ -48,13 +48,9 @@ defmodule Riffle.Predicate.DefaultPipelineConfigTest do
     test "list_pipelines returns all pipelines" do
       pipelines = TestPipeline.list_pipelines()
 
-      assert is_list(pipelines)
-      assert :test_pipeline1 in pipelines
-      assert :test_pipeline2 in pipelines
-
-      # Ensure DSL utility functions are not included
-      assert :predicates not in pipelines
-      assert :loops not in pipelines
+      # Exhaustive pin: any leaked entry (eg a DSL utility function name)
+      # fails, not just the two excluded ones
+      assert Enum.sort(pipelines) == [:test_pipeline1, :test_pipeline2]
     end
 
     test "get_pipeline returns pipeline by atom name" do
@@ -75,6 +71,11 @@ defmodule Riffle.Predicate.DefaultPipelineConfigTest do
     test "get_pipeline returns nil for non-existent pipeline" do
       assert is_nil(TestPipeline.get_pipeline(:non_existent))
       assert is_nil(TestPipeline.get_pipeline("non_existent"))
+    end
+
+    test "get_pipeline returns nil for names that are loops or predicates" do
+      assert is_nil(TestPipeline.get_pipeline(:test_loop))
+      assert is_nil(TestPipeline.get_pipeline(:test_predicate1))
     end
 
     test "get_loop returns loop by name" do

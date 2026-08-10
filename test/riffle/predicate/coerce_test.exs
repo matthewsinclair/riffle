@@ -52,6 +52,20 @@ defmodule Riffle.Predicate.CoerceTest do
     end
   end
 
+  describe "to_text/1" do
+    test "success: binaries pass through and numbers stringify" do
+      assert Coerce.to_text("abc") == {:ok, "abc"}
+      assert Coerce.to_text(42) == {:ok, "42"}
+      assert Coerce.to_text(1.5) == {:ok, "1.5"}
+    end
+
+    test "failure: nil, atoms, and other terms are errors -- absent data never becomes text" do
+      assert Coerce.to_text(nil) == :error
+      assert Coerce.to_text(:atom) == :error
+      assert Coerce.to_text([]) == :error
+    end
+  end
+
   describe "to_boolean/1" do
     test "success: booleans, 1/0, and the enumerated strings convert (case-insensitive)" do
       assert Coerce.to_boolean(true) == {:ok, true}
