@@ -78,7 +78,7 @@ defmodule Riffle.Predicate do
       [:active]
   """
   @spec evaluate(predicate_definition(), Item.t()) :: {boolean(), Item.t()}
-  def evaluate(%{name: name} = predicate, %Item{} = item) do
+  def evaluate(%{name: name, function: _} = predicate, %Item{} = item) do
     # Check if there's a cached result first
     case Cache.get(name, item) do
       {:ok, result} ->
@@ -97,11 +97,11 @@ defmodule Riffle.Predicate do
     end
   end
 
-  @doc false
-  # Function to directly evaluate a predicate without caching
+  # Directly evaluates a predicate without caching. Evaluation only ever sees
+  # runnable definitions -- anything unresolved reaching this point is an
+  # engine invariant breach, and the clause miss is the honest signal.
   @spec evaluate_direct(predicate_definition(), Item.t()) :: {boolean(), Item.t()}
-  # Handle standard predicate definitions with function key
-  def evaluate_direct(%{name: name, function: function}, %Item{} = item) do
+  defp evaluate_direct(%{name: name, function: function}, %Item{} = item) do
     case function.(item) do
       false ->
         {false, item}
@@ -131,27 +131,6 @@ defmodule Riffle.Predicate do
               "Invalid predicate result: #{inspect(other)}. " <>
                 "Must be boolean, list of atoms, or tuple {boolean|[atom()], map()}"
     end
-  end
-
-  # Handle predicates with body but no function yet - this is for cases when we need to 
-  # evaluate predicates defined in macros that haven't been fully processed
-  def evaluate_direct(%{name: _name, body: body} = predicate, %Item{} = item) do
-    # Create the function implementation from the body
-    function = create(body)
-    # Update the predicate with the function
-    predicate_with_function = Map.put(predicate, :function, function)
-    # Evaluate with the function
-    evaluate_direct(predicate_with_function, item)
-  end
-
-  # Handle predicate references that only have a name and inline: false
-  def evaluate_direct(%{name: name, inline: false}, %Item{} = _item) do
-    # This is just a reference to a predicate - we need to get the actual predicate definition
-    # Since this may be called in the context of a module that has the get_predicate function,
-    # we'll raise an error here with clear guidance about how to fix
-    raise "Cannot evaluate predicate reference #{inspect(name)} directly. " <>
-            "Make sure all predicate references are resolved to actual predicate definitions " <>
-            "before calling evaluate or filter."
   end
 
   @doc """

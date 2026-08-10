@@ -182,6 +182,31 @@ defmodule Riffle.Predicate.LoopCacheIntegrationTest do
       assert :counters.get(counters, 3) == 2
     end
 
+    test "invariant: the stream filter path shares the cached evaluation entry point",
+         %{loop: loop, active_premium: item1, active_basic: item2, counters: counters} do
+      # Prime the cache through the single-item path
+      {true, _} = Loop.process(loop, item1)
+      assert :counters.get(counters, 1) == 1
+
+      # Streaming the same item through filter must hit the cache, not re-evaluate
+      [_tagged] = loop |> Loop.filter([item1]) |> Enum.to_list()
+
+      assert :counters.get(counters, 1) == 1
+      assert :counters.get(counters, 2) == 1
+      assert :counters.get(counters, 3) == 1
+
+      # A fresh item through filter evaluates once and seeds the cache
+      [_tagged2] = loop |> Loop.filter([item2]) |> Enum.to_list()
+
+      assert :counters.get(counters, 1) == 2
+      assert :counters.get(counters, 2) == 2
+      assert :counters.get(counters, 3) == 2
+
+      # The single-item path then reads what the stream path cached
+      {true, _} = Loop.process(loop, item2)
+      assert :counters.get(counters, 1) == 2
+    end
+
     test "disabling cache prevents caching",
          %{loop: loop, active_premium: item, counters: counters} do
       # Disable caching
