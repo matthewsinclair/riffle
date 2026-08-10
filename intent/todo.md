@@ -7,7 +7,8 @@ generator: intent todo
 - [-] ST0001: Extricate Predicate and SIA from Multiplyer
   - [x] 01: D2 root-cause and verdict
   - [x] 02: Scaffolding and CI gate
-  - [ ] 03: Predicate engine port
+  - [x] 03: Predicate engine port
+  - [ ] 04: PFIC transform and hydration consolidation
 
 ## TODO
 

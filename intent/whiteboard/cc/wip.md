@@ -13,14 +13,12 @@ claims: [ST0001]
 
 ## DOING
 
-- (2026-08-10) ST0001 WP-03 remediation phase: mechanical port LANDED (commit 7b7f912, gate green 237 passed). critic-elixir review + test-check running on the ported tree; CRITICAL/HIGH findings get fixed per DD-4-as-amended.
+- (2026-08-10) Day complete: ST0001 WP-01..03 DONE (D2 verdict; gate; port + 3 remediation layers; 237 green). WP-04 chartered (DD-7). Awaiting hv: coercion ruling (AC-04.5), push decision, WP-04 go.
 
 ## TODO
 
-- WP-01: D2 root-cause in archive (read-only) -> engine-vs-glue verdict recorded in ST0001
-- WP-02: `intent lang init elixir` + CI gate (format, compile + test under warnings-as-errors)
-- WP-03: Port predicate/ + tests -> lib/riffle/predicate; sever stitch 1 (config-injected default pipeline); fix D5; suite green; zero source-project traces
-- Fold: ST0001 docs as-built, acceptance map, intent/wip.md, todo update, clean commits
+- WP-04 (Not Started): socrates design pass -> single resolver -> PFIC shapes -> expr-family test consolidation -> coercion module (after hv ruling) -> critic re-run clean
+- ST0002 / ST0003 queued behind ST0001 close
 
 ## Watch-outs
 

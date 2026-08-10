@@ -22,9 +22,15 @@ Method: five characterisation tests re-run in the archive (12 passed, pins hold)
 - D5: `expr_macro_direct_test.exs` piped the function into `Predicate.new/3` first position, making `name` a function and `function` a string -- a predicate that would crash if evaluated, which the suite therefore never did. Fixed to `new(name, description, function)`.
 - Gate at land: 237 passed (61 doctests, 176 tests), zero warnings.
 
-### WP-03 -- Remediation pass
+### WP-03 -- Remediation pass (as-built)
 
-_In progress: critic-elixir review (lib) + test-check (test) running; CRITICAL/HIGH fixed per DD-4-as-amended, findings + dispositions recorded here._
+Two critics ran on the ported tree: code review (5 CRITICAL, 12 WARNING, 5 recommendation) and test-check (6 CRITICAL, 3 WARNING, 29 recommendation). All 11 CRITICALs fixed in three layered commits, gate green at each:
+
+- **R1 (29eac91) -- engine criticals.** Cache keyed on the exact `{predicate_id, item}` term (the 3-field sample hash returned other rows' cached results on collision -- the production-triage finding). `create/1` has one loud failure contract (block-eval and catch-all no longer degrade to always-false; reraise carries the body AST). Registry `ensure_*_struct` resolves references against registry state with tagged errors (always-true stubs and empty-loop synthesis gone). Malformed comparison dates raise at predicate construction. DefaultPipelineConfig probes `function_exported?` instead of rescuing around the whole pipeline invocation.
+- **R2 (335a655) -- hydrate-at-generation + un-neutered tests.** Macro-generated loop/pipeline functions resolve references through the defining module and hydrate bodies to callables once at generation; missing names raise `UnresolvedPredicateError`. This was the root of the archive's "skip filtering for now (structural issues)" test-neutering: pipelines carried unresolved reference maps that silently always-falsed. The four neutered tests now run real `Loop.filter` / `Pipeline.process` with exact survivor and tag pins; the loop-cache short-circuit hedges became exact pins (`Loop.process` evaluates every predicate; the cache is per `{predicate, item}`).
+- **R3 (bea85fa) -- test structure.** `Cache.reset_stats/0` + `Cache.config/0` public API replaced three verbatim `:sys.replace_state` blocks; registry/loader fixtures moved to per-test ExUnit `tmp_dir` (shared destructive path gone, registry suite async: true); async opt-outs carry explanatory comments; predicate_test restores prior cache config.
+
+Structural WARNINGs (six hydration sites with four failure behaviours, Loop's dual evaluation path bypassing the cache on streams, the STD module twin, Evaluator/StandardLib coercion drift, the five-file expr-macro test family) are dispositioned to WP-04 under DD-7, not silently dropped. Suppressed-recommendation triage also deferred there.
 
 ## Technical Details
 

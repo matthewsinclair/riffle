@@ -34,12 +34,20 @@ None -- WP-distributed.
 
 - AC-02.1 (non-test) CI runs format check + compile + test with warnings-as-errors covering test compilation, green on the skeleton before the port lands -- evidence: .github/workflows/ci.yml runs `mix gate` (the single local/CI gate alias in mix.exs); local `mix gate` green on skeleton 2026-08-10 (upstream Actions run lands on next hv push) -- satisfied: yes
 
-### WP-03 -- Predicate engine port (status: WIP)
+### WP-03 -- Predicate engine port (status: Done)
 
 - AC-03.1 The ported engine and its full ported test suite are green under `mix test --warnings-as-errors` (D5 class structurally excluded)
 - AC-03.2 Zero source-project traces in `lib/` and `test/` -- modules, atoms, app-env keys, strings, comments, moduledocs (hv ruling 2026-08-10)
 - AC-03.3 Default-pipeline resolution is config-injected (`:riffle, :default_pipeline`); unset config surfaces an explicit error; the engine names no pattern-layer module
-- AC-03.4 (non-test) Ported code and tests remediated against the rule library -- critic-elixir run on the ported tree with CRITICAL/HIGH findings fixed (hv rewrite-flexibility ruling 2026-08-10; DD-4 as amended) -- evidence: critic report + remediation commits -- satisfied: no
+- AC-03.4 (non-test) Ported code and tests remediated against the rule library -- critic-elixir run on the ported tree with CRITICAL/HIGH findings fixed (hv rewrite-flexibility ruling 2026-08-10; DD-4 as amended) -- evidence: critic reports (11 CRITICAL: 5 lib + 6 test, all fixed in commits 29eac91, 335a655, bea85fa; structural WARNINGs dispositioned to WP-04 per DD-7) -- satisfied: yes
+
+### WP-04 -- PFIC transform and hydration consolidation (status: Not Started)
+
+- AC-04.1 One hydration/resolution path: pipeline.ex, loop.ex, registry.ex, loader.ex, and macro-generated functions resolve references through a single loud resolver; no residual ad-hoc resolution
+- AC-04.2 (non-test) Engine conditional shapes conform to PFIC; critic-elixir re-run on lib/riffle/ reports zero CRITICAL and zero Highlander/PFIC WARNINGs -- evidence: critic report -- satisfied: no
+- AC-04.3 Loop single-item and stream paths share one evaluation entry point, cache honoured on both
+- AC-04.4 (non-test) expr-macro test family consolidated to one canonical file + shared support helper; scratch files deleted; suite green -- evidence: tree + gate run -- satisfied: no
+- AC-04.5 (non-test) DSL coercion contract (numeric parse, truthiness) ratified by hv and enforced in one canonical module -- evidence: hv ruling recorded in design.md + coercion module -- satisfied: no
 
 ## Acceptance Tests
 
@@ -57,3 +65,9 @@ None -- WP-distributed.
 - AT-03.2 test/riffle/extrication_gate_test.exs::"invariant: lib/ and test/ carry zero source-project traces" -- covers AC-03.2 -- status: green
 - AT-03.3 test/riffle/predicate/default_pipeline_resolution_test.exs (4 tests: configured resolution, unset-config raise, missing-predicate raise, default_pipeline/0) -- covers AC-03.3 -- status: green
 - Coverage: complete -- AC-03.1..3 each covered by an AT above; non-test ACs (AC-01.1, AC-02.1, AC-03.4) carry evidence inline.
+
+### WP-04
+
+- AT-04.1 resolver unit tests + un-neutered filtering suite (pins carry over) -- covers AC-04.1 -- status: to-write (red-first)
+- AT-04.3 cache-integration coverage extended to the stream/filter path -- covers AC-04.3 -- status: to-write (red-first)
+- Coverage: AC-04.1, AC-04.3 covered above; AC-04.2, AC-04.4, AC-04.5 are non-test with evidence inline.

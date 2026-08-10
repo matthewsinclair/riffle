@@ -24,7 +24,22 @@
 - [x] Riffle.Application supervises engine cache (mirrors source app tree)
 - [x] Fix D5 arg shape (pipe fed fn as name, function was a string -- never evaluated by tests)
 - [x] Full suite green under the gate: 237 passed (61 doctests, 176 tests) -- mechanical-port commit 7b7f912
-- [ ] Remediation pass: critic-elixir on ported tree; fix CRITICAL/HIGH in code + tests; strengthen weak assertions; async where safe (hv rewrite ruling; layered commits, green at each step)
+- [x] Remediation pass (layered, gate green each step):
+  - R1 (29eac91): 5 lib CRITICALs -- exact-term cache keys, loud create/1 contract, registry state-resolution (always-true stubs gone), construction-time date raise, config probe-not-rescue; registry merge/load dedup
+  - R2 (335a655): hydrate-at-generation in Dsl.Macro (refs resolve through defining module or raise; bodies hydrate once); 6 test CRITICALs -- four neutered filtering tests un-neutered with exact survivor/tag pins, short-circuit hedges pinned exact, start_supervised!
+  - R3 (bea85fa): Cache.reset_stats/0 + config/0 public API (three :sys.replace_state blocks gone), per-test tmp_dir fixtures, registry suite async, async opt-out comments, prior-config restore
+  - Structural WARNINGs (hydration x6, dual evaluation path, STD twin, coercion drift, expr-family test dup) dispositioned to WP-04 per DD-7
+
+### WP-04 -- PFIC transform and hydration consolidation (DD-7)
+
+- [ ] socrates design pass on the single-resolver consolidation
+- [ ] One resolver module; route pipeline/loop/registry/loader/macro through it
+- [ ] Collapse Loop process/filter onto one evaluation entry point (cache honoured)
+- [ ] Delete the STD twin; one access path
+- [ ] macro/parser block-level silent drops -> raise
+- [ ] Consolidate expr-macro test family; delete scratch files
+- [ ] hv ruling on DSL coercion contract; canonical coercion module
+- [ ] critic-elixir re-run: zero CRITICAL, zero Highlander/PFIC WARNINGs
 
 ## Task Notes
 
