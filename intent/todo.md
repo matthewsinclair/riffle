@@ -4,7 +4,6 @@ generator: intent todo
 
 ## DOING
 
-- [-] ST0002: ctx-next: the Bowtie waist
 - [-] ST0003: SIA pattern layer rewrite
 
 ## TODO
@@ -18,3 +17,7 @@ _(none)_
   - [x] 02: Scaffolding and CI gate
   - [x] 03: Predicate engine port
   - [x] 04: PFIC transform and hydration consolidation
+- [x] ST0002: ctx-next: the Bowtie waist
+  - [x] 01: Ctx and the typed catalogs
+  - [x] 02: The pure knot
+  - [x] 03: Coverage, bedrock, and close

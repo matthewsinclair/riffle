@@ -1,42 +1,50 @@
 ---
-verblock: "10 Aug 2026:v0.4: cc - Restart context at localfold #3; ST0002 + ST0003 next"
+verblock: "10 Aug 2026:v0.5: cc - Restart context at localfold #4; ST0002 closed, ST0003 next, running autonomously"
 ---
 
 # Restart Context
 
-## Where things stand (2026-08-10, localfold #3)
+## Where things stand (2026-08-10, localfold #4)
 
-ST0001 "Extricate Predicate and SIA from Multiplyer" is CLOSED -- gate 11/11, docs under `intent/st/COMPLETED/ST0001/`. The Predicate engine is extricated, PFIC-transformed, critic-clean and credo-clean. Seventeen commits pushed to both remotes today, CI green on every one.
+Two threads closed today. **ST0001** (extricate the Predicate engine) and **ST0002** (ctx-next, the Bowtie waist) are both in `intent/st/COMPLETED/`, gates 11/11 and 17/17. Twenty-two commits pushed, CI green throughout, `mix gate` green (318 passed, credo zero).
 
-Toolchain state worth knowing before the next commit: `mix gate` is now format + compile + test + `credo --strict`, and CI runs that same alias, so a new credo finding fails the build locally and upstream. `main` is branch-protected (required check `gate`, strict, no force-push, no deletion, `enforce_admins: false` -- direct pushes still work and are logged as bypasses). No CD by decision; devbin has no `release`, and its `publish` opt-in stays off until Riffle is more than the engine half.
+**hv has authorised running autonomously from here** ("I let you run on your own until you can't go any further"). So: pick up ST0003 and take it as far as it goes, without waiting for a ruling on anything hv has already settled. The scope calls ST0003 owns were ratified in advance -- see below.
 
-## Next unit of work: ST0002, then ST0003
+## Read these first
 
-hv sequenced both (2026-08-10): ST0002 first, ST0003 after -- ST0003 is blocked on the waist by its own info.md.
+- `intent/docs/bedrock.md` -- **the architectural commitments**. A contradiction with it is a bug in the contradicting document, not a choice. Read it before writing any code.
+- `intent/st/COMPLETED/ST0002/design.md` -- DD-1..DD-7, and the capability map.
+- `intent/st/COMPLETED/ST0002/impl.md` -- as-built, both critic rounds, and the mutation checks.
+- `intent/docs/extrication-handoff.md` -- the defect ledger and the stitch that must not re-form.
+- `intent/llm/MODULES.md` -- the Highlander registry, now covering the waist.
 
-**ST0002 (ctx-next, the Bowtie waist).** A REBUILD to the published spec (The Bowtie Pattern, Sinclair Feb 2026), explicitly not a port: typed perturbations fan in, a pure knot `f(P, S) -> (E, S')` runs against immutable state, typed emissions fan out to registered consumers. The archive's `Ctx` (18-field god-struct, 76 public functions, 5,964 LOC across 13 files) is the pattern's earliest incarnation and is deliberately NOT carried over. The minimum surface is measured, not guessed: the 24 Ctx functions the extricated code actually consumes, by call-site count, in `intent/docs/extrication-handoff.md` -- dominated by status transitions, metadata, event lifecycle, error accumulation, and input/output/cargo access. Serve that surface through the typed model; do not replicate the bag-of-maps API shape.
+## Next unit of work: ST0003, SIA on the waist
 
-First act at kickoff, before any code: `intent/st/ST0002/acceptance.md` is still the unfilled template. Author the AC/AT contract and get hv's ratification -- the close-gate is fail-by-default, so no WP can close against an empty contract. Then WP breakdown via `intent wp new`.
+**First act, before any code:** `intent/st/ST0003/acceptance.md` is still the unfilled Intent template. Author the AC/AT contract -- the close-gate is fail-by-default and no WP can close against an empty one. Then `intent wp new` for the breakdown. ST0002's contract is the model: conformance fences where the property is a whole-class invariant, example tests only where it genuinely is an example.
 
-**ST0003 (SIA pattern layer rewrite).** Red-first against ctx-next. The archive's `sia/` (1.2k LOC) is reference material only: its `.pred` loading is dead by design (D1, unconditional `{:error, :invalid_pipeline_format}`) and its rescue-all swallow (D9) must NOT reproduce. The five characterisation tests pinned at `assert [] = results` become this thread's ATs, strengthened to `assert [%Item{} | _] = results`. Scope decisions this thread owns: whether `.pred` file pipelines return (vs module-defined only, initially), and whether the CSV datasource ports or a cleaner ingest boundary replaces it. D2's obligation: results must be delivered via emissions, with no lying availability flag.
+**The design constraint that dominates this thread (ST0002 DD-5).** The Predicate engine is an *inferential edge*, not part of the knot. It is a rules engine -- which is inference -- and it is concretely impure, since evaluation runs through an ETS cache owned by a GenServer. Putting evaluation inside the knot would break purity outright. So SIA's shape is: an edge component evaluates predicates and feeds the typed result in as a perturbation; the knot threads run state and produces emissions. Both directions are fenced already (`boundary_fence_test`), so neither half can name the other -- the composition happens in ST0003's edge.
 
-## Open items for hv
+**What the thread delivers.** The five Multiplyer characterisation tests, pinned at `assert [] = results`, become this thread's ATs strengthened to `assert [%Item{} | _] = results`. Results are delivered **via emissions** -- D2's obligation, with no lying availability flag. D9's rescue-all swallow must not reproduce: real errors surface.
 
-- ST0002 scope + acceptance ratification at kickoff (the gate needs it).
-- Backlog to schedule or decline: Cache perf (persistent_term + ets counters, DD-9/M4); two socrates handoffs (Macro/DefaultPipelineConfig accessor split; a single definition-argument recogniser in Dsl.Statements); loader error-vocabulary unification (public contract change); diogenes spec pass.
+**Scope calls hv already ratified** (do not re-ask):
 
-## Read before touching the engine
+- `.pred` file pipelines are **in**. The loader is built, tested and green from ST0001; excluding it would leave working code unreachable.
+- The CSV datasource is **out**, replaced by a plain ingest perturbation. It is a fan-in source, and a natural later addition that would then prove source independence.
 
-- `intent/st/COMPLETED/ST0001/design.md` -- DD-1..DD-9
-- `intent/st/COMPLETED/ST0001/impl.md` -- as-built incl. every critic report, R4a/R4b, and the post-close credo addendum
-- `intent/docs/extrication-handoff.md` -- the measured Ctx surface, defect ledger, and the stitch that must not re-form
-- `intent/llm/MODULES.md` -- populated registry (Resolver, Coerce, Statements et al)
-- `intent/whiteboard/cc/wip.md` -- live node board
+**A likely shape, not a mandate.** The waist already carries `StageEntered` / `StageProgressed` / `StageExited` perturbations and their emission twins, which the sense/infer/act staging was sized for. Whether SIA needs domain perturbations beyond those is a real design question for the thread -- and adding a type means the two-step registry ritual plus a knot clause, with the delivery-floor fence catching a forgotten clause.
+
+## Open items for hv (filed, not blocking)
+
+- Two socrates handoffs from ST0002: the perturbation/emission structural twins (7 of 10 pairs are field-for-field, and 4 transitions are pure renames); and whether the measured-surface fence should parse `extrication-handoff.md` rather than hold a transcription of it.
+- A diogenes spec pass on the seven ctx fence files.
+- Cache perf (persistent_term + ets counters, ST0001 DD-9/M4); loader error-vocabulary unification (public contract change).
 
 ## Invariants (do not regress)
 
-- Zero source-project traces in `lib/` + `test/` -- `test/riffle/extrication_gate_test.exs` enforces structurally
-- The engine never names a pattern-layer module -- dependency inversion holds in the rebuild too; ST0003 consumes the engine, never the reverse
-- One resolution path (Resolver), one evaluation entry point (Loop.process), one coercion contract (Coerce, strict), one DSL block grammar (Dsl.Statements), one top-level dispatch (Parser.extract_definitions!) -- do not add parallel paths
-- `mix gate` green before every commit; it now includes credo, and warnings-as-errors covers test compilation
+- Zero source-project traces in `lib/` + `test/` -- `extrication_gate_test.exs` enforces structurally
+- The engine and the waist name each other in neither direction -- `boundary_fence_test.exs`, AST-based
+- The knot stays unconditionally pure -- `purity_fence_test.exs` walks the compiled call closure
+- Every perturbation yields a real emission, never the delivery floor -- `delivery_floor_fence_test.exs`
+- A fence that cannot fail is not a fence: mutation-check every new one, and give it a positive control when its discriminator would otherwise never fire
+- `mix gate` green before every commit; it includes `credo --strict`, and warnings-as-errors covers test compilation
 - Archive (`~/Devel/_Archive/Multiplyer`) is read-only forensics

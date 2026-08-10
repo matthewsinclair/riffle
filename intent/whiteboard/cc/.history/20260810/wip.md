@@ -48,3 +48,28 @@
 - hv: main branch-protected with `enforce_admins: false`, so the direct-to-main push policy stands; GitHub logs each direct push as a bypass. Flipping to true (branch+PR per chunk) deferred, not declined.
 - hv/cc: no CD by decision -- devbin has no `release`; its `publish` opt-in stays off while Riffle is the engine half of a library whose pattern layer is unwritten.
 - hv: next session does ST0002 then ST0003, and that closes the day.
+
+## Session 4 (post-compact bounce, archived at localfold #4)
+
+### DOING (completed)
+
+- hv ruling at kickoff, correcting an inherited premise: Riffle is an EXAMPLE of the Bowtie pattern, not its reference implementation. The claim came from the Multiplyer triage session and sat in ST0002 info.md + the extrication handoff; it had been read as a requirement and steered the first ST0002 design toward a generic framework. Struck from both (handoff carries a dated correction, not a silent deletion). Second hv ruling: apply the Lamplight discipline in full -- which restored three things the first correction had over-cut (closed catalog registries, the god-object refusal as architecture, conformance fences as the AT form).
+- Read the Lamplight corpus rather than reconstructing it: the Bowtie whitepaper, 210-bowtie, 000-bedrock, 510-not-list, 530-hard-rules, 230-perturbation-emission, 430-testing.
+- ST0002 acceptance contract authored and ratified; 3 WPs; ST0002 CLOSED (gate 17/17), docs at intent/st/COMPLETED/ST0002/.
+- WP-01 02d74dd: Riffle.Ctx typed composite root (6 slots, ONE declared overlay, reads-only), two closed catalogs, 20 typed structs.
+- WP-02 8df5972: Riffle.Ctx.Knot.tick/2 -- pure, total, multi-clause, one delivery-floor funnel, full stream unconditionally.
+- WP-03: measured-surface fence (24 capabilities, both directions), intent/docs/bedrock.md, and two rounds of critic remediation.
+
+### Findings worth carrying forward
+
+- A fence of mine was DEAD: the Erlang remote-type form carries three list elements, my pattern matched two, so the DD-6 accumulator check recognised nothing and had been unfalsifiable since written. Caught by the second critic round, not by me. Two fences now carry positive controls; every fence in the thread was mutation-checked.
+- A source-text fence is defeatable by `alias Riffle.{Ctx}` -- and that brace form is already in the engine's own files. Boundary fence now walks the parsed AST.
+- The Elixir type checker is doing real work here: it proved the delivery floor's empty-result clause unreachable and both registries non-empty, which deleted code and two redundant guards. Under `mix gate` (--warnings-as-errors) those proofs fail the build, which is stronger than the runtime guards they replaced.
+
+### Decisions this session
+
+- hv: Riffle is an example of the pattern, not its reference implementation (DD-1). No mechanism exists in the waist without a Riffle consumer.
+- hv: the Lamplight discipline applies in full -- fences over example tests, spec-first per WP.
+- cc (DD-5): the Predicate engine is an INFERENTIAL EDGE, never inside the knot. It is a rules engine (inference) and concretely impure (ETS cache behind a GenServer). Both directions fenced. This shapes ST0003 more than anything else in ST0002.
+- cc (DD-4): multi-clause dispatch, not a subscriber routing table -- trade-off named, delivery-floor fence covers it.
+- cc: filed for hv -- socrates on the perturbation/emission structural twins (7 of 10 pairs), socrates on whether the measured-surface fence should parse the handoff doc, diogenes spec pass on the seven fence files.

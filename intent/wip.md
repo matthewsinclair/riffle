@@ -1,24 +1,25 @@
 ---
-verblock: "10 Aug 2026:v0.6: cc - ST0001 CLOSED + credo zero in the gate; ST0002/ST0003 next"
+verblock: "10 Aug 2026:v0.7: cc - ST0002 CLOSED (the waist); ST0003 next, running autonomously"
 ---
 
 # Work In Progress
 
 ## Current Focus
 
-**ST0001 is CLOSED** (2026-08-10, gate 11/11 satisfied; moved to `intent/st/COMPLETED/ST0001`). The Predicate engine is extricated, PFIC-transformed, and critic-clean: one resolution path (Resolver, DD-9), one evaluation entry point (Loop.process, streams cached), one coercion contract (Coerce strict, DD-8), one DSL block grammar (Dsl.Statements), one top-level dispatch whose catch-all is the completeness check, and a genuinely working STD surface (`call` head + `expand_std/1` at `Predicate.create/1` -- R4b exposed and fixed the advertised-but-dead call syntax). Post-close, credo went from a 21-finding baseline to zero and joined the gate (addendum in ST0001 impl.md). Suite 286 green; seventeen commits pushed today, CI green on every one.
+**ST0002 is CLOSED** (2026-08-10, gate 17/17; moved to `intent/st/COMPLETED/ST0002`), joining ST0001. `ctx-next` is built to the Bowtie shape and fenced rather than merely intended: a typed composite root with one declared overlay and no pass-through accessors, a pure total knot (`Riffle.Ctx.Knot.tick/2`) whose purity is proved by walking the compiled call closure, two closed catalogs sharing one registry mechanism, and a delivery floor no perturbation escapes. The measured 24-function surface is covered by enumeration in both directions. `intent/docs/bedrock.md` now records the commitments, the negations, and the fence holding each one.
 
-**Next: ST0002 then ST0003**, in that order (ST0003 is blocked on the waist). hv sequenced both on 2026-08-10; scope and plan still need ratification at kickoff.
+Two critic rounds ran and everything at or above the ratified bar was fixed at source. The instructive finding: one of my own fences was dead -- the Erlang remote-type form carries three list elements and I matched two, so the "no slot accumulates catalog types" check had been unfalsifiable since it was written. Two fences now carry positive controls, and every fence in the thread was mutation-checked.
+
+**Next: ST0003**, running autonomously (hv, 2026-08-10). Its acceptance contract is the first act -- see `intent/restart.md`.
 
 ## Active Steel Threads
 
-- ST0002 (WIP, unstarted): ctx-next, the Bowtie waist -- REBUILD to the published spec, not a port. Doc set exists; `acceptance.md` is still the unfilled template, so authoring + ratifying that contract is the first act (the close-gate is fail-by-default). Measured minimum surface = the 24 Ctx functions the extricated code actually consumes, by call-site count, in `intent/docs/extrication-handoff.md`.
-- ST0003 (WIP, unstarted): SIA pattern layer rewrite -- red-first against ctx-next; the five characterisation tests pinned at `assert [] = results` become its ATs, strengthened to `assert [%Item{} | _] = results`. D2 implications in ST0001 design.md (deliver results via emissions; no lying availability flag); D9 rescue-all must not reproduce.
+- ST0003 (WIP, unstarted): SIA on the waist -- red-first; the five characterisation tests pinned at `assert [] = results` become its ATs, strengthened to `assert [%Item{} | _] = results`. Results delivered via emissions (D2; no lying availability flag); D9 rescue-all must not reproduce. Dominated by ST0002 DD-5: the Predicate engine is an inferential edge, never inside the knot, so SIA composes the two halves at that edge.
 
 ## Upcoming Work
 
-- ST0002 kickoff: author acceptance.md, ratify with hv, then WP breakdown
-- Backlog (filed, unscheduled): Cache perf fix (persistent_term flag + ets counters -- DD-9/M4); socrates handoff on Macro vs DefaultPipelineConfig accessor generation; socrates question on a single definition-argument-shape recogniser in Dsl.Statements (R4b critic, deferred with calibration reasoning); one error vocabulary for malformed DSL text at the loader boundary (public-shape decision); diogenes test-spec pass; cache key source-qualification (documented limitation)
+- ST0003 kickoff: author acceptance.md, then WP breakdown (scope calls already ratified: `.pred` in, CSV datasource out)
+- Backlog (filed, unscheduled): Cache perf fix (persistent_term flag + ets counters -- DD-9/M4); socrates handoff on Macro vs DefaultPipelineConfig accessor generation; socrates on the perturbation/emission structural twins and on whether the measured-surface fence should parse the handoff doc; diogenes spec pass on the seven ctx fences; socrates question on a single definition-argument-shape recogniser in Dsl.Statements (R4b critic, deferred with calibration reasoning); one error vocabulary for malformed DSL text at the loader boundary (public-shape decision); diogenes test-spec pass; cache key source-qualification (documented limitation)
 
 ## Notes
 
@@ -28,4 +29,4 @@ Zero-trace rule (DD-2) enforced structurally by `test/riffle/extrication_gate_te
 
 ## Context for LLM
 
-Read `intent/st/COMPLETED/ST0001/design.md` (DD-1..DD-9) and `impl.md` (as-built incl. all critic reports) before touching the engine; `intent/restart.md` carries the bounce point; the whiteboard node board carries live session state.
+Read `intent/docs/bedrock.md` FIRST -- it is the architectural contract, and a contradiction with it is a bug in the contradicting document. Then `intent/st/COMPLETED/ST0002/{design,impl}.md` for the waist and `intent/st/COMPLETED/ST0001/{design,impl}.md` for the engine; `intent/restart.md` carries the bounce point; the whiteboard node board carries live session state.
