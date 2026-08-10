@@ -11,6 +11,7 @@ defmodule Riffle.Predicate.Registry do
   use GenServer
 
   alias Riffle.Predicate.Dsl.Loader
+  alias Riffle.Predicate.Resolver
 
   @registry_name __MODULE__
 
@@ -82,7 +83,7 @@ defmodule Riffle.Predicate.Registry do
   end
 
   @doc """
-  Gets a predicate function by name from the registry.
+  Gets a hydrated predicate definition by name from the registry.
 
   ## Parameters
     * `name` - Name of the predicate
@@ -90,8 +91,8 @@ defmodule Riffle.Predicate.Registry do
 
   ## Examples
 
-      predicate_fn = Registry.get_predicate(:active)
-      result = predicate_fn.(item)
+      {:ok, predicate} = Registry.get_predicate(:active)
+      {matched, tagged_item} = Riffle.Predicate.evaluate(predicate, item)
   """
   def get_predicate(name, server \\ @registry_name) do
     GenServer.call(server, {:get_predicate, name})
@@ -106,7 +107,7 @@ defmodule Riffle.Predicate.Registry do
 
   ## Examples
 
-      loop = Registry.get_loop(:user_signals)
+      {:ok, loop} = Registry.get_loop(:user_signals)
       filtered_items = Riffle.Predicate.Loop.filter(loop, items)
   """
   def get_loop(name, server \\ @registry_name) do
@@ -122,8 +123,8 @@ defmodule Riffle.Predicate.Registry do
 
   ## Examples
 
-      pipeline = Registry.get_pipeline(:user_pipeline)
-      filtered_items = Riffle.Predicate.Pipeline.filter(pipeline, items)
+      {:ok, pipeline} = Registry.get_pipeline(:user_pipeline)
+      filtered_items = Riffle.Predicate.Pipeline.process(pipeline, items)
   """
   def get_pipeline(name, server \\ @registry_name) do
     GenServer.call(server, {:get_pipeline, name})
@@ -201,33 +202,23 @@ defmodule Riffle.Predicate.Registry do
     {:ok, state}
   end
 
+  # Reference resolution goes through the Resolver with the registry state as
+  # the definitions source; a name with no registered definition is a tagged
+  # {:unresolved, ...} error, never a synthesised stand-in.
+
   @impl true
   def handle_call({:get_predicate, name}, _from, state) do
-    with {:ok, predicate} <- fetch_predicate(name, state) do
-      {:reply, {:ok, create_callable_predicate(predicate)}, state}
-    else
-      {:error, reason} -> {:reply, {:error, reason}, state}
-    end
+    {:reply, Resolver.resolve_predicate(state, %{name: name, inline: false}), state}
   end
 
   @impl true
   def handle_call({:get_loop, name}, _from, state) do
-    with {:ok, loop} <- fetch_loop(name, state),
-         {:ok, loop_struct} <- ensure_loop_struct(loop, state) do
-      {:reply, {:ok, loop_struct}, state}
-    else
-      {:error, reason} -> {:reply, {:error, reason}, state}
-    end
+    {:reply, Resolver.resolve_loop(state, %{name: name, inline: false}), state}
   end
 
   @impl true
   def handle_call({:get_pipeline, name}, _from, state) do
-    with {:ok, pipeline} <- fetch_pipeline(name, state),
-         {:ok, pipeline_struct} <- ensure_pipeline_struct(pipeline, state) do
-      {:reply, {:ok, pipeline_struct}, state}
-    else
-      {:error, reason} -> {:reply, {:error, reason}, state}
-    end
+    {:reply, Resolver.resolve_pipeline(state, %{name: name, inline: false}), state}
   end
 
   @impl true
@@ -315,40 +306,6 @@ defmodule Riffle.Predicate.Registry do
 
   # Private helper functions for better structure
 
-  @spec fetch_predicate(atom(), map()) :: {:ok, map()} | {:error, tuple()}
-  defp fetch_predicate(name, state) do
-    case Map.fetch(state.predicates, name) do
-      {:ok, predicate} -> {:ok, predicate}
-      :error -> {:error, {:not_found, :predicate, name}}
-    end
-  end
-
-  @spec fetch_loop(atom(), map()) :: {:ok, map()} | {:error, tuple()}
-  defp fetch_loop(name, state) do
-    case Map.fetch(state.loops, name) do
-      {:ok, loop} -> {:ok, loop}
-      :error -> {:error, {:not_found, :loop, name}}
-    end
-  end
-
-  @spec fetch_pipeline(atom(), map()) :: {:ok, map()} | {:error, tuple()}
-  defp fetch_pipeline(name, state) do
-    case Map.fetch(state.pipelines, name) do
-      {:ok, pipeline} -> {:ok, pipeline}
-      :error -> {:error, {:not_found, :pipeline, name}}
-    end
-  end
-
-  @spec create_callable_predicate(map()) :: function()
-  defp create_callable_predicate(%{function: _function} = predicate) do
-    fn item ->
-      {matched, _} = Riffle.Predicate.evaluate(predicate, item)
-      matched
-    end
-  end
-
-  defp create_callable_predicate(predicate), do: predicate
-
   @spec merge_instances(map(), map()) :: map()
   defp merge_instances(state, instances) do
     %{
@@ -368,87 +325,4 @@ defmodule Riffle.Predicate.Registry do
   end
 
   defp register_loaded(state, {:error, reason}), do: {:reply, {:error, reason}, state}
-
-  # Reference resolution goes through registry state; a name with no
-  # registered definition is a tagged error, never a synthesised stand-in.
-  # (The previous shape stubbed missing predicates as always-true -- matching
-  # and tagging every item -- and missing loops as empty, silently.)
-  @spec ensure_loop_struct(struct() | map(), map()) ::
-          {:ok, Riffle.Predicate.Loop.t() | term()} | {:error, term()}
-  defp ensure_loop_struct(%Riffle.Predicate.Loop{} = loop, _state), do: {:ok, loop}
-
-  defp ensure_loop_struct(%{name: name, description: description, predicates: predicates}, state) do
-    with {:ok, resolved} <- resolve_predicates(predicates, state) do
-      {:ok, Riffle.Predicate.Loop.new(name, description, resolved)}
-    end
-  end
-
-  defp ensure_loop_struct(loop, _state), do: {:ok, loop}
-
-  @spec ensure_pipeline_struct(struct() | map(), map()) ::
-          {:ok, Riffle.Predicate.Pipeline.t() | term()} | {:error, term()}
-  defp ensure_pipeline_struct(%Riffle.Predicate.Pipeline{} = pipeline, _state),
-    do: {:ok, pipeline}
-
-  defp ensure_pipeline_struct(%{name: name, description: description, loops: loops}, state) do
-    with {:ok, resolved} <- resolve_loops(loops, state) do
-      {:ok, Riffle.Predicate.Pipeline.new(name, description, resolved)}
-    end
-  end
-
-  defp ensure_pipeline_struct(pipeline, _state), do: {:ok, pipeline}
-
-  @spec resolve_predicates([map()], map()) :: {:ok, [map()]} | {:error, term()}
-  defp resolve_predicates(predicates, state) do
-    predicates
-    |> Enum.reduce_while({:ok, []}, fn
-      %{function: _} = pred, {:ok, acc} ->
-        {:cont, {:ok, [pred | acc]}}
-
-      %{body: _} = pred, {:ok, acc} ->
-        {:cont, {:ok, [pred | acc]}}
-
-      %{name: pred_name}, {:ok, acc} ->
-        case Map.fetch(state.predicates, pred_name) do
-          {:ok, pred} -> {:cont, {:ok, [pred | acc]}}
-          :error -> {:halt, {:error, {:unresolved, :predicate, pred_name}}}
-        end
-
-      other, {:ok, _acc} ->
-        {:halt, {:error, {:invalid_predicate, other}}}
-    end)
-    |> finish_resolution()
-  end
-
-  @spec resolve_loops([map()], map()) :: {:ok, [term()]} | {:error, term()}
-  defp resolve_loops(loops, state) do
-    loops
-    |> Enum.reduce_while({:ok, []}, fn
-      %Riffle.Predicate.Loop{} = loop, {:ok, acc} ->
-        {:cont, {:ok, [loop | acc]}}
-
-      %{predicates: _} = loop_map, {:ok, acc} ->
-        case ensure_loop_struct(loop_map, state) do
-          {:ok, loop} -> {:cont, {:ok, [loop | acc]}}
-          {:error, reason} -> {:halt, {:error, reason}}
-        end
-
-      %{name: loop_name}, {:ok, acc} ->
-        with {:ok, loop_def} <- fetch_loop(loop_name, state),
-             {:ok, loop} <- ensure_loop_struct(loop_def, state) do
-          {:cont, {:ok, [loop | acc]}}
-        else
-          {:error, reason} -> {:halt, {:error, reason}}
-        end
-
-      other, {:ok, _acc} ->
-        {:halt, {:error, {:invalid_loop, other}}}
-    end)
-    |> finish_resolution()
-  end
-
-  @spec finish_resolution({:ok, [term()]} | {:error, term()}) ::
-          {:ok, [term()]} | {:error, term()}
-  defp finish_resolution({:ok, acc}), do: {:ok, Enum.reverse(acc)}
-  defp finish_resolution({:error, _} = error), do: error
 end

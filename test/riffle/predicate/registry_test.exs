@@ -71,17 +71,18 @@ defmodule Riffle.Predicate.RegistryTest do
       assert :user_pipeline in pipelines
     end
 
-    test "retrieves predicate functions that work correctly", %{registry: registry} do
+    test "retrieves hydrated predicate definitions that evaluate correctly", %{
+      registry: registry
+    } do
       Registry.register_module(TestPredicates, registry)
 
       {:ok, active_pred} = Registry.get_predicate(:active, registry)
 
-      # Test the predicate function
       active_item = Item.create(%{"status" => "active"})
       inactive_item = Item.create(%{"status" => "inactive"})
 
-      assert active_pred.(active_item) == true
-      assert active_pred.(inactive_item) == false
+      assert {true, %Item{tags: [:active]}} = Riffle.Predicate.evaluate(active_pred, active_item)
+      assert {false, %Item{tags: []}} = Riffle.Predicate.evaluate(active_pred, inactive_item)
     end
 
     test "retrieves loop instances that work correctly", %{registry: registry} do
@@ -131,7 +132,7 @@ defmodule Riffle.Predicate.RegistryTest do
       assert :trial_pipeline in pipelines
     end
 
-    test "retrieves predicate functions that work correctly", %{
+    test "retrieves hydrated predicate definitions that evaluate correctly", %{
       registry: registry,
       pred_file: pred_file
     } do
@@ -139,12 +140,11 @@ defmodule Riffle.Predicate.RegistryTest do
 
       {:ok, trial_pred} = Registry.get_predicate(:trial, registry)
 
-      # Test the predicate function
       trial_item = Item.create(%{"tier" => "trial"})
       premium_item = Item.create(%{"tier" => "premium"})
 
-      assert trial_pred.(trial_item) == true
-      assert trial_pred.(premium_item) == false
+      assert {true, %Item{tags: [:trial]}} = Riffle.Predicate.evaluate(trial_pred, trial_item)
+      assert {false, %Item{tags: []}} = Riffle.Predicate.evaluate(trial_pred, premium_item)
     end
 
     test "returns error for non-existent file", %{registry: registry} do
@@ -194,17 +194,17 @@ defmodule Riffle.Predicate.RegistryTest do
 
   describe "get_* functions" do
     test "get_predicate returns :error for non-existent predicate", %{registry: registry} do
-      assert {:error, {:not_found, :predicate, :nonexistent}} =
+      assert {:error, {:unresolved, :predicate, :nonexistent, :definitions}} =
                Registry.get_predicate(:nonexistent, registry)
     end
 
     test "get_loop returns :error for non-existent loop", %{registry: registry} do
-      assert {:error, {:not_found, :loop, :nonexistent}} =
+      assert {:error, {:unresolved, :loop, :nonexistent, :definitions}} =
                Registry.get_loop(:nonexistent, registry)
     end
 
     test "get_pipeline returns :error for non-existent pipeline", %{registry: registry} do
-      assert {:error, {:not_found, :pipeline, :nonexistent}} =
+      assert {:error, {:unresolved, :pipeline, :nonexistent, :definitions}} =
                Registry.get_pipeline(:nonexistent, registry)
     end
   end
@@ -243,8 +243,12 @@ defmodule Riffle.Predicate.RegistryTest do
       {:ok, trial_pipeline} = Registry.get_pipeline(:trial_pipeline, registry)
 
       # Test functionality
-      assert active_pred.(Item.create(%{"status" => "active"})) == true
-      assert trial_pred.(Item.create(%{"tier" => "trial"})) == true
+      assert {true, %Item{tags: [:active]}} =
+               Riffle.Predicate.evaluate(active_pred, Item.create(%{"status" => "active"}))
+
+      assert {true, %Item{tags: [:trial]}} =
+               Riffle.Predicate.evaluate(trial_pred, Item.create(%{"tier" => "trial"}))
+
       assert user_pipeline.name == :user_pipeline
       assert trial_pipeline.name == :trial_pipeline
     end
