@@ -3,7 +3,7 @@ node: cc
 name: Control Claude
 role: control
 session_id: 8b09c4df-a4be-4d1c-87d9-7b8a76293477
-heartbeat_at: 2026-08-10T20:42Z
+heartbeat_at: 2026-08-10T20:58Z
 status: active
 focus: "ST0001 CLOSED; idle pending hv assignment (ST0002 next)"
 claims: []
@@ -35,3 +35,5 @@ claims: []
 - (2026-08-10) hv mid-session 3: credo added by peer sessions; cc ruled to ignore it ("I will get another Opus session to fix it") -- cc verifies only that its own commits add zero findings.
 - (2026-08-10) cc R4b deviation from restart.md's accept-list design, recorded in impl.md: the completeness check is the top-level dispatch's catch-all (one home), because a head-only accept-list still silently dropped recognised-head-malformed-shape statements.
 - (2026-08-10) cc: STD surface -- alias injection deleted as theatre; STD binds at body evaluation (Predicate.create/1 expand_std); .pred alias statements now reject rather than accept-and-ignore.
+- (2026-08-10) hv: main is branch-protected on GitHub -- required check `gate`, strict, no force-push, no deletion, `enforce_admins: false`. Direct-to-main push policy therefore UNCHANGED (owner pushes are not constrained). Flipping enforce_admins to true would end direct pushes and require branch+PR per chunk -- deferred, not declined.
+- (2026-08-10) hv/cc: no CD, deliberately. Devbin has no `release`; its `publish` opt-in (default `mix hex.publish`) stays disabled because Riffle 0.1.0 is half its intended shape until ST0002/ST0003 land. CD shape when wanted: version bump -> tag -> release.yml reusing `mix gate` -> hex publish with a HEX_API_KEY secret.

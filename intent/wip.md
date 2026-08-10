@@ -20,6 +20,8 @@ verblock: "10 Aug 2026:v0.5: cc - ST0001 CLOSED (11/11); ST0002 kickoff next, pe
 
 ## Notes
 
+CI/CD state (2026-08-10): CI is `.github/workflows/ci.yml` on push-to-main + all PRs, running the same `mix gate` alias as local (one gate definition, two callers); green on every run today. `main` is branch-protected upstream -- required check `gate`, strict, force-push and deletion blocked, `enforce_admins: false` so the direct-to-main push policy is unchanged. There is NO CD by decision: devbin ships no `release`, and its opt-in `publish` (default `mix hex.publish`) stays off until Riffle is more than the engine half. Note also that `mix gate` does NOT run credo -- credo is a devbin-only gate (`bin/riffle test credo`), so its 21-finding baseline is unguarded by CI until that cleanup workstream zeroes it and folds it into the alias.
+
 Zero-trace rule (DD-2) enforced structurally by `test/riffle/extrication_gate_test.exs`. Rulings log: ST0001 design.md DD-1..DD-9 (now under COMPLETED/); verbatim session logs in `intent/whiteboard/cc/.history/20260810/`. Push policy: hv authorised ("push away"); cc pushes at chunk boundaries; CI runs `mix gate` identically to local. Peer-session work landed on main this evening (hv-driven): the bin/riffle launcher rename (026310b) and credo + fleet .credo.exs (fb3e34a) -- credo cleanup of the 21 remaining baseline findings belongs to that workstream, not cc (R4b's delta: -1, zero added).
 
 ## Context for LLM
