@@ -290,7 +290,7 @@ defmodule Riffle.Predicate.StandardLib do
     @spec equal_to(String.t(), number()) :: (Item.t() -> boolean())
     def equal_to(field, value) when is_binary(field) and is_number(value) do
       fn item ->
-        case parse_number(Item.get_field(item, field)) do
+        case Riffle.Predicate.Coerce.to_number(Item.get_field(item, field)) do
           {:ok, num} -> num == value
           _ -> false
         end
@@ -324,7 +324,7 @@ defmodule Riffle.Predicate.StandardLib do
     @spec greater_than(String.t(), number()) :: (Item.t() -> boolean())
     def greater_than(field, value) when is_binary(field) and is_number(value) do
       fn item ->
-        case parse_number(Item.get_field(item, field)) do
+        case Riffle.Predicate.Coerce.to_number(Item.get_field(item, field)) do
           {:ok, num} -> num > value
           _ -> false
         end
@@ -358,7 +358,7 @@ defmodule Riffle.Predicate.StandardLib do
     @spec less_than(String.t(), number()) :: (Item.t() -> boolean())
     def less_than(field, value) when is_binary(field) and is_number(value) do
       fn item ->
-        case parse_number(Item.get_field(item, field)) do
+        case Riffle.Predicate.Coerce.to_number(Item.get_field(item, field)) do
           {:ok, num} -> num < value
           _ -> false
         end
@@ -392,7 +392,7 @@ defmodule Riffle.Predicate.StandardLib do
     @spec greater_than_or_equal_to(String.t(), number()) :: (Item.t() -> boolean())
     def greater_than_or_equal_to(field, value) when is_binary(field) and is_number(value) do
       fn item ->
-        case parse_number(Item.get_field(item, field)) do
+        case Riffle.Predicate.Coerce.to_number(Item.get_field(item, field)) do
           {:ok, num} -> num >= value
           _ -> false
         end
@@ -426,7 +426,7 @@ defmodule Riffle.Predicate.StandardLib do
     @spec less_than_or_equal_to(String.t(), number()) :: (Item.t() -> boolean())
     def less_than_or_equal_to(field, value) when is_binary(field) and is_number(value) do
       fn item ->
-        case parse_number(Item.get_field(item, field)) do
+        case Riffle.Predicate.Coerce.to_number(Item.get_field(item, field)) do
           {:ok, num} -> num <= value
           _ -> false
         end
@@ -462,7 +462,7 @@ defmodule Riffle.Predicate.StandardLib do
     def between(field, min, max)
         when is_binary(field) and is_number(min) and is_number(max) and min <= max do
       fn item ->
-        case parse_number(Item.get_field(item, field)) do
+        case Riffle.Predicate.Coerce.to_number(Item.get_field(item, field)) do
           {:ok, num} -> num >= min and num <= max
           _ -> false
         end
@@ -493,31 +493,12 @@ defmodule Riffle.Predicate.StandardLib do
     @spec valid_number(String.t()) :: (Item.t() -> boolean())
     def valid_number(field) when is_binary(field) do
       fn item ->
-        case parse_number(Item.get_field(item, field)) do
+        case Riffle.Predicate.Coerce.to_number(Item.get_field(item, field)) do
           {:ok, _} -> true
           _ -> false
         end
       end
     end
-
-    # Helper function to parse strings as numbers
-    defp parse_number(nil), do: {:error, :nil_value}
-    defp parse_number(value) when is_number(value), do: {:ok, value}
-
-    defp parse_number(value) when is_binary(value) do
-      case Integer.parse(value) do
-        {num, ""} ->
-          {:ok, num}
-
-        _ ->
-          case Float.parse(value) do
-            {num, ""} -> {:ok, num}
-            _ -> {:error, :not_a_number}
-          end
-      end
-    end
-
-    defp parse_number(_), do: {:error, :invalid_value}
   end
 
   defmodule Boolean do
@@ -558,8 +539,7 @@ defmodule Riffle.Predicate.StandardLib do
     @spec is_true(String.t()) :: (Item.t() -> boolean())
     def is_true(field) when is_binary(field) do
       fn item ->
-        value = Item.get_field(item, field)
-        is_binary(value) and value |> String.downcase() |> truthy?()
+        item |> Item.get_field(field) |> Riffle.Predicate.Coerce.truthy?()
       end
     end
 
@@ -590,8 +570,7 @@ defmodule Riffle.Predicate.StandardLib do
     @spec is_false(String.t()) :: (Item.t() -> boolean())
     def is_false(field) when is_binary(field) do
       fn item ->
-        value = Item.get_field(item, field)
-        is_binary(value) and value |> String.downcase() |> falsey?()
+        item |> Item.get_field(field) |> Riffle.Predicate.Coerce.falsey?()
       end
     end
 
@@ -657,21 +636,6 @@ defmodule Riffle.Predicate.StandardLib do
         value == nil or value == ""
       end
     end
-
-    # Helper functions for truthy/falsey values
-    defp truthy?("true"), do: true
-    defp truthy?("yes"), do: true
-    defp truthy?("y"), do: true
-    defp truthy?("1"), do: true
-    defp truthy?("on"), do: true
-    defp truthy?(_), do: false
-
-    defp falsey?("false"), do: true
-    defp falsey?("no"), do: true
-    defp falsey?("n"), do: true
-    defp falsey?("0"), do: true
-    defp falsey?("off"), do: true
-    defp falsey?(_), do: false
   end
 
   defmodule Collection do

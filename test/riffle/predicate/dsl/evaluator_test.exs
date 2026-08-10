@@ -94,12 +94,49 @@ defmodule Riffle.Predicate.Dsl.EvaluatorTest do
     expr = Code.string_to_quoted!(~s|to_boolean(fields["true_string"])|)
     assert Evaluator.evaluate(expr, item) == true
 
-    # Invalid conversions
+    # Invalid conversions are strict (DD-8): garbage raises at the evaluator
+    # level; the predicate boundary converts it to no-match
     expr = Code.string_to_quoted!(~s|to_integer(fields["text"])|)
-    assert Evaluator.evaluate(expr, item) == 0
+
+    assert_raise Riffle.Predicate.Dsl.CoercionError, fn ->
+      Evaluator.evaluate(expr, item)
+    end
 
     expr = Code.string_to_quoted!(~s|to_float(fields["text"])|)
-    assert Evaluator.evaluate(expr, item) == 0.0
+
+    assert_raise Riffle.Predicate.Dsl.CoercionError, fn ->
+      Evaluator.evaluate(expr, item)
+    end
+  end
+
+  describe "strict coercion at the predicate boundary (DD-8)" do
+    test "failure: a partial numeric parse never matches" do
+      {:ok, func} = Evaluator.parse("to_integer(@age) > 30")
+
+      assert func.(Item.new(["age"], ["35abc"])) == false
+      assert func.(Item.new(["age"], ["35"])) == true
+    end
+
+    test "failure: garbage never fabricates a zero that matches" do
+      {:ok, func} = Evaluator.parse("to_integer(@count) == 0")
+
+      assert func.(Item.new(["count"], ["banana"])) == false
+      assert func.(Item.new(["count"], ["0"])) == true
+    end
+
+    test "failure: implicit comparison coercion requires a full parse" do
+      {:ok, func} = Evaluator.parse("@age > 30")
+
+      assert func.(Item.new(["age"], ["35abc"])) == false
+      assert func.(Item.new(["age"], ["35"])) == true
+    end
+
+    test "failure: to_boolean outside the enumeration never matches" do
+      {:ok, func} = Evaluator.parse("to_boolean(@flag)")
+
+      assert func.(Item.new(["flag"], ["banana"])) == false
+      assert func.(Item.new(["flag"], ["yes"])) == true
+    end
   end
 
   test "string operation helpers" do

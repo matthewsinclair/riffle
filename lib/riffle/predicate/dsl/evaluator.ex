@@ -24,6 +24,8 @@ defmodule Riffle.Predicate.Dsl.Evaluator do
       Evaluator.parse(`@status == "active" && @tier == "premium"`)
   """
 
+  alias Riffle.Predicate.Coerce
+  alias Riffle.Predicate.Dsl.CoercionError
   alias Riffle.Predicate.Item
 
   @type expression :: String.t() | term()
@@ -99,7 +101,15 @@ defmodule Riffle.Predicate.Dsl.Evaluator do
   """
   @spec create_function(term()) :: function()
   def create_function(expr) do
-    fn item -> evaluate(expr, item) end
+    fn item ->
+      try do
+        evaluate(expr, item)
+      rescue
+        # DD-8: an explicit coercion on garbage input means the predicate
+        # simply does not match -- never a fabricated zero.
+        CoercionError -> false
+      end
+    end
   end
 
   @doc """
@@ -173,36 +183,32 @@ defmodule Riffle.Predicate.Dsl.Evaluator do
     Map.get(item.metadata, key)
   end
 
-  # Type conversion helpers
+  # Type conversion helpers. Strict (DD-8): full parses and the defined
+  # truthiness enumeration only; garbage raises CoercionError, which the
+  # predicate boundary (create_function/1) converts to no-match.
   def evaluate({:to_integer, _, [expr]}, item) do
-    case evaluate(expr, item) do
-      value when is_binary(value) ->
-        case Integer.parse(value) do
-          {int, _} -> int
-          :error -> 0
-        end
+    value = evaluate(expr, item)
 
-      value when is_integer(value) ->
-        value
+    case Coerce.to_integer(value) do
+      {:ok, integer} ->
+        integer
 
-      _ ->
-        0
+      :error ->
+        raise CoercionError,
+          message: "to_integer: cannot coerce #{inspect(value)} (full parses only)"
     end
   end
 
   def evaluate({:to_float, _, [expr]}, item) do
-    case evaluate(expr, item) do
-      value when is_binary(value) ->
-        case Float.parse(value) do
-          {float, _} -> float
-          :error -> 0.0
-        end
+    value = evaluate(expr, item)
 
-      value when is_number(value) ->
-        value * 1.0
+    case Coerce.to_float(value) do
+      {:ok, float} ->
+        float
 
-      _ ->
-        0.0
+      :error ->
+        raise CoercionError,
+          message: "to_float: cannot coerce #{inspect(value)} (full parses only)"
     end
   end
 
@@ -212,21 +218,15 @@ defmodule Riffle.Predicate.Dsl.Evaluator do
   end
 
   def evaluate({:to_boolean, _, [expr]}, item) do
-    case evaluate(expr, item) do
-      value when is_binary(value) ->
-        String.downcase(value) in ["true", "1", "yes", "y", "t"]
+    value = evaluate(expr, item)
 
-      value when is_boolean(value) ->
-        value
+    case Coerce.to_boolean(value) do
+      {:ok, boolean} ->
+        boolean
 
-      value when is_number(value) ->
-        value > 0
-
-      nil ->
-        false
-
-      _ ->
-        true
+      :error ->
+        raise CoercionError,
+          message: "to_boolean: #{inspect(value)} is outside the truthiness enumeration"
     end
   end
 
@@ -249,22 +249,23 @@ defmodule Riffle.Predicate.Dsl.Evaluator do
     String.ends_with?(string_val, suffix_val)
   end
 
-  # Comparison operators
+  # Comparison operators. Implicit mixed-type coercion is strict (DD-8): a
+  # string compared against a number must parse fully, and a failed parse is
+  # simply false -- the comparison is already the boolean boundary.
   def evaluate({:==, _, [left, right]}, item) do
     left_val = evaluate(left, item)
     right_val = evaluate(right, item)
 
-    # Try to coerce the values to the same type for comparison
     case {left_val, right_val} do
       {l, r} when is_number(l) and is_binary(r) ->
-        case Float.parse(r) do
-          {num, _} -> l == num
+        case Coerce.to_number(r) do
+          {:ok, num} -> l == num
           :error -> false
         end
 
       {l, r} when is_binary(l) and is_number(r) ->
-        case Float.parse(l) do
-          {num, _} -> num == r
+        case Coerce.to_number(l) do
+          {:ok, num} -> num == r
           :error -> false
         end
 
@@ -281,17 +282,16 @@ defmodule Riffle.Predicate.Dsl.Evaluator do
     left_val = evaluate(left, item)
     right_val = evaluate(right, item)
 
-    # Try to coerce the values to the same type for comparison
     case {left_val, right_val} do
       {l, r} when is_number(l) and is_binary(r) ->
-        case Float.parse(r) do
-          {num, _} -> l > num
+        case Coerce.to_number(r) do
+          {:ok, num} -> l > num
           :error -> false
         end
 
       {l, r} when is_binary(l) and is_number(r) ->
-        case Float.parse(l) do
-          {num, _} -> num > r
+        case Coerce.to_number(l) do
+          {:ok, num} -> num > r
           :error -> false
         end
 
@@ -310,17 +310,16 @@ defmodule Riffle.Predicate.Dsl.Evaluator do
     left_val = evaluate(left, item)
     right_val = evaluate(right, item)
 
-    # Try to coerce the values to the same type for comparison
     case {left_val, right_val} do
       {l, r} when is_number(l) and is_binary(r) ->
-        case Float.parse(r) do
-          {num, _} -> l < num
+        case Coerce.to_number(r) do
+          {:ok, num} -> l < num
           :error -> false
         end
 
       {l, r} when is_binary(l) and is_number(r) ->
-        case Float.parse(l) do
-          {num, _} -> num < r
+        case Coerce.to_number(l) do
+          {:ok, num} -> num < r
           :error -> false
         end
 
@@ -369,4 +368,15 @@ defmodule Riffle.Predicate.Dsl.Evaluator do
   def evaluate(other, _item) do
     raise ArgumentError, "Unsupported expression: #{inspect(other)}"
   end
+end
+
+defmodule Riffle.Predicate.Dsl.CoercionError do
+  @moduledoc """
+  Raised when an explicit expr coercion (`to_integer`, `to_float`,
+  `to_boolean`) receives input outside the strict contract:
+  full parses and the defined truthiness enumeration only.
+  `Riffle.Predicate.Dsl.Evaluator.create_function/1` converts it to a
+  no-match at the predicate boundary: garbage input never matches.
+  """
+  defexception [:message]
 end
