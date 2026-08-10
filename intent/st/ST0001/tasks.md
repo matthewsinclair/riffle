@@ -4,10 +4,10 @@
 
 ### WP-01 -- D2 root-cause and verdict
 
-- [ ] Run the five characterisation tests in the archive (read-only)
-- [ ] Trace `process/4` -> `prepare_data/1` -> `load_pipeline/2` -> `execute_sia_pipeline/3`; find the empty-set step
-- [ ] Classify engine-vs-glue; record verdict + file:line evidence in design.md
-- [ ] If engine-side: add a red-first AT to WP-03 scope (contract amendment)
+- [x] Run the five characterisation tests in the archive (read-only) -- 12 passed, pins hold
+- [x] Trace `process/4` -> `prepare_data/1` -> `load_pipeline/2` -> `execute_sia_pipeline/3`; find the empty-set step -- engine produces tagged items; glue discards them
+- [x] Classify engine-vs-glue; record verdict + file:line evidence in design.md -- VERDICT: glue (`sia.ex` never writes cargo `:results`; removed in `e0b5dc2a`)
+- [x] If engine-side: add a red-first AT to WP-03 scope (contract amendment) -- n/a, verdict is glue-side; no contract change
 
 ### WP-02 -- Scaffolding and CI gate
 
@@ -22,8 +22,8 @@
 - [ ] Mechanical rename per the design map
 - [ ] Sever stitch 1 (DD-1); scrub the `dsl/macro.ex` comment
 - [ ] Fix D5 arg shape
-- [ ] Full suite green under the gate; ATs green
-- [ ] critic-elixir advisory pass; findings logged (not gating)
+- [ ] Full suite green under the gate; ATs green (mechanical-port commit)
+- [ ] Remediation pass: critic-elixir on ported tree; fix CRITICAL/HIGH in code + tests; strengthen weak assertions; async where safe (hv rewrite ruling; layered commits, green at each step)
 
 ## Task Notes
 

@@ -35,4 +35,5 @@ claims: [ST0001]
 - (2026-08-10) hv: NO reference-material carry-over -- SIA/datasource stay in the archive, read in place only. WP-04 dropped.
 - (2026-08-10) hv: zero references to the source project ANYWHERE in Riffle code -- port then act as if it never existed. AC-03.2 covers lib/ + test/ via grep-gate. cc scope note: intent/ extrication record + README status para stay (hv-authored), pending explicit hv say-so.
 - (2026-08-10) hv: push policy -- commit locally as needed; hv pushes upstream when a chunk is public-worthy (fewer CI triggers = lower cost). cc does not push unprompted.
-- (2026-08-10) cc: port discipline -- nearly-as-is, no opportunistic refactors; critic-elixir advisory pass at end logs findings for a later thread, does not gate ST0001.
+- (2026-08-10) hv (mid-session): fresh-start flexibility -- rewrite whatever needs rewriting, code AND tests; the rewrite must be worthwhile. DD-4 amended: quality over fidelity; critic pass is remediation, not advisory; AC-03.4 added. Engine semantics still port (the asset); commits layered for reviewability.
+- (2026-08-10) cc: WP-01 verdict -- D2 is SIA GLUE (sia.ex never writes cargo :results; removed deliberately in archive commit e0b5dc2a). Engine exonerated: produces correctly tagged sense->infer->act items. Nothing travels with the port. Full evidence: ST0001 design.md "D2 verdict".

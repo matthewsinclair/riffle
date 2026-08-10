@@ -24,14 +24,31 @@ Gates before code, diagnosis before port:
 
 ## D2 verdict (WP-01 deliverable)
 
-_Pending WP-01._ Protocol: run the five characterisation tests in the archive (`test/multiplyer/sia/sia_pipeline_test.exs`, pinned `assert [] = results`); trace `sia.ex` `process/4` -> `prepare_data/1` -> `load_pipeline/2` (`:default_module` branch, `sia.ex:149-152`) -> `execute_sia_pipeline/3`; identify the step that produces the empty set; classify engine (travels with the port; becomes a red-first AT here) vs glue (dies in ST0003's rewrite; recorded there). Evidence at file:line, from real reads.
+**VERDICT: SIA glue. The defect does not travel with the Predicate port; it dies in ST0003's rewrite. No engine fix required.** (Recorded 2026-08-10. Method: five characterisation tests re-run in the archive -- 12 passed, pins hold -- then a stage-by-stage probe script run via `mix run` against the 4-row characterisation dataset. Zero archive edits.)
+
+Stage evidence:
+
+1. `DefaultPipeline.get_pipeline(:main)` returns a real `%Multiplyer.Predicate.Pipeline{}` (name `:main`, signal/inference/action loops). The `:default_module` branch (`sia.ex:149-152`) is NOT the failing step.
+2. `Sia.prepare_data/1` yields a lazy stream of 4 `%Predicate.Item{}` structs. Fine.
+3. `Sia.execute_sia_pipeline/3` -- and the raw unrescued `execute_pipeline/2` -- produce **2 correctly tagged items** with full sense->infer->act chains (eg `[:action_create_upsell, :action_send_promotion, :inference_upsell_opportunity, :inference_high_value_user, :signal_high_activity]`). **The engine works.** (2-of-4 is the pipeline filtering non-matching items -- by design.)
+4. Full `process/2`: no errors; stats recorded (signal 3, inference 3, action 3, items_processed 2); cargo `:results_available` = `true`; cargo `:results` = NOT SET.
+
+Root cause: `Multiplyer.Sia.process/4` never writes cargo `:results`. `update_statistics/3` (archive `sia.ex:469-525`) materialises the results stream (`sample = results_stream |> Enum.to_list()`, line 472), derives tag counts, and DISCARDS the materialised results. The success path sets only `:results_available, true` -- a flag that lies: results are precisely NOT available. The characterisation tests read `Ctx.get_cargo_item(ctx, :results, [])` (`sia_pipeline_test.exs:79` etc) and get the DEFAULT `[]` structurally, regardless of engine behaviour.
+
+Causal history (git forensics): commit `e0b5dc2a` ("SIA+Predicate: final cleanup", 2025-04-04) deliberately removed both `Ctx.set_cargo_item(:results, ...)` writes from `sia.ex` ("Return the updated context with statistics only"), leaving no results-delivery path. The engine beneath was and is sound.
+
+ST0003 implications (recorded here, consumed there):
+
+- The rewrite must DELIVER results to the consumer (via ctx-next typed emissions), not merely count them -- exactly what the strengthened ATs (`assert [%Item{} | _] = results`) enforce.
+- The `:results_available` lying-flag shape must not recur.
+- Expect filtered output: N in, <=N tagged out (riffles catch, streams flow).
 
 ## Design Decisions
 
 - **DD-1 Stitch-1 severance -- config-injected default pipeline.** The archive engine hardcodes a pattern-layer fallback (`pipeline.ex:138,182`, `loop.ex:205-208`, comment at `dsl/macro.ex:94`). In Riffle the engine resolves its default pipeline from application config (`:riffle, :default_pipeline`); when unset, the failure is explicit (tagged error or raise with a clear message -- final shape recorded at implementation against the real call sites). The engine never names a pattern-layer module. No Silent Errors: unset config surfaces; it never nil-glides.
 - **DD-2 Zero source-project traces in code (hv ruling, 2026-08-10).** No references to the source project anywhere in `lib/` or `test/` -- modules, atoms, app-env keys, strings, comments, moduledocs. Enforced by AT-03.2: a gate test that scans `lib/` + `test/` with a runtime-constructed needle (so the gate never contains the literal it hunts). Scope boundary: the `intent/` extrication record and the README status paragraph are hv-authored and stay.
 - **DD-3 No reference-material carry-over (hv ruling, 2026-08-10).** SIA glue, `sia.pred`, and datasource stay in the archive and are read in place for ST0003. Nothing is copied into this repo.
-- **DD-4 Port discipline: nearly-as-is.** No opportunistic refactors during the port -- the diff stays auditable against the source. A `critic-elixir` advisory pass at the end logs findings for a later thread; it does not gate ST0001.
+- **DD-4 Port discipline: quality over fidelity (AMENDED by hv ruling, 2026-08-10).** Original: nearly-as-is, no opportunistic refactors, critic advisory-only. hv amendment: Riffle is a fresh start informed by SIA -- rewrite whatever needs rewriting, code and tests, so the rewrite is worthwhile. Operationalised: the engine's architecture and semantics still port (the engine is the asset), but archive shapes that conflict with the rule library (PFIC, No Silent Errors, strong assertions, async tests, control-flow-free tests) are FIXED during the port, not preserved. The critic-elixir pass is remediation, not advisory. Commits stay layered -- mechanical port first, then remediation with a green suite at each step -- so the transformation is reviewable.
 - **DD-5 D5 subsumed by the gate.** The arg-shape warning in the ported DSL test is fixed at port; with warnings-as-errors covering test compilation, its class cannot recur (AC-03.1 proves it).
 - **DD-6 Push policy (hv ruling, 2026-08-10).** Commit locally as work lands; hv pushes upstream when a chunk is public-worthy (also meters CI cost). cc does not push unprompted.
 

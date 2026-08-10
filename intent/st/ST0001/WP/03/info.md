@@ -10,7 +10,7 @@ status: Not Started
 
 ## Objective
 
-Port the Predicate engine (15 files, ~5.1k LOC) and its test suite into `lib/riffle/predicate/` / `test/riffle/predicate/` per the design.md rename map. Sever stitch 1 (config-injected default-pipeline resolution, DD-1), fix D5, and land with zero source-project traces (DD-2). Nearly-as-is discipline: no opportunistic refactors (DD-4).
+Port the Predicate engine (15 files, ~5.1k LOC) and its test suite into `lib/riffle/predicate/` / `test/riffle/predicate/` per the design.md rename map. Sever stitch 1 (config-injected default-pipeline resolution, DD-1), fix D5, and land with zero source-project traces (DD-2). Discipline per DD-4 as amended (hv 2026-08-10): engine semantics port; shapes that conflict with the rule library are rewritten -- code and tests -- in layered commits, green at each step.
 
 ## Deliverables
 

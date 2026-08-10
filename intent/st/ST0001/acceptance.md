@@ -26,9 +26,9 @@ title: "Extricate Predicate and SIA from Multiplyer -- acceptance contract"
 
 None -- WP-distributed.
 
-### WP-01 -- D2 root-cause and verdict (status: Not Started)
+### WP-01 -- D2 root-cause and verdict (status: Done)
 
-- AC-01.1 (non-test) D2 root-caused with the engine-vs-glue verdict recorded, file:line evidence from real reads of the archive -- evidence: design.md "D2 verdict" section -- satisfied: no
+- AC-01.1 (non-test) D2 root-caused with the engine-vs-glue verdict recorded, file:line evidence from real reads of the archive -- evidence: design.md "D2 verdict" section -- satisfied: yes
 
 ### WP-02 -- Scaffolding and CI gate (status: Not Started)
 
@@ -39,6 +39,7 @@ None -- WP-distributed.
 - AC-03.1 The ported engine and its full ported test suite are green under `mix test --warnings-as-errors` (D5 class structurally excluded)
 - AC-03.2 Zero source-project traces in `lib/` and `test/` -- modules, atoms, app-env keys, strings, comments, moduledocs (hv ruling 2026-08-10)
 - AC-03.3 Default-pipeline resolution is config-injected (`:riffle, :default_pipeline`); unset config surfaces an explicit error; the engine names no pattern-layer module
+- AC-03.4 (non-test) Ported code and tests remediated against the rule library -- critic-elixir run on the ported tree with CRITICAL/HIGH findings fixed (hv rewrite-flexibility ruling 2026-08-10; DD-4 as amended) -- evidence: critic report + remediation commits -- satisfied: no
 
 ## Acceptance Tests
 
@@ -55,4 +56,4 @@ None -- WP-distributed.
 - AT-03.1 full ported suite under `mix test --warnings-as-errors` -- covers AC-03.1 -- status: to-write (red-first)
 - AT-03.2 test/riffle/extrication_gate_test.exs::"lib/ and test/ carry zero source-project traces" -- covers AC-03.2 -- status: to-write (red-first)
 - AT-03.3 test/riffle/predicate/default_pipeline_resolution_test.exs::"configured module resolves; unset config errors explicitly" -- covers AC-03.3 -- status: to-write (red-first)
-- Coverage: complete -- AC-03.1..3 each covered by an AT above; non-test ACs (AC-01.1, AC-02.1) carry evidence inline.
+- Coverage: complete -- AC-03.1..3 each covered by an AT above; non-test ACs (AC-01.1, AC-02.1, AC-03.4) carry evidence inline.
