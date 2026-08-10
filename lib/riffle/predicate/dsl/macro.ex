@@ -306,13 +306,11 @@ defmodule Riffle.Predicate.Dsl.Macro do
       # reference resolved and every body hydrated to a callable exactly
       # once, here -- not per item at evaluation time.
       def unquote(name)() do
-        predicates =
-          Enum.map(
-            unquote(predicates),
-            &Riffle.Predicate.Dsl.Macro.hydrate_predicate_ref!(__MODULE__, &1)
-          )
-
-        Riffle.Predicate.Loop.new(unquote(name), unquote(description), predicates)
+        Riffle.Predicate.Resolver.resolve_loop!(__MODULE__, %{
+          name: unquote(name),
+          description: unquote(description),
+          predicates: unquote(predicates)
+        })
       end
     end
   end
@@ -376,64 +374,13 @@ defmodule Riffle.Predicate.Dsl.Macro do
       # Generate a function that returns this pipeline struct, with loop
       # references resolved and hydrated recursively.
       def unquote(name)() do
-        loops =
-          Enum.map(
-            unquote(loops),
-            &Riffle.Predicate.Dsl.Macro.hydrate_loop_ref!(__MODULE__, &1)
-          )
-
-        Riffle.Predicate.Pipeline.new(unquote(name), unquote(description), loops)
+        Riffle.Predicate.Resolver.resolve_pipeline!(__MODULE__, %{
+          name: unquote(name),
+          description: unquote(description),
+          loops: unquote(loops)
+        })
       end
     end
-  end
-
-  @doc false
-  # Hydration for macro-generated definitions: a reference resolves through
-  # the defining module or raises with the offending name; a body-carrying
-  # definition becomes a callable predicate exactly once, here. Missing
-  # names must never become nil entries that crash far away at evaluation.
-  @spec hydrate_predicate_ref!(module(), map()) :: map()
-  def hydrate_predicate_ref!(module, %{name: name, inline: false}) do
-    case module.get_predicate(name) do
-      nil ->
-        raise Riffle.Predicate.UnresolvedPredicateError,
-          message:
-            "cannot resolve predicate #{inspect(name)}: " <>
-              "#{inspect(module)} defines no such predicate"
-
-      pred_def ->
-        hydrate_predicate_ref!(module, pred_def)
-    end
-  end
-
-  def hydrate_predicate_ref!(_module, %{name: name, body: body} = pred_def) do
-    Riffle.Predicate.new(
-      name,
-      Map.get(pred_def, :description, ""),
-      Riffle.Predicate.create(body)
-    )
-  end
-
-  def hydrate_predicate_ref!(_module, %{function: _} = predicate), do: predicate
-
-  @doc false
-  @spec hydrate_loop_ref!(module(), map()) :: Riffle.Predicate.Loop.t()
-  def hydrate_loop_ref!(module, %{name: name, inline: false}) do
-    case module.get_loop(name) do
-      nil ->
-        raise Riffle.Predicate.UnresolvedPredicateError,
-          message:
-            "cannot resolve loop #{inspect(name)}: " <>
-              "#{inspect(module)} defines no such loop"
-
-      loop_def ->
-        hydrate_loop_ref!(module, loop_def)
-    end
-  end
-
-  def hydrate_loop_ref!(module, %{name: name, predicates: predicates} = loop_def) do
-    hydrated = Enum.map(predicates, &hydrate_predicate_ref!(module, &1))
-    Riffle.Predicate.Loop.new(name, Map.get(loop_def, :description, ""), hydrated)
   end
 
   # Helper functions for constructing predicate and loop references
