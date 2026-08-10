@@ -32,3 +32,19 @@
 - cc (DD-9, socrates-reviewed): resolver design as recorded in design.md.
 - cc: :loose coercion mode deferred (not the trivial default hv conditioned it on) -- recorded in DD-8.
 - cc: R4b (extraction-ladder dedup + loader top-level completeness) split to next session at hv's fold call.
+
+## Session 3 (post-compact bounce, archived at localfold #3)
+
+### DOING (completed)
+
+- WP-04 R4b (7c3c940): `Dsl.Statements` as THE block grammar (macro + parser twins and their eight dead expr clauses gone); `Parser.extract_definitions!/1` as one top-level dispatch whose catch-all IS the completeness check (deliberate deviation from restart.md's accept-list design, which would still have dropped recognised-head-malformed statements); loader thinned to parse -> extract. Critics: code 0C/0W on the four DSL files; test-check found 1 CRITICAL -- the STD-alias test pinned parse-level fields only and passed with the alias injection deleted.
+- That CRITICAL exposed a real defect: the advertised `call &STD.Boolean.is_true/1, [...]` syntax had NO handler (`undefined function call/2`; the archive's always-false catch-all had swallowed it), and the loader's alias-injection prelude was theatre since parsing never resolves aliases. `Predicate.create/1` gained the `{:call, ...}` head and `expand_std/1` (pure AST prewalk; eval-env alias options are deprecated on 1.20); injection deleted.
+- ST0001 CLOSED: `intent wp done ST0001/04` (5/5), `intent st done ST0001` (11/11), docs moved to `intent/st/COMPLETED/ST0001/`.
+- Infra (hv-directed): branch protection on main; CI/CD posture recorded; credo taken from a 21-finding baseline to ZERO (all fixed at source, none suppressed -- three complexity findings were duplication in disguise) and `credo --strict` folded into `mix gate` so CI enforces it. 286 tests green throughout; `bin/riffle test all` green end to end.
+
+### Decisions this session
+
+- hv: credo initially cc's to ignore ("another Opus session will fix it"), then reassigned to cc on the "still not pristine" call -- cc fixed all 21 and put credo in the gate.
+- hv: main branch-protected with `enforce_admins: false`, so the direct-to-main push policy stands; GitHub logs each direct push as a bypass. Flipping to true (branch+PR per chunk) deferred, not declined.
+- hv/cc: no CD by decision -- devbin has no `release`; its `publish` opt-in stays off while Riffle is the engine half of a library whose pattern layer is unwritten.
+- hv: next session does ST0002 then ST0003, and that closes the day.

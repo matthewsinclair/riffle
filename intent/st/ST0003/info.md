@@ -1,7 +1,7 @@
 ---
 verblock: "10 Aug 2026:v0.1: matts - Initial version"
 intent_version: 2.18.0
-status: Not Started
+status: WIP
 slug: sia-pattern-layer-rewrite
 created: 20260810
 completed:

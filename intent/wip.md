@@ -1,21 +1,23 @@
 ---
-verblock: "10 Aug 2026:v0.5: cc - ST0001 CLOSED (11/11); ST0002 kickoff next, pending hv"
+verblock: "10 Aug 2026:v0.6: cc - ST0001 CLOSED + credo zero in the gate; ST0002/ST0003 next"
 ---
 
 # Work In Progress
 
 ## Current Focus
 
-**ST0001 is CLOSED** (2026-08-10, gate 11/11 satisfied; moved to `intent/st/COMPLETED/ST0001`). The Predicate engine is extricated, PFIC-transformed, and critic-clean: one resolution path (Resolver, DD-9), one evaluation entry point (Loop.process, streams cached), one coercion contract (Coerce strict, DD-8), one DSL block grammar (Dsl.Statements), one top-level dispatch whose catch-all is the completeness check, and a genuinely working STD surface (`call` head + `expand_std/1` at `Predicate.create/1` -- R4b exposed and fixed the advertised-but-dead call syntax). Suite 286 green under `mix gate`; day total fourteen gate-green engine commits.
+**ST0001 is CLOSED** (2026-08-10, gate 11/11 satisfied; moved to `intent/st/COMPLETED/ST0001`). The Predicate engine is extricated, PFIC-transformed, and critic-clean: one resolution path (Resolver, DD-9), one evaluation entry point (Loop.process, streams cached), one coercion contract (Coerce strict, DD-8), one DSL block grammar (Dsl.Statements), one top-level dispatch whose catch-all is the completeness check, and a genuinely working STD surface (`call` head + `expand_std/1` at `Predicate.create/1` -- R4b exposed and fixed the advertised-but-dead call syntax). Post-close, credo went from a 21-finding baseline to zero and joined the gate (addendum in ST0001 impl.md). Suite 286 green; seventeen commits pushed today, CI green on every one.
+
+**Next: ST0002 then ST0003**, in that order (ST0003 is blocked on the waist). hv sequenced both on 2026-08-10; scope and plan still need ratification at kickoff.
 
 ## Active Steel Threads
 
-- ST0002 (Not Started): ctx-next, the Bowtie waist -- needs hv assignment/plan ratification
-- ST0003 (Not Started): SIA pattern layer rewrite -- D2 implications recorded in ST0001 design.md (deliver results via emissions; no lying availability flag)
+- ST0002 (WIP, unstarted): ctx-next, the Bowtie waist -- REBUILD to the published spec, not a port. Doc set exists; `acceptance.md` is still the unfilled template, so authoring + ratifying that contract is the first act (the close-gate is fail-by-default). Measured minimum surface = the 24 Ctx functions the extricated code actually consumes, by call-site count, in `intent/docs/extrication-handoff.md`.
+- ST0003 (WIP, unstarted): SIA pattern layer rewrite -- red-first against ctx-next; the five characterisation tests pinned at `assert [] = results` become its ATs, strengthened to `assert [%Item{} | _] = results`. D2 implications in ST0001 design.md (deliver results via emissions; no lying availability flag); D9 rescue-all must not reproduce.
 
 ## Upcoming Work
 
-- ST0002 kickoff (pending hv)
+- ST0002 kickoff: author acceptance.md, ratify with hv, then WP breakdown
 - Backlog (filed, unscheduled): Cache perf fix (persistent_term flag + ets counters -- DD-9/M4); socrates handoff on Macro vs DefaultPipelineConfig accessor generation; socrates question on a single definition-argument-shape recogniser in Dsl.Statements (R4b critic, deferred with calibration reasoning); one error vocabulary for malformed DSL text at the loader boundary (public-shape decision); diogenes test-spec pass; cache key source-qualification (documented limitation)
 
 ## Notes

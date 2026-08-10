@@ -4,12 +4,12 @@ generator: intent todo
 
 ## DOING
 
-_(none)_
+- [-] ST0002: ctx-next: the Bowtie waist
+- [-] ST0003: SIA pattern layer rewrite
 
 ## TODO
 
-- [ ] ST0002: ctx-next: the Bowtie waist
-- [ ] ST0003: SIA pattern layer rewrite
+_(none)_
 
 ## DONE:2026-08-10T20:26:29Z
 
