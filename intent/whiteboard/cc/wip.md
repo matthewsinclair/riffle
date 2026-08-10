@@ -3,8 +3,8 @@ node: cc
 name: Control Claude
 role: control
 session_id: 8b09c4df-a4be-4d1c-87d9-7b8a76293477
-heartbeat_at: 2026-08-10T16:42Z
-status: active
+heartbeat_at: 2026-08-10T18:14Z
+status: paused
 focus: "ST0001: D2 root-cause verdict, then Predicate engine port"
 claims: [ST0001]
 ---
@@ -13,26 +13,22 @@ claims: [ST0001]
 
 ## DOING
 
-- (2026-08-10) Day complete: ST0001 WP-01..03 DONE (D2 verdict; gate; port + 3 remediation layers; 237 green). WP-04 chartered (DD-7). Awaiting hv: coercion ruling (AC-04.5), push decision, WP-04 go.
+- (paused at localfold 2026-08-10) ST0001 WP-01..03 DONE, WP-04 chartered. Next on pickup: WP-04 (socrates design pass first). Session archive: .history/20260810/wip.md.
 
 ## TODO
 
-- WP-04 (Not Started): socrates design pass -> single resolver -> PFIC shapes -> expr-family test consolidation -> coercion module (after hv ruling) -> critic re-run clean
+- WP-04 (Not Started): socrates design pass -> single resolver -> PFIC shapes -> expr-family test consolidation -> coercion module (after hv ruling, AC-04.5) -> critic re-run clean
+- Awaiting hv: coercion ruling (strict vs forgiving-zero; cc recommends strict), push decision
 - ST0002 / ST0003 queued behind ST0001 close
 
 ## Watch-outs
 
-- Engine must NEVER reference the pattern layer -- stitch 1 (predicate -> Sia.DefaultPipeline fallback) must not re-form in Riffle.
+- Engine must NEVER reference the pattern layer -- resolution only via `config :riffle, :default_pipeline`; the stitch must not re-form.
 - Archive (`~/Devel/_Archive/Multiplyer`) is read-only forensics: no new work lands in its history.
-- D9 rescue-all error swallow must not be reproduced anywhere in Riffle (No Silent Errors).
-- Warnings-as-errors covers TEST compilation too, from day one (D5 class).
+- No silent failures anywhere: unresolvable references raise; rescue-and-swallow forbidden (D9 shape).
+- Warnings-as-errors covers TEST compilation; `mix gate` green before every commit.
+- Zero source-project traces in lib/ + test/ -- extrication_gate_test enforces; keep it green.
 
 ## Decisions
 
-- (2026-08-10) hv: ST0001 acceptance contract RATIFIED (with amendments below).
-- (2026-08-10) hv: NO reference-material carry-over -- SIA/datasource stay in the archive, read in place only. WP-04 dropped.
-- (2026-08-10) hv: zero references to the source project ANYWHERE in Riffle code -- port then act as if it never existed. AC-03.2 covers lib/ + test/ via grep-gate. cc scope note: intent/ extrication record + README status para stay (hv-authored), pending explicit hv say-so.
-- (2026-08-10) hv: push policy -- commit locally as needed; hv pushes upstream when a chunk is public-worthy (fewer CI triggers = lower cost). cc does not push unprompted.
-- (2026-08-10) hv (mid-session): fresh-start flexibility -- rewrite whatever needs rewriting, code AND tests; the rewrite must be worthwhile. DD-4 amended: quality over fidelity; critic pass is remediation, not advisory; AC-03.4 added. Engine semantics still port (the asset); commits layered for reviewability.
-- (2026-08-10) cc: WP-01 verdict -- D2 is SIA GLUE (sia.ex never writes cargo :results; removed deliberately in archive commit e0b5dc2a). Engine exonerated: produces correctly tagged sense->infer->act items. Nothing travels with the port. Full evidence: ST0001 design.md "D2 verdict".
-- (2026-08-10) hv (mid-session 2): PFIC the ported engine -- not just critic patches. DD-7: merged with hydration consolidation into WP-04 (one loud resolver, pattern-matched heads, file-by-file, gate green each step). Correctness pins (WP-03 criticals + un-neutered tests) land first.
+- (2026-08-10) All session rulings settled and recorded permanently: ST0001 design.md DD-1..DD-7 (+ D2 verdict), intent/wip.md, intent/restart.md. Verbatim log archived in .history/20260810/wip.md.
