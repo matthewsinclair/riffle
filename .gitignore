@@ -1,0 +1,13 @@
+# Intent configuration
+intent/.config/cache/
+intent/.config/backup/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*~
+.vscode/
+.idea/

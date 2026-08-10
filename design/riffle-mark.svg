@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="color:#1A1A1A">
+  <!-- Riffle: a stream runs over angled riffle bars; the gold stays caught. -->
+  <g fill="none" stroke="currentColor" stroke-width="26" stroke-linecap="round" stroke-linejoin="round">
+    <!-- water surface: two flow lines, entering and leaving the frame -->
+    <path d="M40 170 c 28,-24 57,-24 86,0 c 29,24 57,24 86,0 c 28,-24 57,-24 86,0 c 29,24 57,24 86,0 c 28,-24 57,-24 86,0"/>
+    <path d="M84 252 c 28,-24 57,-24 86,0 c 29,24 57,24 86,0 c 28,-24 57,-24 86,0 c 29,24 57,24 86,0"/>
+    <!-- channel floor -->
+    <path d="M56 408 H456"/>
+    <!-- three riffle bars, leaning downstream -->
+    <path d="M180 408 L210 300"/>
+    <path d="M260 408 L290 300"/>
+    <path d="M340 408 L370 300"/>
+  </g>
+  <!-- the catch: gold held behind the first riffle -->
+  <circle cx="142" cy="364" r="24" fill="#F0B429" stroke="currentColor" stroke-width="14"/>
+</svg>
