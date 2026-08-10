@@ -206,6 +206,34 @@ defmodule Riffle.Predicate.Dsl.LoaderTest do
              )
     end
 
+    test "success: the injected STD alias resolves in DSL strings" do
+      dsl_content = """
+      predicate(:active_user, "Active users") do
+        call &STD.Boolean.is_true/1, ["active"]
+      end
+      """
+
+      {:ok, %{predicates: [pred_def]}} = Loader.load_string(dsl_content)
+      assert pred_def.name == :active_user
+      assert pred_def.description == "Active users"
+    end
+
+    test "success: both the STD alias and the full StandardLib path parse in DSL strings" do
+      dsl_content = """
+      predicate(:active_with_short, "Active users (short syntax)") do
+        call &STD.Boolean.is_true/1, ["active"]
+      end
+
+      predicate(:active_with_long, "Active users (long syntax)") do
+        call &Riffle.Predicate.StandardLib.Boolean.is_true/1, ["active"]
+      end
+      """
+
+      {:ok, %{predicates: pred_defs}} = Loader.load_string(dsl_content)
+
+      assert [%{name: :active_with_short}, %{name: :active_with_long}] = pred_defs
+    end
+
     test "failure: an unresolved reference in a .pred file is a tagged error, never a nil entry",
          %{fixtures_dir: fixtures_dir} do
       broken = Path.join(fixtures_dir, "broken.pred")

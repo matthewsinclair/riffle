@@ -54,7 +54,6 @@ defmodule Riffle.Predicate.Dsl.Macro do
         ]
 
       alias Riffle.Predicate.StandardLib, as: STD
-      alias Riffle.Predicate.Dsl.STD
 
       Module.register_attribute(__MODULE__, :predicates, accumulate: true)
       Module.register_attribute(__MODULE__, :loops, accumulate: true)

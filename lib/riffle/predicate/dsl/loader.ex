@@ -29,10 +29,10 @@ defmodule Riffle.Predicate.Dsl.Loader do
   """
   @spec load_string(String.t()) :: loading_result()
   def load_string(content) when is_binary(content) do
-    # Add aliases for StandardLib to provide simplified access in DSL
+    # THE one STD name: an alias for StandardLib, injected so .pred content
+    # can write STD.Boolean.is_true("active") and friends.
     content_with_aliases = """
     alias Riffle.Predicate.StandardLib, as: STD
-    alias Riffle.Predicate.Dsl.STD
 
     #{content}
     """
