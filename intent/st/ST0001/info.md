@@ -11,7 +11,7 @@ completed:
 
 ## Objective
 
-Port the Predicate engine and extricate the SIA assets from Multiplyer (post-archive: `~/Devel/prj/_Archive/Multiplyer` -- a runnable repo; read-only forensics there are fine, no new work lands in its history). The engine lifts nearly as-is WITH its tests -- it is Ctx-free (zero Ctx call sites, measured 2026-08-10). SIA glue and datasource are carried over as reference material for ST0003's rewrite, not grafted verbatim.
+Port the Predicate engine and extricate the SIA assets from Multiplyer (post-archive: `~/Devel/_Archive/Multiplyer` -- a runnable repo; read-only forensics there are fine, no new work lands in its history). The engine lifts nearly as-is WITH its tests -- it is Ctx-free (zero Ctx call sites, measured 2026-08-10). SIA glue and datasource are carried over as reference material for ST0003's rewrite, not grafted verbatim.
 
 FIRST TASK, before any porting: root-cause D2 -- `Multiplyer.Sia.process(ctx, :default_module)` yields `[]` where the pre-compiled pipeline should produce tagged items. Five characterisation tests in `test/multiplyer/sia/sia_pipeline_test.exs` pin `assert [] = results` deliberately. The verdict that matters: does the defect live in the Predicate engine (it TRAVELS with the port) or in SIA glue (it dies in ST0003's rewrite)? Ownership of this diagnosis transferred here from Multiplyer ST0042/WP-02 by owner re-sequencing (2026-08-10).
 

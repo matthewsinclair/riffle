@@ -2,7 +2,7 @@
 
 **Written 2026-08-10 by the Multiplyer ST0042 triage session. Read this before touching anything.**
 
-Source repo: `~/Devel/prj/_Archive/Multiplyer` (post-archive). It is a fully runnable repo -- `mix test` green at archive point (1049 passed, 4 skipped), Elixir 1.20.3 / OTP 29 -- and its git history is intact. Read-only forensics there are fine; **no new work lands in its history**. The complete triage record (system map, defect ledger D1-D13, hv rulings) is in `_Archive/Multiplyer/intent/st/ST0042/`.
+Source repo: `~/Devel/_Archive/Multiplyer` (post-archive). It is a fully runnable repo -- `mix test` green at archive point (1049 passed, 4 skipped), Elixir 1.20.3 / OTP 29 -- and its git history is intact. Read-only forensics there are fine; **no new work lands in its history**. The complete triage record (system map, defect ledger D1-D13, hv rulings) is in `_Archive/Multiplyer/intent/st/ST0042/`.
 
 ## Mission
 
@@ -70,7 +70,7 @@ Shape summary: status transitions, metadata, event lifecycle (started/completed/
 
 1. Read this doc + ST0001/ST0002/ST0003 info.md.
 2. D2 root-cause in the archive (protocol above); record the travels-with-Predicate verdict in ST0001.
-3. Declare languages (`intent lang init elixir`), `mix new` the app skeleton, CI with `--warnings-as-errors` covering test compilation.
+3. Declare languages (`intent lang init elixir`); set up CI with `--warnings-as-errors` covering test compilation (mix skeleton + MIT licence already in place).
 4. Port `predicate/` + its tests; sever stitch 1; fix D5; suite green.
 5. ST0002 ctx-next design against the whitepaper + the measured contract.
 6. ST0003 rewrite, red-first from the strengthened characterisation tests.

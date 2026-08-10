@@ -16,4 +16,4 @@ Pre-alpha; extraction in progress. The engine (Predicate) and pattern layer (SIA
 
 ## Licence
 
-TBD (decided before first release).
+[MIT](LICENSE).
