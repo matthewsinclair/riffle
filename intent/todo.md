@@ -8,7 +8,7 @@ generator: intent todo
   - [x] 01: D2 root-cause and verdict
   - [x] 02: Scaffolding and CI gate
   - [x] 03: Predicate engine port
-  - [ ] 04: PFIC transform and hydration consolidation
+  - [-] 04: PFIC transform and hydration consolidation
 
 ## TODO
 
