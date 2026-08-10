@@ -29,24 +29,16 @@ defmodule Riffle.Predicate.Dsl.Loader do
   """
   @spec load_string(String.t()) :: loading_result()
   def load_string(content) when is_binary(content) do
-    # THE one STD name: an alias for StandardLib, injected so .pred content
-    # can write STD.Boolean.is_true("active") and friends.
-    content_with_aliases = """
-    alias Riffle.Predicate.StandardLib, as: STD
-
-    #{content}
-    """
-
-    with {:ok, ast} <- Parser.parse(content_with_aliases) do
-      predicates = Parser.extract_predicates(ast)
-      loops = Parser.extract_loops(ast)
-      pipelines = Parser.extract_pipelines(ast)
-
-      {:ok, %{predicates: predicates, loops: loops, pipelines: pipelines}}
+    # THE one STD name is bound at body evaluation (Predicate.create/1's
+    # eval aliases), so .pred content can write STD.Boolean.is_true("active")
+    # and friends with no alias statement of its own.
+    with {:ok, ast} <- Parser.parse(content) do
+      {:ok, Parser.extract_definitions!(ast)}
     end
   rescue
-    # DSL content is user input: an unrecognised in-block statement raised by
-    # the parser surfaces as a tagged error at this boundary, message intact.
+    # DSL content is user input: an unrecognised statement -- top-level or
+    # in-block -- raised during extraction surfaces as a tagged error at this
+    # boundary, message intact.
     e in ArgumentError ->
       {:error, {:invalid_dsl, Exception.message(e)}}
   end

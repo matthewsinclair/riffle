@@ -317,18 +317,44 @@ defmodule Riffle.Predicate do
     create({:expr, expression})
   end
 
+  # `call` syntax from .pred files: `call &STD.Boolean.is_true/1, ["subscribed"]`.
+  # The capture names a builder function that, applied to the literal args,
+  # returns the predicate function. Failures wrap the same loud contract as
+  # the catch-all below so the loader boundary can tag them.
+  def create({:call, meta, [capture, args]} = ast_body) when is_list(meta) and is_list(args) do
+    {builder, _bindings} = capture |> expand_std() |> Code.eval_quoted()
+    {call_args, _bindings} = args |> expand_std() |> Code.eval_quoted()
+    function = apply(builder, call_args)
+
+    if is_function(function, 1) do
+      function
+    else
+      raise ArgumentError,
+            "call builder did not return a predicate function: got #{inspect(function)}"
+    end
+  rescue
+    e ->
+      reraise ArgumentError,
+              [
+                message:
+                  "predicate body failed to evaluate: #{Exception.message(e)} " <>
+                    "-- body AST: #{inspect(ast_body)}"
+              ],
+              __STACKTRACE__
+  end
+
   def create({:__block__, _, _statements} = ast_body) do
     # A body that fails to evaluate is a defect in the predicate definition;
     # the raise propagates from evaluation. It must never quietly become an
     # always-false predicate that filters every item with no signal.
     fn _item ->
-      {result, _bindings} = Code.eval_quoted(ast_body)
+      {result, _bindings} = ast_body |> expand_std() |> Code.eval_quoted()
       result
     end
   end
 
   def create(ast_body) do
-    {function, _bindings} = Code.eval_quoted(ast_body)
+    {function, _bindings} = ast_body |> expand_std() |> Code.eval_quoted()
 
     if is_function(function, 1) do
       function
@@ -344,6 +370,20 @@ defmodule Riffle.Predicate do
                     "-- body AST: #{inspect(ast_body)}"
               ],
               __STACKTRACE__
+  end
+
+  # THE runtime binding for the STD name: DSL bodies have `STD` expanded to
+  # the standard library before evaluation, so `.pred` and macro-authored
+  # bodies can write `STD.Boolean.is_true("active")`. A pure AST transform --
+  # eval-env alias options are deprecated in Elixir 1.20.
+  defp expand_std(ast) do
+    Macro.prewalk(ast, fn
+      {:__aliases__, meta, [:STD | rest]} ->
+        {:__aliases__, meta, [:Riffle, :Predicate, :StandardLib | rest]}
+
+      node ->
+        node
+    end)
   end
 
   @doc """

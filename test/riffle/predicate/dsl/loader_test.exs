@@ -19,7 +19,7 @@ defmodule Riffle.Predicate.Dsl.LoaderTest do
 
   describe "load_file/1" do
     test "loads predicates, loops, and pipelines from a file", %{fixtures_dir: fixtures_dir} do
-      {:ok, definitions} = Loader.load_file(Path.join(fixtures_dir, "basic.pred"))
+      assert {:ok, definitions} = Loader.load_file(Path.join(fixtures_dir, "basic.pred"))
 
       assert length(definitions.predicates) == 2
       assert length(definitions.loops) == 1
@@ -57,29 +57,27 @@ defmodule Riffle.Predicate.Dsl.LoaderTest do
 
   describe "load_directory/2" do
     test "loads all files in directory non-recursively", %{fixtures_dir: fixtures_dir} do
-      {:ok, definitions} = Loader.load_directory(fixtures_dir, false)
+      assert {:ok, definitions} = Loader.load_directory(fixtures_dir, false)
 
-      assert length(definitions.predicates) == 2
-      assert length(definitions.loops) == 1
-      # One from basic.pred, one from complex.pred
-      assert length(definitions.pipelines) == 2
+      # basic.pred + complex.pred only; nested/trial.pred stays out
+      assert definitions.predicates |> Enum.map(& &1.name) |> Enum.sort() == [:active, :premium]
+      assert Enum.map(definitions.loops, & &1.name) == [:user_signals]
 
-      # Should not include trial.pred which is in nested/
-      assert Enum.all?(definitions.predicates, &(&1.name != :trial))
+      assert definitions.pipelines |> Enum.map(& &1.name) |> Enum.sort() ==
+               [:complex_pipeline, :user_pipeline]
     end
 
     test "loads all files recursively (default)", %{fixtures_dir: fixtures_dir} do
-      {:ok, definitions} = Loader.load_directory(fixtures_dir)
+      assert {:ok, definitions} = Loader.load_directory(fixtures_dir)
 
-      # active, premium, trial
-      assert length(definitions.predicates) == 3
-      # user_signals, trial_signals
-      assert length(definitions.loops) == 2
-      # user_pipeline, trial_pipeline, complex_pipeline
-      assert length(definitions.pipelines) == 3
+      assert definitions.predicates |> Enum.map(& &1.name) |> Enum.sort() ==
+               [:active, :premium, :trial]
 
-      # Should include trial.pred from nested/
-      assert Enum.any?(definitions.predicates, &(&1.name == :trial))
+      assert definitions.loops |> Enum.map(& &1.name) |> Enum.sort() ==
+               [:trial_signals, :user_signals]
+
+      assert definitions.pipelines |> Enum.map(& &1.name) |> Enum.sort() ==
+               [:complex_pipeline, :trial_pipeline, :user_pipeline]
     end
 
     test "returns error when no files found" do
@@ -89,8 +87,8 @@ defmodule Riffle.Predicate.Dsl.LoaderTest do
 
   describe "create_instances/1" do
     test "creates runtime instances from definitions", %{fixtures_dir: fixtures_dir} do
-      {:ok, definitions} = Loader.load_directory(fixtures_dir)
-      {:ok, instances} = Loader.create_instances(definitions)
+      assert {:ok, definitions} = Loader.load_directory(fixtures_dir)
+      assert {:ok, instances} = Loader.create_instances(definitions)
 
       # Check predicates
       assert Map.has_key?(instances.predicates, :active)
@@ -129,8 +127,8 @@ defmodule Riffle.Predicate.Dsl.LoaderTest do
     test "handles inline definitions alongside cross-file references", %{
       fixtures_dir: fixtures_dir
     } do
-      {:ok, definitions} = Loader.load_directory(fixtures_dir)
-      {:ok, instances} = Loader.create_instances(definitions)
+      assert {:ok, definitions} = Loader.load_directory(fixtures_dir)
+      assert {:ok, instances} = Loader.create_instances(definitions)
 
       # The complex pipeline mixes an inline loop (holding a reference to
       # basic.pred's :active plus an inline :new_user definition) with a
@@ -157,16 +155,54 @@ defmodule Riffle.Predicate.Dsl.LoaderTest do
              )
     end
 
-    test "success: the injected STD alias resolves in DSL strings" do
+    test "failure: an unresolved reference in a .pred file is a tagged error, never a nil entry",
+         %{fixtures_dir: fixtures_dir} do
+      broken = Path.join(fixtures_dir, "broken.pred")
+
+      File.write!(broken, """
+      loop(:broken_loop, "References a predicate that does not exist") do
+        predicate(:does_not_exist)
+      end
+      """)
+
+      assert {:ok, definitions} = Loader.load_file(broken)
+
+      assert Loader.create_instances(definitions) ==
+               {:error, {:unresolved, :predicate, :does_not_exist, :definitions}}
+    end
+  end
+
+  describe "load_string/1 STD alias" do
+    test "success: an STD-bodied predicate resolves and evaluates end to end" do
       dsl_content = """
-      predicate(:active_user, "Active users") do
-        call &STD.Boolean.is_true/1, ["active"]
+      predicate(:subscribed_user, "Subscribed users") do
+        call &STD.Boolean.is_true/1, ["subscribed"]
       end
       """
 
-      {:ok, %{predicates: [pred_def]}} = Loader.load_string(dsl_content)
-      assert pred_def.name == :active_user
-      assert pred_def.description == "Active users"
+      assert {:ok, definitions} = Loader.load_string(dsl_content)
+      assert {:ok, instances} = Loader.create_instances(definitions)
+
+      subscribed = Riffle.Predicate.Item.create(%{"subscribed" => "true"})
+      unsubscribed = Riffle.Predicate.Item.create(%{"subscribed" => "false"})
+
+      assert {true, _} =
+               Riffle.Predicate.evaluate(instances.predicates.subscribed_user, subscribed)
+
+      assert {false, _} =
+               Riffle.Predicate.evaluate(instances.predicates.subscribed_user, unsubscribed)
+    end
+
+    test "failure: a call builder that does not return a predicate function is a tagged error" do
+      dsl_content = """
+      predicate(:broken, "Builder returns a string, not a function") do
+        call &String.upcase/1, ["x"]
+      end
+      """
+
+      assert {:ok, definitions} = Loader.load_string(dsl_content)
+      assert {:error, {:invalid_predicate_body, message}} = Loader.create_instances(definitions)
+      assert message =~ "did not return a predicate function"
     end
 
     test "success: both the STD alias and the full StandardLib path parse in DSL strings" do
@@ -180,25 +216,33 @@ defmodule Riffle.Predicate.Dsl.LoaderTest do
       end
       """
 
-      {:ok, %{predicates: pred_defs}} = Loader.load_string(dsl_content)
+      assert {:ok, %{predicates: pred_defs}} = Loader.load_string(dsl_content)
 
       assert [%{name: :active_with_short}, %{name: :active_with_long}] = pred_defs
     end
+  end
 
-    test "failure: an unresolved reference in a .pred file is a tagged error, never a nil entry",
-         %{fixtures_dir: fixtures_dir} do
-      broken = Path.join(fixtures_dir, "broken.pred")
-
-      File.write!(broken, """
-      loop(:broken_loop, "References a predicate that does not exist") do
-        predicate(:does_not_exist)
+  describe "load_string/1 top-level junk" do
+    test "failure: a misspelled top-level definition is a tagged invalid_dsl error, never a silent drop" do
+      dsl_content = """
+      predicate(:real, "A real predicate") do
+        fn item -> item end
       end
-      """)
 
-      {:ok, definitions} = Loader.load_file(broken)
+      predicat(:oops, "Typo in the definition keyword") do
+        fn item -> item end
+      end
+      """
 
-      assert Loader.create_instances(definitions) ==
-               {:error, {:unresolved, :predicate, :does_not_exist, :definitions}}
+      assert {:error, {:invalid_dsl, message}} = Loader.load_string(dsl_content)
+      assert message =~ "unrecognised top-level statement"
+      assert message =~ "predicat(:oops"
+    end
+
+    test "failure: a bare top-level reference is a tagged invalid_dsl error" do
+      assert {:error, {:invalid_dsl, message}} = Loader.load_string("predicate(:dangling)")
+      assert message =~ "unrecognised top-level statement"
+      assert message =~ "predicate(:dangling)"
     end
   end
 

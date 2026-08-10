@@ -32,6 +32,8 @@ defmodule Riffle.Predicate.Dsl.Macro do
   ```
   """
 
+  alias Riffle.Predicate.Dsl.Statements
+
   @doc """
   Imports macros for predicate, loop, and pipeline definitions.
 
@@ -279,15 +281,7 @@ defmodule Riffle.Predicate.Dsl.Macro do
       end
   """
   defmacro defloop(name, description, do: predicates_block) when is_binary(description) do
-    # Process the predicates block
-    predicates =
-      case predicates_block do
-        {:__block__, _, statements} ->
-          Macro.escape(extract_predicates_from_block(statements))
-
-        {function, meta, args} ->
-          Macro.escape(extract_predicates_from_block([{function, meta, args}]))
-      end
+    predicates = Macro.escape(Statements.predicates!(predicates_block, :defloop))
 
     quote do
       loop_name = unquote(name)
@@ -348,15 +342,7 @@ defmodule Riffle.Predicate.Dsl.Macro do
       end
   """
   defmacro defpipeline(name, description, do: loops_block) when is_binary(description) do
-    # Process the loops block
-    loops =
-      case loops_block do
-        {:__block__, _, statements} ->
-          Macro.escape(extract_loops_from_block(statements))
-
-        {function, meta, args} ->
-          Macro.escape(extract_loops_from_block([{function, meta, args}]))
-      end
+    loops = Macro.escape(Statements.loops!(loops_block, :defpipeline, :defloop))
 
     quote do
       pipeline_name = unquote(name)
@@ -381,128 +367,4 @@ defmodule Riffle.Predicate.Dsl.Macro do
       end
     end
   end
-
-  # Helper functions for constructing predicate and loop references
-  # These are used at macro expansion time
-
-  @doc false
-  def extract_predicates_from_block(statements) do
-    Enum.flat_map(statements, &extract_predicate/1)
-  end
-
-  @doc false
-  defp extract_predicate({:predicate, _, [{name, _, nil}]}) do
-    [%{name: name, inline: false}]
-  end
-
-  @doc false
-  defp extract_predicate({:predicate, _, [name]}) when is_atom(name) do
-    [%{name: name, inline: false}]
-  end
-
-  @doc false
-  defp extract_predicate({:predicate, _, [{name, _, nil}, description, [do: body]]})
-       when is_binary(description) do
-    [%{name: name, description: description, body: body, inline: true}]
-  end
-
-  @doc false
-  defp extract_predicate({:predicate, _, [{name, _, nil}, [do: body]]}) do
-    [%{name: name, description: "", body: body, inline: true}]
-  end
-
-  @doc false
-  defp extract_predicate({:predicate, _, [name, description, [do: body]]})
-       when is_binary(description) do
-    [%{name: name, description: description, body: body, inline: true}]
-  end
-
-  @doc false
-  defp extract_predicate({:predicate, _, [name, [do: body]]}) when is_atom(name) do
-    [%{name: name, description: "", body: body, inline: true}]
-  end
-
-  @doc false
-  defp extract_predicate({:predicate, _, [{name, _, nil}, description, [do: {:expr, _, [expr]}]]})
-       when is_binary(description) do
-    [%{name: name, description: description, body: {:expr, expr}, inline: true}]
-  end
-
-  @doc false
-  defp extract_predicate({:predicate, _, [{name, _, nil}, [do: {:expr, _, [expr]}]]}) do
-    [%{name: name, description: "", body: {:expr, expr}, inline: true}]
-  end
-
-  @doc false
-  defp extract_predicate({:predicate, _, [name, description, [do: {:expr, _, [expr]}]]})
-       when is_binary(description) do
-    [%{name: name, description: description, body: {:expr, expr}, inline: true}]
-  end
-
-  @doc false
-  defp extract_predicate({:predicate, _, [name, [do: {:expr, _, [expr]}]]}) when is_atom(name) do
-    [%{name: name, description: "", body: {:expr, expr}, inline: true}]
-  end
-
-  # An unrecognised statement inside a defloop block fails the build: a
-  # silently dropped predicate changes what the loop matches with no signal.
-  defp extract_predicate(statement) do
-    raise ArgumentError,
-          "unrecognised statement in defloop: `#{Macro.to_string(statement)}` " <>
-            "-- a defloop block may contain only predicate references " <>
-            "(predicate :name) or inline predicate definitions"
-  end
-
-  @doc false
-  def extract_loops_from_block(statements) do
-    Enum.flat_map(statements, &extract_loop/1)
-  end
-
-  @doc false
-  defp extract_loop({:loop, _, [{name, _, nil}]}) do
-    [%{name: name, inline: false}]
-  end
-
-  @doc false
-  defp extract_loop({:loop, _, [name]}) when is_atom(name) do
-    [%{name: name, inline: false}]
-  end
-
-  @doc false
-  defp extract_loop({:loop, _, [{name, _, nil}, description, [do: body]]})
-       when is_binary(description) do
-    predicates = extract_predicates_from_block(block_to_statements(body))
-    [%{name: name, description: description, predicates: predicates, inline: true}]
-  end
-
-  @doc false
-  defp extract_loop({:loop, _, [{name, _, nil}, [do: body]]}) do
-    predicates = extract_predicates_from_block(block_to_statements(body))
-    [%{name: name, description: "", predicates: predicates, inline: true}]
-  end
-
-  @doc false
-  defp extract_loop({:loop, _, [name, description, [do: body]]}) when is_binary(description) do
-    predicates = extract_predicates_from_block(block_to_statements(body))
-    [%{name: name, description: description, predicates: predicates, inline: true}]
-  end
-
-  @doc false
-  defp extract_loop({:loop, _, [name, [do: body]]}) when is_atom(name) do
-    predicates = extract_predicates_from_block(block_to_statements(body))
-    [%{name: name, description: "", predicates: predicates, inline: true}]
-  end
-
-  # Same contract as extract_predicate/1: defpipeline blocks hold only loop
-  # statements, and anything else fails the build.
-  defp extract_loop(statement) do
-    raise ArgumentError,
-          "unrecognised statement in defpipeline: `#{Macro.to_string(statement)}` " <>
-            "-- a defpipeline block may contain only loop references " <>
-            "(loop :name) or inline loop definitions"
-  end
-
-  @doc false
-  defp block_to_statements({:__block__, _, statements}), do: statements
-  defp block_to_statements(statement), do: [statement]
 end

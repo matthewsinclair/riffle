@@ -1,16 +1,19 @@
 defmodule Riffle.Predicate.Dsl.Parser do
   @moduledoc """
-  Parses DSL text into structured representations.
+  Parses DSL text into structured definition maps.
 
-  This module takes DSL text as input and produces structured representations
-  of predicates, loops, and pipelines that can be used to create runtime instances.
+  Text becomes AST via `parse/1`; `extract_definitions!/1` walks the top-level
+  statements in one pass and buckets each into predicates, loops, or
+  pipelines. Statement-shape knowledge for loop and pipeline blocks lives in
+  `Riffle.Predicate.Dsl.Statements`, shared with the compile-time macros.
 
   The parser supports three predicate syntax formats:
-  1. `fn` syntax: Using an anonymous function
-  2. `call` syntax: Referencing an existing function
-  3. `expr` syntax: Using a simple expression language
+  1. `fn` syntax: an anonymous function
+  2. `call` syntax: a reference to an existing function
+  3. `expr` syntax: the simple expression language
 
-  StandardLib functions can be accessed using a simplified STD alias:
+  StandardLib functions can be accessed using the STD alias, which is bound
+  where bodies evaluate (`Riffle.Predicate.create/1`):
   ```
   predicate(:unsubscribed, "Users who have unsubscribed") do
     call &STD.Boolean.is_false/1, ["subscribed"]
@@ -18,287 +21,137 @@ defmodule Riffle.Predicate.Dsl.Parser do
   ```
   """
 
+  alias Riffle.Predicate.Dsl.Statements
+
   @type parsing_result :: {:ok, term()} | {:error, term()}
   @type predicate_def :: %{name: atom(), description: String.t(), body: term()}
   @type predicate_ref :: %{name: atom(), inline: boolean()} | predicate_def
   @type loop_def :: %{name: atom(), description: String.t(), predicates: [predicate_ref()]}
   @type loop_ref :: %{name: atom(), inline: boolean()} | loop_def
   @type pipeline_def :: %{name: atom(), description: String.t(), loops: [loop_ref()]}
+  @type definitions :: %{
+          predicates: [predicate_def()],
+          loops: [loop_def()],
+          pipelines: [pipeline_def()]
+        }
 
   @doc """
   Parses a string containing DSL definitions.
 
   ## Parameters
     * `content` - String containing DSL definitions
-    
+
   ## Returns
     * `{:ok, ast}` or `{:error, reason}`
   """
   @spec parse(String.t()) :: parsing_result()
   def parse(content) when is_binary(content) do
-    try do
-      {:ok, Code.string_to_quoted!(content)}
-    rescue
-      e -> {:error, e}
-    end
+    {:ok, Code.string_to_quoted!(content)}
+  rescue
+    e -> {:error, e}
   end
 
   @doc """
-  Extracts predicate definitions from parsed DSL.
+  Buckets every top-level statement of parsed DSL into its definition list.
 
-  ## Parameters
-    * `ast` - AST from parsed DSL
-    
-  ## Returns
-    * List of predicate definition maps with name, description, and body
+  A top-level statement must be a predicate, loop, or pipeline definition.
+  Anything else raises `ArgumentError`: a misspelled definition that
+  silently vanished would change what a pipeline matches with no signal.
+  This one dispatch is both the extractor and the completeness check, so
+  the two can never drift apart.
   """
-  @spec extract_predicates(term()) :: [predicate_def()]
-  def extract_predicates({:__block__, _, statements}) do
-    Enum.flat_map(statements, &extract_predicates/1)
+  @spec extract_definitions!(term()) :: definitions()
+  def extract_definitions!(ast) do
+    buckets =
+      ast
+      |> Statements.block_statements()
+      |> Enum.reduce(%{predicates: [], loops: [], pipelines: []}, &bucket_statement/2)
+
+    %{
+      predicates: Enum.reverse(buckets.predicates),
+      loops: Enum.reverse(buckets.loops),
+      pipelines: Enum.reverse(buckets.pipelines)
+    }
   end
 
-  def extract_predicates({:predicate, _, [{name, _, nil}, description, [do: body]]})
-      when is_binary(description) do
-    [%{name: name, description: description, body: body}]
+  # Predicate definitions, with and without a description
+  defp bucket_statement({:predicate, _, [{name, _, nil}, description, [do: body]]}, acc)
+       when is_atom(name) and is_binary(description) do
+    prepend(acc, :predicates, %{name: name, description: description, body: body})
   end
 
-  def extract_predicates({:predicate, _, [{name, _, nil}, [do: body]]}) do
-    [%{name: name, description: "", body: body}]
+  defp bucket_statement({:predicate, _, [{name, _, nil}, [do: body]]}, acc) when is_atom(name) do
+    prepend(acc, :predicates, %{name: name, description: "", body: body})
   end
 
-  # Handle function call style: predicate(:name, "description") do ... end
-  def extract_predicates(
-        {{:., _, [{:__aliases__, _, [:predicate]}, :predicate]}, _,
-         [name, description, [do: body]]}
-      )
-      when is_binary(description) do
-    [%{name: name, description: description, body: body}]
+  defp bucket_statement({:predicate, _, [name, description, [do: body]]}, acc)
+       when is_atom(name) and is_binary(description) do
+    prepend(acc, :predicates, %{name: name, description: description, body: body})
   end
 
-  def extract_predicates(
-        {{:., _, [{:__aliases__, _, _}, :predicate]}, _, [name, description, [do: body]]}
-      )
-      when is_binary(description) do
-    [%{name: name, description: description, body: body}]
+  defp bucket_statement({:predicate, _, [name, [do: body]]}, acc) when is_atom(name) do
+    prepend(acc, :predicates, %{name: name, description: "", body: body})
   end
 
-  # Function call style without aliases: predicate(:name) do ... end
-  def extract_predicates({:predicate, _, [name, description, [do: body]]})
-      when is_binary(description) do
-    [%{name: name, description: description, body: body}]
+  # Loop definitions; block shapes resolve through the shared ladder
+  defp bucket_statement({:loop, _, [{name, _, nil}, description, [do: body]]}, acc)
+       when is_atom(name) and is_binary(description) do
+    prepend(acc, :loops, loop_def(name, description, body))
   end
 
-  def extract_predicates({:predicate, _, [name, [do: body]]}) do
-    [%{name: name, description: "", body: body}]
+  defp bucket_statement({:loop, _, [{name, _, nil}, [do: body]]}, acc) when is_atom(name) do
+    prepend(acc, :loops, loop_def(name, "", body))
   end
 
-  def extract_predicates(_) do
-    []
+  defp bucket_statement({:loop, _, [name, description, [do: body]]}, acc)
+       when is_atom(name) and is_binary(description) do
+    prepend(acc, :loops, loop_def(name, description, body))
   end
 
-  @doc """
-  Extracts loop definitions from parsed DSL.
-
-  ## Parameters
-    * `ast` - AST from parsed DSL
-    
-  ## Returns
-    * List of loop definition maps with name, description, and predicates
-  """
-  @spec extract_loops(term()) :: [loop_def()]
-  def extract_loops({:__block__, _, statements}) do
-    Enum.flat_map(statements, &extract_loops/1)
+  defp bucket_statement({:loop, _, [name, [do: body]]}, acc) when is_atom(name) do
+    prepend(acc, :loops, loop_def(name, "", body))
   end
 
-  # DSL style: loop :name "description" do ... end
-  def extract_loops({:loop, _, [{name, _, nil}, description, [do: body]]})
-      when is_binary(description) do
-    predicates = extract_loop_predicates(body)
-    [%{name: name, description: description, predicates: predicates}]
+  # Pipeline definitions
+  defp bucket_statement({:pipeline, _, [{name, _, nil}, description, [do: body]]}, acc)
+       when is_atom(name) and is_binary(description) do
+    prepend(acc, :pipelines, pipeline_def(name, description, body))
   end
 
-  def extract_loops({:loop, _, [{name, _, nil}, [do: body]]}) do
-    predicates = extract_loop_predicates(body)
-    [%{name: name, description: "", predicates: predicates}]
+  defp bucket_statement({:pipeline, _, [{name, _, nil}, [do: body]]}, acc) when is_atom(name) do
+    prepend(acc, :pipelines, pipeline_def(name, "", body))
   end
 
-  # Function call style: loop(:name, "description") do ... end
-  def extract_loops({:loop, _, [name, description, [do: body]]}) when is_binary(description) do
-    predicates = extract_loop_predicates(body)
-    [%{name: name, description: description, predicates: predicates}]
+  defp bucket_statement({:pipeline, _, [name, description, [do: body]]}, acc)
+       when is_atom(name) and is_binary(description) do
+    prepend(acc, :pipelines, pipeline_def(name, description, body))
   end
 
-  def extract_loops({:loop, _, [name, [do: body]]}) do
-    predicates = extract_loop_predicates(body)
-    [%{name: name, description: "", predicates: predicates}]
+  defp bucket_statement({:pipeline, _, [name, [do: body]]}, acc) when is_atom(name) do
+    prepend(acc, :pipelines, pipeline_def(name, "", body))
   end
 
-  def extract_loops(_) do
-    []
-  end
-
-  @doc """
-  Extracts pipeline definitions from parsed DSL.
-
-  ## Parameters
-    * `ast` - AST from parsed DSL
-    
-  ## Returns
-    * List of pipeline definition maps with name, description, and loops
-  """
-  @spec extract_pipelines(term()) :: [pipeline_def()]
-  def extract_pipelines({:__block__, _, statements}) do
-    Enum.flat_map(statements, &extract_pipelines/1)
-  end
-
-  # DSL style: pipeline :name "description" do ... end
-  def extract_pipelines({:pipeline, _, [{name, _, nil}, description, [do: body]]})
-      when is_binary(description) do
-    loops = extract_pipeline_loops(body)
-    [%{name: name, description: description, loops: loops}]
-  end
-
-  def extract_pipelines({:pipeline, _, [{name, _, nil}, [do: body]]}) do
-    loops = extract_pipeline_loops(body)
-    [%{name: name, description: "", loops: loops}]
-  end
-
-  # Function call style: pipeline(:name, "description") do ... end
-  def extract_pipelines({:pipeline, _, [name, description, [do: body]]})
-      when is_binary(description) do
-    loops = extract_pipeline_loops(body)
-    [%{name: name, description: description, loops: loops}]
-  end
-
-  def extract_pipelines({:pipeline, _, [name, [do: body]]}) do
-    loops = extract_pipeline_loops(body)
-    [%{name: name, description: "", loops: loops}]
-  end
-
-  def extract_pipelines(_) do
-    []
-  end
-
-  # Private helpers
-
-  defp extract_loop_predicates({:__block__, _, statements}) do
-    Enum.flat_map(statements, &extract_predicate_reference/1)
-  end
-
-  defp extract_loop_predicates(statement) do
-    extract_predicate_reference(statement)
-  end
-
-  # Handle references: predicate :name
-  defp extract_predicate_reference({:predicate, _, [{name, _, nil}]}) do
-    [%{name: name, inline: false}]
-  end
-
-  # Handle function calls: predicate(:name)
-  defp extract_predicate_reference({:predicate, _, [name]}) do
-    [%{name: name, inline: false}]
-  end
-
-  # Handle inline definition with DSL style: predicate :name "description" do ... end
-  defp extract_predicate_reference({:predicate, _, [{name, _, nil}, description, [do: body]]})
-       when is_binary(description) do
-    [%{name: name, description: description, body: body, inline: true}]
-  end
-
-  defp extract_predicate_reference({:predicate, _, [{name, _, nil}, [do: body]]}) do
-    [%{name: name, description: "", body: body, inline: true}]
-  end
-
-  # Handle inline function call style: predicate(:name, "description") do ... end
-  defp extract_predicate_reference({:predicate, _, [name, description, [do: body]]})
-       when is_binary(description) do
-    [%{name: name, description: description, body: body, inline: true}]
-  end
-
-  defp extract_predicate_reference({:predicate, _, [name, [do: body]]}) do
-    [%{name: name, description: "", body: body, inline: true}]
-  end
-
-  # Handle expr syntax in blocks: predicate :name "description" do expr fields["status"] == "active" end
-  defp extract_predicate_reference(
-         {:predicate, _, [{name, _, nil}, description, [do: {:expr, _, [expr]}]]}
-       )
-       when is_binary(description) do
-    [%{name: name, description: description, body: {:expr, expr}, inline: true}]
-  end
-
-  defp extract_predicate_reference({:predicate, _, [{name, _, nil}, [do: {:expr, _, [expr]}]]}) do
-    [%{name: name, description: "", body: {:expr, expr}, inline: true}]
-  end
-
-  # Handle expr syntax in function calls: predicate(:name, "description") do expr fields["status"] == "active" end
-  defp extract_predicate_reference({:predicate, _, [name, description, [do: {:expr, _, [expr]}]]})
-       when is_binary(description) do
-    [%{name: name, description: description, body: {:expr, expr}, inline: true}]
-  end
-
-  defp extract_predicate_reference({:predicate, _, [name, [do: {:expr, _, [expr]}]]}) do
-    [%{name: name, description: "", body: {:expr, expr}, inline: true}]
-  end
-
-  # An unrecognised statement inside a loop block is a defect in the DSL
-  # content, never something to drop: a silently vanished predicate changes
-  # what the loop matches with no signal.
-  defp extract_predicate_reference(statement) do
+  defp bucket_statement(statement, _acc) do
     raise ArgumentError,
-          "unrecognised statement in a loop block: `#{Macro.to_string(statement)}` " <>
-            "-- a loop may contain only predicate references (predicate :name) " <>
-            "or inline predicate definitions"
+          "unrecognised top-level statement: `#{Macro.to_string(statement)}` " <>
+            "-- DSL content may contain only predicate, loop, and pipeline definitions"
   end
 
-  defp extract_pipeline_loops({:__block__, _, statements}) do
-    Enum.flat_map(statements, &extract_loop_reference/1)
+  defp loop_def(name, description, body) do
+    %{
+      name: name,
+      description: description,
+      predicates: Statements.predicates!(body, :loop_block)
+    }
   end
 
-  defp extract_pipeline_loops(statement) do
-    extract_loop_reference(statement)
+  defp pipeline_def(name, description, body) do
+    %{
+      name: name,
+      description: description,
+      loops: Statements.loops!(body, :pipeline_block, :loop_block)
+    }
   end
 
-  # Handle references: loop :name
-  defp extract_loop_reference({:loop, _, [{name, _, nil}]}) do
-    [%{name: name, inline: false}]
-  end
-
-  # Handle function calls: loop(:name)
-  defp extract_loop_reference({:loop, _, [name]}) do
-    [%{name: name, inline: false}]
-  end
-
-  # Handle inline definition with DSL style: loop :name "description" do ... end
-  defp extract_loop_reference({:loop, _, [{name, _, nil}, description, [do: body]]})
-       when is_binary(description) do
-    predicates = extract_loop_predicates(body)
-    [%{name: name, description: description, predicates: predicates, inline: true}]
-  end
-
-  defp extract_loop_reference({:loop, _, [{name, _, nil}, [do: body]]}) do
-    predicates = extract_loop_predicates(body)
-    [%{name: name, description: "", predicates: predicates, inline: true}]
-  end
-
-  # Handle inline function call style: loop(:name, "description") do ... end
-  defp extract_loop_reference({:loop, _, [name, description, [do: body]]})
-       when is_binary(description) do
-    predicates = extract_loop_predicates(body)
-    [%{name: name, description: description, predicates: predicates, inline: true}]
-  end
-
-  defp extract_loop_reference({:loop, _, [name, [do: body]]}) do
-    predicates = extract_loop_predicates(body)
-    [%{name: name, description: "", predicates: predicates, inline: true}]
-  end
-
-  # Same contract as extract_predicate_reference/1: pipeline blocks hold only
-  # loop statements, and anything else fails loudly.
-  defp extract_loop_reference(statement) do
-    raise ArgumentError,
-          "unrecognised statement in a pipeline block: `#{Macro.to_string(statement)}` " <>
-            "-- a pipeline may contain only loop references (loop :name) " <>
-            "or inline loop definitions"
-  end
+  defp prepend(acc, kind, definition), do: Map.update!(acc, kind, &[definition | &1])
 end

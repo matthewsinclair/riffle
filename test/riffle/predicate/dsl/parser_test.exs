@@ -18,10 +18,11 @@ defmodule Riffle.Predicate.Dsl.ParserTest do
       dsl = "invalid { syntax"
       assert {:error, error} = Parser.parse(dsl)
       assert %TokenMissingError{} = error
+      assert Exception.message(error) =~ "missing terminator"
     end
   end
 
-  describe "extract_predicates/1" do
+  describe "extract_definitions!/1 predicates" do
     test "extracts predicate with name, description, and body" do
       dsl = """
       predicate(:active, "Active users") do
@@ -29,8 +30,7 @@ defmodule Riffle.Predicate.Dsl.ParserTest do
       end
       """
 
-      {:ok, ast} = Parser.parse(dsl)
-      [predicate] = Parser.extract_predicates(ast)
+      assert %{predicates: [predicate]} = extract!(dsl)
 
       assert predicate.name == :active
       assert predicate.description == "Active users"
@@ -44,15 +44,14 @@ defmodule Riffle.Predicate.Dsl.ParserTest do
       end
       """
 
-      {:ok, ast} = Parser.parse(dsl)
-      [predicate] = Parser.extract_predicates(ast)
+      assert %{predicates: [predicate]} = extract!(dsl)
 
       assert predicate.name == :active
       assert predicate.description == ""
       assert match?({:fn, _, _}, predicate.body)
     end
 
-    test "extracts multiple predicates from block" do
+    test "extracts multiple predicates in source order" do
       dsl = """
       predicate(:active, "Active users") do
         fn item -> item.fields["status"] == "active" end
@@ -63,28 +62,13 @@ defmodule Riffle.Predicate.Dsl.ParserTest do
       end
       """
 
-      {:ok, ast} = Parser.parse(dsl)
-      predicates = Parser.extract_predicates(ast)
+      assert %{predicates: predicates} = extract!(dsl)
 
-      assert length(predicates) == 2
       assert Enum.map(predicates, & &1.name) == [:active, :premium]
-    end
-
-    test "returns empty list for non-predicate AST" do
-      dsl = """
-      other_thing(:name) do
-        something
-      end
-      """
-
-      {:ok, ast} = Parser.parse(dsl)
-      predicates = Parser.extract_predicates(ast)
-
-      assert predicates == []
     end
   end
 
-  describe "extract_loops/1" do
+  describe "extract_definitions!/1 loops" do
     test "extracts loop with name, description, and predicate references" do
       dsl = """
       loop(:user_signals, "User signal detection") do
@@ -93,18 +77,15 @@ defmodule Riffle.Predicate.Dsl.ParserTest do
       end
       """
 
-      {:ok, ast} = Parser.parse(dsl)
-      [loop] = Parser.extract_loops(ast)
+      assert %{loops: [loop]} = extract!(dsl)
 
       assert loop.name == :user_signals
       assert loop.description == "User signal detection"
-      assert length(loop.predicates) == 2
 
-      [pred1, pred2] = loop.predicates
-      assert pred1.name == :active
-      assert pred1.inline == false
-      assert pred2.name == :premium
-      assert pred2.inline == false
+      assert loop.predicates == [
+               %{name: :active, inline: false},
+               %{name: :premium, inline: false}
+             ]
     end
 
     test "extracts loop with inline predicate definitions" do
@@ -113,19 +94,17 @@ defmodule Riffle.Predicate.Dsl.ParserTest do
         predicate(:active, "Active users") do
           fn item -> item.fields["status"] == "active" end
         end
-        
+
         predicate(:premium) do
           fn item -> item.fields["tier"] == "premium" end
         end
       end
       """
 
-      {:ok, ast} = Parser.parse(dsl)
-      [loop] = Parser.extract_loops(ast)
+      assert %{loops: [loop]} = extract!(dsl)
 
       assert loop.name == :user_signals
       assert loop.description == "User signal detection"
-      assert length(loop.predicates) == 2
 
       [pred1, pred2] = loop.predicates
       assert pred1.name == :active
@@ -139,7 +118,7 @@ defmodule Riffle.Predicate.Dsl.ParserTest do
       assert match?({:fn, _, _}, pred2.body)
     end
 
-    test "extracts multiple loops from block" do
+    test "extracts multiple loops in source order" do
       dsl = """
       loop(:signals, "Signal detection") do
         predicate(:active)
@@ -150,11 +129,59 @@ defmodule Riffle.Predicate.Dsl.ParserTest do
       end
       """
 
-      {:ok, ast} = Parser.parse(dsl)
-      loops = Parser.extract_loops(ast)
+      assert %{loops: loops} = extract!(dsl)
 
-      assert length(loops) == 2
       assert Enum.map(loops, & &1.name) == [:signals, :inferences]
     end
+  end
+
+  describe "extract_definitions!/1 pipelines" do
+    test "extracts pipeline with loop references and buckets mixed sources" do
+      dsl = """
+      predicate(:active, "Active users") do
+        fn item -> item.fields["status"] == "active" end
+      end
+
+      loop(:user_signals, "User signal detection") do
+        predicate(:active)
+      end
+
+      pipeline(:user_pipeline, "User processing pipeline") do
+        loop(:user_signals)
+      end
+      """
+
+      definitions = extract!(dsl)
+
+      assert [%{name: :active}] = definitions.predicates
+      assert [%{name: :user_signals}] = definitions.loops
+
+      assert [
+               %{
+                 name: :user_pipeline,
+                 description: "User processing pipeline",
+                 loops: [%{name: :user_signals, inline: false}]
+               }
+             ] = definitions.pipelines
+    end
+  end
+
+  describe "extract_definitions!/1 completeness" do
+    test "failure: an unrecognised top-level statement raises, never silently drops" do
+      dsl = """
+      other_thing(:name) do
+        something
+      end
+      """
+
+      assert_raise ArgumentError, ~r/unrecognised top-level statement/, fn ->
+        extract!(dsl)
+      end
+    end
+  end
+
+  defp extract!(dsl) do
+    assert {:ok, ast} = Parser.parse(dsl)
+    Parser.extract_definitions!(ast)
   end
 end
