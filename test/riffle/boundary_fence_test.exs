@@ -1,7 +1,7 @@
-defmodule Riffle.Ctx.BoundaryFenceTest do
+defmodule Riffle.BoundaryFenceTest do
   use ExUnit.Case, async: true
 
-  alias Riffle.WaistHelpers
+  alias Riffle.FenceHelpers
 
   # DD-5: the waist and the engine are independent, and the fence runs in both
   # directions. The engine is a rules engine, which is inference, which lives at
@@ -24,11 +24,31 @@ defmodule Riffle.Ctx.BoundaryFenceTest do
   # passes for the wrong reason.
 
   test "fence: the waist names no engine module" do
-    assert_namespace_absent(WaistHelpers.waist_sources(), WaistHelpers.engine_namespace())
+    assert_namespace_absent(FenceHelpers.waist_sources(), FenceHelpers.engine_namespace())
   end
 
   test "fence: the engine names no waist module" do
-    assert_namespace_absent(WaistHelpers.engine_sources(), WaistHelpers.waist_namespace())
+    assert_namespace_absent(FenceHelpers.engine_sources(), FenceHelpers.waist_namespace())
+  end
+
+  # The pattern layer is the edge where the two halves meet (ST0003 DD-1). It
+  # names both; neither may name it. The engine direction is the stitch from the
+  # handoff: the source engine hardcoded a fallback to the pattern layer's own
+  # default-pipeline module, guarded by `Code.ensure_loaded?`, so the engine
+  # could not be used without the layer it was supposed to be independent of.
+  # Severing it was ST0001's job and it is config injection now; this is what
+  # stops it re-forming, and it only became checkable once a pattern layer
+  # existed to be named.
+
+  test "fence: the engine names no pattern-layer module" do
+    assert_namespace_absent(
+      FenceHelpers.engine_sources(),
+      FenceHelpers.pattern_layer_namespace()
+    )
+  end
+
+  test "fence: the waist names no pattern-layer module" do
+    assert_namespace_absent(FenceHelpers.waist_sources(), FenceHelpers.pattern_layer_namespace())
   end
 
   test "invariant: the AST walk sees a module named through the brace-alias form" do
@@ -41,12 +61,12 @@ defmodule Riffle.Ctx.BoundaryFenceTest do
       "defmodule Probe do\n  alias Riffle.{Ctx, Ctx.Knot}\n  def run, do: {Ctx, Knot}\nend\n"
     )
 
-    named = WaistHelpers.named_modules(path)
+    named = FenceHelpers.named_modules(path)
 
     File.rm!(path)
 
-    assert WaistHelpers.waist_namespace() in named
-    assert (WaistHelpers.waist_namespace() <> ".Knot") in named
+    assert FenceHelpers.waist_namespace() in named
+    assert (FenceHelpers.waist_namespace() <> ".Knot") in named
   end
 
   defp assert_namespace_absent(sources, namespace) do
@@ -54,7 +74,7 @@ defmodule Riffle.Ctx.BoundaryFenceTest do
 
     offending =
       Enum.filter(sources, fn source ->
-        source |> WaistHelpers.named_modules() |> Enum.any?(&String.starts_with?(&1, namespace))
+        source |> FenceHelpers.named_modules() |> Enum.any?(&String.starts_with?(&1, namespace))
       end)
 
     assert offending == []

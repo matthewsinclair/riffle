@@ -3,7 +3,7 @@ defmodule Riffle.Ctx.CatalogFenceTest do
 
   alias Riffle.Ctx.Emission
   alias Riffle.Ctx.Perturbation
-  alias Riffle.WaistHelpers
+  alias Riffle.FenceHelpers
 
   # DD-3: each catalog is a closed registry. The bijection fence enumerates the
   # source of truth on both sides -- the struct modules on disk and the
@@ -42,9 +42,9 @@ defmodule Riffle.Ctx.CatalogFenceTest do
   end
 
   defp assert_union_matches_membership(catalog) do
-    {:type, {:t, definition, []}} = WaistHelpers.fetch_type!(catalog, :t)
+    {:type, {:t, definition, []}} = FenceHelpers.fetch_type!(catalog, :t)
 
-    union = definition |> WaistHelpers.remote_modules() |> Enum.sort()
+    union = definition |> FenceHelpers.remote_modules() |> Enum.sort()
 
     assert union != []
     assert union == Enum.sort(catalog.implementations())
@@ -53,11 +53,11 @@ defmodule Riffle.Ctx.CatalogFenceTest do
   defp assert_catalog_bijection(catalog) do
     on_disk =
       catalog
-      |> WaistHelpers.catalog_dir()
+      |> FenceHelpers.catalog_dir()
       |> Path.join("*.ex")
       |> Path.wildcard()
-      |> Enum.map(&WaistHelpers.catalog_module(catalog, &1))
-      |> Enum.filter(&WaistHelpers.struct_module?/1)
+      |> Enum.map(&FenceHelpers.catalog_module(catalog, &1))
+      |> Enum.filter(&FenceHelpers.struct_module?/1)
       |> Enum.sort()
 
     declared = Enum.sort(catalog.implementations())

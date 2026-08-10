@@ -2,7 +2,7 @@ defmodule Riffle.Ctx.PurityFenceTest do
   use ExUnit.Case, async: true
 
   alias Riffle.Ctx.Knot
-  alias Riffle.WaistHelpers
+  alias Riffle.FenceHelpers
 
   # AC-02.1. Approximate purity is a failure, not a tolerance -- so this fence
   # reads compiled call targets rather than source text, and walks the whole
@@ -80,7 +80,7 @@ defmodule Riffle.Ctx.PurityFenceTest do
     leaked =
       calls
       |> Enum.map(fn {module, _function, _arity} -> module end)
-      |> Enum.filter(&(WaistHelpers.riffle_module?(&1) and not WaistHelpers.waist_module?(&1)))
+      |> Enum.filter(&(FenceHelpers.riffle_module?(&1) and not FenceHelpers.waist_module?(&1)))
       |> Enum.uniq()
 
     assert leaked == []
@@ -101,7 +101,7 @@ defmodule Riffle.Ctx.PurityFenceTest do
     mfas = module_calls(module)
 
     next =
-      for {called, _function, _arity} <- mfas, WaistHelpers.riffle_module?(called), do: called
+      for {called, _function, _arity} <- mfas, FenceHelpers.riffle_module?(called), do: called
 
     expand(rest ++ next, MapSet.put(visited, module), calls ++ mfas)
   end

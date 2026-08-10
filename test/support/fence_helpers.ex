@@ -1,10 +1,16 @@
-defmodule Riffle.WaistHelpers do
+defmodule Riffle.FenceHelpers do
   @moduledoc """
-  One home for the waist's identity and the introspection the fences share.
+  One home for the project's namespaces and the introspection the fences share.
 
   The namespace, the source paths, and the typespec walk were transcribed into
   four fence files in three different encodings. A rename then touched four
   files, and a partial update failed differently in each. They live here once.
+
+  Three namespaces now, not one: the waist, the engine, and the pattern layer
+  that joins them. Which is why this is `FenceHelpers` and no longer
+  `WaistHelpers` -- a second helper module for the pattern-layer fences would
+  duplicate the AST walk, which is the drift this consolidation exists to
+  prevent (ST0003 DD-9).
 
   The namespaces are assembled at runtime so this file never contains the
   literal a source-scanning fence hunts for.
@@ -12,6 +18,7 @@ defmodule Riffle.WaistHelpers do
 
   @waist "Riffle." <> "Ctx"
   @engine "Riffle." <> "Predicate"
+  @pattern_layer "Riffle." <> "Sia"
 
   @doc "The waist's module namespace."
   def waist_namespace, do: @waist
@@ -19,11 +26,20 @@ defmodule Riffle.WaistHelpers do
   @doc "The engine's module namespace."
   def engine_namespace, do: @engine
 
+  @doc "The pattern layer's module namespace."
+  def pattern_layer_namespace, do: @pattern_layer
+
   @doc "Every source file in the waist."
   def waist_sources, do: Path.wildcard("lib/riffle/ctx/**/*.ex")
 
   @doc "Every source file in the engine."
   def engine_sources, do: Path.wildcard("lib/riffle/predicate/**/*.ex")
+
+  @doc "Every source file in the pattern layer."
+  def pattern_layer_sources, do: Path.wildcard("lib/riffle/sia/**/*.ex")
+
+  @doc "Every source file in the library."
+  def library_sources, do: Path.wildcard("lib/**/*.ex")
 
   @doc "Whether a module belongs to the waist."
   def waist_module?(module), do: prefixed?(module, [@waist])

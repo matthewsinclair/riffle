@@ -4,7 +4,7 @@ defmodule Riffle.Ctx.MeasuredSurfaceFenceTest do
   alias Riffle.Ctx
   alias Riffle.Ctx.Emission
   alias Riffle.Ctx.Perturbation
-  alias Riffle.WaistHelpers
+  alias Riffle.FenceHelpers
 
   # AC-03.1. The waist's minimum surface was measured, not guessed: the context
   # functions the extricated code actually consumed, by call-site count, in
@@ -62,7 +62,7 @@ defmodule Riffle.Ctx.MeasuredSurfaceFenceTest do
   end
 
   test "fence: the composite root declares the type the surface is measured against" do
-    assert {:type, {:t, _definition, []}} = WaistHelpers.fetch_type!(Ctx, :t)
+    assert {:type, {:t, _definition, []}} = FenceHelpers.fetch_type!(Ctx, :t)
   end
 
   test "fence: every catalog type traces back to a measured capability or a declared exception" do
@@ -92,12 +92,12 @@ defmodule Riffle.Ctx.MeasuredSurfaceFenceTest do
 
   defp unresolved_reads do
     for {capability, {:read, {function, arity}}} <- @measured,
-        not WaistHelpers.exports?(Ctx, function, arity),
+        not FenceHelpers.exports?(Ctx, function, arity),
         do: {capability, function, arity}
   end
 
   defp unresolved_slots do
-    slots = Map.keys(WaistHelpers.field_types!(Ctx))
+    slots = Map.keys(FenceHelpers.field_types!(Ctx))
 
     for {capability, {:slot, slot}} <- @measured, slot not in slots, do: {capability, slot}
   end

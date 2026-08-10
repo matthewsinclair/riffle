@@ -2,7 +2,7 @@ defmodule Riffle.CtxTest do
   use ExUnit.Case, async: true
 
   alias Riffle.Ctx
-  alias Riffle.WaistHelpers
+  alias Riffle.FenceHelpers
 
   # DD-2: the composite root is typed, not a bag. DD-6: no slot accumulates
   # perturbations or emissions -- they enter and leave, never stay. Each
@@ -15,13 +15,13 @@ defmodule Riffle.CtxTest do
 
     test "invariant: every slot but the declared overlay carries a concrete type" do
       overlays =
-        for {field, type} <- WaistHelpers.field_types!(Ctx), overlay_type?(type), do: field
+        for {field, type} <- FenceHelpers.field_types!(Ctx), overlay_type?(type), do: field
 
       assert Enum.sort(overlays) == [:metadata]
     end
 
     test "invariant: no slot accumulates perturbations or emissions" do
-      field_types = WaistHelpers.field_types!(Ctx)
+      field_types = FenceHelpers.field_types!(Ctx)
 
       assert field_types != %{}
 
@@ -90,14 +90,14 @@ defmodule Riffle.CtxTest do
   end
 
   defp references_catalog?(type) do
-    type |> WaistHelpers.remote_modules() |> Enum.any?(&WaistHelpers.catalog_module?/1)
+    type |> FenceHelpers.remote_modules() |> Enum.any?(&FenceHelpers.catalog_module?/1)
   end
 
   # What a slot accumulating catalog types would look like in the typespec.
   # Taken from a real compiled typespec rather than hand-built, so if the Erlang
   # type representation ever changes, the control breaks and says so.
   defp catalog_typed_slot do
-    {:type, {:t, definition, []}} = WaistHelpers.fetch_type!(Riffle.Ctx.Perturbation, :t)
+    {:type, {:t, definition, []}} = FenceHelpers.fetch_type!(Riffle.Ctx.Perturbation, :t)
 
     definition
   end

@@ -5,7 +5,7 @@ defmodule Riffle.Ctx.KnotTest do
   alias Riffle.Ctx.Emission
   alias Riffle.Ctx.Knot
   alias Riffle.Ctx.Perturbation
-  alias Riffle.WaistHelpers
+  alias Riffle.FenceHelpers
 
   @sequence [
     %Perturbation.RunStarted{},
@@ -54,8 +54,8 @@ defmodule Riffle.Ctx.KnotTest do
     end
 
     test "invariant: the knot emits the full stream and takes no consumer argument", %{ctx: ctx} do
-      assert WaistHelpers.exports?(Knot, :tick, 2)
-      refute WaistHelpers.exports?(Knot, :tick, 3)
+      assert FenceHelpers.exports?(Knot, :tick, 2)
+      refute FenceHelpers.exports?(Knot, :tick, 3)
 
       {_ctx, emissions} = Knot.tick(ctx, %Perturbation.RunCompleted{output: :done})
 

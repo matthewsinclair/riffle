@@ -3,9 +3,9 @@ node: cc
 name: Control Claude
 role: control
 session_id: 8b09c4df-a4be-4d1c-87d9-7b8a76293477
-heartbeat_at: 2026-08-10T22:33Z
-status: paused
-focus: "ST0002 CLOSED (the waist); ST0003 (SIA on the waist) next, running autonomously"
+heartbeat_at: 2026-08-10T22:37Z
+status: active
+focus: "ST0003 (SIA on the waist) -- contract authored, building red-first, running autonomously"
 claims: [ST0003]
 ---
 

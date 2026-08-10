@@ -37,7 +37,20 @@
 | Catalog mechanism + the type contract   | Riffle.Ctx.Catalog                  | THE registry machine; both catalogs use it; duplicate tags fail at compile time |
 | Typed inputs (membership + union)       | Riffle.Ctx.Perturbation             | structs under Riffle.Ctx.Perturbation.*; unknown tag loud-fails                |
 | Typed outputs (membership + union)      | Riffle.Ctx.Emission                 | structs under Riffle.Ctx.Emission.*; payloads opaque to the waist              |
-| Waist identity + fence introspection    | Riffle.WaistHelpers (test/support)  | namespace, source paths, typespec + alias walks shared by every waist fence    |
+
+### SIA (the pattern layer)
+
+| Concern                                 | THE Module                          | Notes                                                                          |
+| --------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------ |
+| The edge: a staged run over the waist   | Riffle.Sia                          | run/4; one stage per loop; the only module that names both engine and waist    |
+| Pipeline source resolution              | Riffle.Sia.Pipelines                | closed vocabulary: struct, {:module,_}, {:file,_}, :default_module (DD-8)      |
+| The shipped sense/infer/act definitions | Riffle.Sia.DefaultPipeline          | module form; priv/sia/sia.pred is the same definitions in file form            |
+
+### Test support
+
+| Concern                                 | THE Module                          | Notes                                                                          |
+| --------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------ |
+| Namespaces + fence introspection        | Riffle.FenceHelpers (test/support)  | namespace, source paths, typespec + AST walks shared by every fence (DD-9)     |
 
 <!-- Add entries as modules are created. Group by domain. Example:
 
