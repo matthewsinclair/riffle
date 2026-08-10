@@ -32,8 +32,12 @@ defmodule Riffle.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
+      # Static analysis. The same line every other elixir project in both fleets
+      # carries (arca_cli, arca_config, Baize, Prolix), and it is what
+      # `bin/riffle test credo` runs. Without it that gate dies with "the task
+      # credo could not be found", which reads as a broken launcher rather than
+      # as a dependency this project never had.
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
 
