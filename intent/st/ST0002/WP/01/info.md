@@ -3,7 +3,7 @@ verblock: "10 Aug 2026:v0.1: matts - Initial version"
 wp_id: WP-01
 title: "Ctx and the typed catalogs"
 scope: Small
-status: WIP
+status: Done
 ---
 
 # WP-01: Ctx and the typed catalogs

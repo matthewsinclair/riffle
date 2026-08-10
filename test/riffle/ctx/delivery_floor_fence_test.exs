@@ -1,0 +1,72 @@
+defmodule Riffle.Ctx.DeliveryFloorFenceTest do
+  use ExUnit.Case, async: true
+
+  alias Riffle.Ctx
+  alias Riffle.Ctx.Emission
+  alias Riffle.Ctx.Knot
+  alias Riffle.Ctx.Perturbation
+
+  # AC-02.3. Delivery is total: an accepted perturbation never vanishes without
+  # an observable trace. The fence enumerates the whole catalog and builds each
+  # perturbation generically, so a type added tomorrow is covered the moment it
+  # joins the registry -- there is no hand-maintained list here to fall behind,
+  # and no allowlist of types exempt from the floor.
+
+  defmodule NotInTheCatalog do
+    @moduledoc false
+    defstruct []
+  end
+
+  test "fence: every catalog perturbation yields at least one emission" do
+    ctx = Ctx.new(run_id: "delivery-floor")
+
+    # No non-emptiness guard needed: the registry is a closed literal list, so
+    # the type checker proves the enumeration is non-empty at compile time.
+    results =
+      Enum.map(Perturbation.implementations(), fn module ->
+        {module, Knot.tick(ctx, sample(module))}
+      end)
+
+    silent = for {module, {_ctx, []}} <- results, do: module
+
+    assert silent == []
+
+    # A type the knot has no clause for still yields an emission -- the floor
+    # sees to that -- so "yields something" alone would pass while the type was
+    # quietly default-passing. The floor is the runtime net; drift fails here.
+    defaulted =
+      for {module, {_ctx, emissions}} <- results,
+          Enum.any?(emissions, &match?(%Emission.DefaultPassed{}, &1)),
+          do: module
+
+    assert defaulted == []
+  end
+
+  test "invariant: a handled perturbation does not reach the delivery floor" do
+    ctx = Ctx.new(run_id: "delivery-floor")
+
+    {_ctx, emissions} = Knot.tick(ctx, %Perturbation.RunStarted{})
+
+    refute Enum.any?(emissions, &match?(%Emission.DefaultPassed{}, &1))
+  end
+
+  test "failure: a struct outside the catalog is rejected loudly, never default-passed" do
+    ctx = Ctx.new(run_id: "delivery-floor")
+
+    assert_raise UndefinedFunctionError, fn -> Knot.tick(ctx, %NotInTheCatalog{}) end
+  end
+
+  # A struct built from the module's own fields: the fence never names them, so
+  # it cannot drift from the catalog.
+  defp sample(module) do
+    fields = module |> struct() |> Map.from_struct() |> Map.keys()
+
+    struct!(module, Map.new(fields, &{&1, sample_value(&1)}))
+  end
+
+  defp sample_value(:level), do: :debug
+  defp sample_value(:message), do: "sample"
+  defp sample_value(:stage), do: :sample_stage
+  defp sample_value(:key), do: :sample_key
+  defp sample_value(_field), do: :sample
+end

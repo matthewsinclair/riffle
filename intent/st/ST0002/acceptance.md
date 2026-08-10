@@ -33,7 +33,7 @@ None -- WP-distributed.
 - AC-01.5 The engine names no waist module: zero references to `Riffle.Ctx` anywhere under `lib/riffle/predicate/` -- the dependency inversion holds in both directions, so the two compose only at an edge
 - AC-01.6 (non-test) The capability map is authored: each of the 24 measured Ctx functions maps to a perturbation, an emission, or a state read, or is dropped with a recorded reason -- evidence: design.md "Capability map" section (20 expressed, 4 dropped with reasons: cargo pair, record_event, verbose?, Stats.get_all_stats) -- satisfied: yes
 
-### WP-02 -- The pure knot (status: Not Started)
+### WP-02 -- The pure knot (status: WIP)
 
 - AC-02.1 The knot is unconditionally pure: no module reachable from it references a clock, a random source, a process, a table, a file, or a logger. Approximate purity is a failure, not a tolerance
 - AC-02.2 The knot is deterministic: the same (ctx, perturbation) yields identical `{ctx', emissions}` on every application
@@ -63,11 +63,11 @@ None -- WP-distributed.
 
 ### WP-02
 
-- AT-02.1 test/riffle/ctx/purity_fence_test.exs::"fence: no module reachable from the knot touches a clock, random, process, table, file, or logger" -- covers AC-02.1 -- status: to-write (red-first)
-- AT-02.2 test/riffle/ctx/knot_test.exs::"invariant: the same perturbation against the same ctx yields identical results" -- covers AC-02.2 -- status: to-write (red-first)
-- AT-02.3 test/riffle/ctx/delivery_floor_fence_test.exs::"fence: every catalog perturbation yields at least one emission" -- covers AC-02.3 -- status: to-write (red-first)
-- AT-02.4 test/riffle/ctx/knot_test.exs::"invariant: the knot emits the full stream and takes no consumer argument" -- covers AC-02.4 -- status: to-write (red-first)
-- AT-02.5 test/riffle/ctx/knot_test.exs::"invariant: a recorded perturbation sequence replays to an identical trajectory" -- covers AC-02.5 -- status: to-write (red-first)
+- AT-02.1 test/riffle/ctx/purity_fence_test.exs (2 fences: the forbidden-call closure, and the closure staying inside the waist) -- covers AC-02.1 -- status: green
+- AT-02.2 test/riffle/ctx/knot_test.exs::"invariant: the same perturbation against the same ctx yields identical results" -- covers AC-02.2 -- status: green
+- AT-02.3 test/riffle/ctx/delivery_floor_fence_test.exs::"fence: every catalog perturbation yields at least one emission" -- covers AC-02.3 -- status: green
+- AT-02.4 test/riffle/ctx/knot_test.exs::"invariant: the knot emits the full stream and takes no consumer argument" -- covers AC-02.4 -- status: green
+- AT-02.5 test/riffle/ctx/knot_test.exs::"invariant: a recorded perturbation sequence replays to an identical trajectory" -- covers AC-02.5 -- status: green
 - Coverage: complete -- AC-02.1..5 each covered by an AT above.
 
 ### WP-03
