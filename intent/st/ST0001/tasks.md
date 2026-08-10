@@ -11,9 +11,9 @@
 
 ### WP-02 -- Scaffolding and CI gate
 
-- [ ] Local gate: `mix format --check-formatted`; `mix test --warnings-as-errors` (test compilation covered)
-- [ ] `.github/workflows/ci.yml` (format + compile + test, warnings-as-errors)
-- [ ] Gate green on the empty skeleton
+- [x] Local gate: `mix gate` alias = format --check-formatted, compile --warnings-as-errors --force, test --warnings-as-errors
+- [x] `.github/workflows/ci.yml` -- runs the same `mix gate` alias (Highlander: one gate definition)
+- [x] Gate green on the empty skeleton (2026-08-10); placeholder hello-world replaced with honest minimal module + doctest
 
 ### WP-03 -- Predicate engine port
 

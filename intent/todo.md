@@ -6,7 +6,7 @@ generator: intent todo
 
 - [-] ST0001: Extricate Predicate and SIA from Multiplyer
   - [x] 01: D2 root-cause and verdict
-  - [ ] 02: Scaffolding and CI gate
+  - [x] 02: Scaffolding and CI gate
   - [ ] 03: Predicate engine port
 
 ## TODO

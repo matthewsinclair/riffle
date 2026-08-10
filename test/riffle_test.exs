@@ -1,8 +1,5 @@
 defmodule RiffleTest do
-  use ExUnit.Case
-  doctest Riffle
+  use ExUnit.Case, async: true
 
-  test "greets the world" do
-    assert Riffle.hello() == :world
-  end
+  doctest Riffle
 end

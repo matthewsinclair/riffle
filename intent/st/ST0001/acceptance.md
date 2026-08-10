@@ -30,9 +30,9 @@ None -- WP-distributed.
 
 - AC-01.1 (non-test) D2 root-caused with the engine-vs-glue verdict recorded, file:line evidence from real reads of the archive -- evidence: design.md "D2 verdict" section -- satisfied: yes
 
-### WP-02 -- Scaffolding and CI gate (status: Not Started)
+### WP-02 -- Scaffolding and CI gate (status: Done)
 
-- AC-02.1 (non-test) CI runs format check + compile + test with warnings-as-errors covering test compilation, green on the skeleton before the port lands -- evidence: .github/workflows/ci.yml + green local gate run (upstream run on next hv push) -- satisfied: no
+- AC-02.1 (non-test) CI runs format check + compile + test with warnings-as-errors covering test compilation, green on the skeleton before the port lands -- evidence: .github/workflows/ci.yml runs `mix gate` (the single local/CI gate alias in mix.exs); local `mix gate` green on skeleton 2026-08-10 (upstream Actions run lands on next hv push) -- satisfied: yes
 
 ### WP-03 -- Predicate engine port (status: Not Started)
 
