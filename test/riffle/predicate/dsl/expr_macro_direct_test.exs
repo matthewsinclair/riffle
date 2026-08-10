@@ -192,19 +192,20 @@ defmodule Riffle.Predicate.Dsl.ExprMacroDirectTest do
 
       items = [active_premium, active_basic, inactive_premium, inactive_basic]
 
-      # Create direct predicates without references
+      # Expr-based predicates -- the point of this test is that the expr
+      # evaluation path drives real pipeline filtering
       active_predicate =
         Riffle.Predicate.new(
-          :active_predicate,
-          "Active predicate",
-          fn item -> item.fields["status"] == "active" end
+          :active_expr,
+          "Active users (expr)",
+          Riffle.Predicate.create({:expr, "@status == \"active\""})
         )
 
       premium_predicate =
         Riffle.Predicate.new(
-          :premium_predicate,
-          "Premium predicate",
-          fn item -> item.fields["tier"] == "premium" end
+          :premium_expr,
+          "Premium users (expr)",
+          Riffle.Predicate.create({:expr, "@tier == \"premium\""})
         )
 
       # Create a loop with the direct predicates
@@ -223,20 +224,24 @@ defmodule Riffle.Predicate.Dsl.ExprMacroDirectTest do
           [test_loop]
         )
 
-      # Process items through the pipeline
-      filtered_items = Riffle.Predicate.Pipeline.process(pipeline, items)
-      results = Enum.to_list(filtered_items)
+      # Any-match within the loop: only inactive_basic dies, and each
+      # survivor carries exactly the tags of the expr predicates it matched
+      results =
+        pipeline
+        |> Riffle.Predicate.Pipeline.process(items)
+        |> Enum.to_list()
 
-      # Items matching any predicate in the loop should pass through
-      assert length(results) == 3
-
-      # Check that active items are included
-      active_items = Enum.filter(results, fn item -> item.fields["status"] == "active" end)
-      assert length(active_items) == 2
-
-      # Check that premium items are included
-      premium_items = Enum.filter(results, fn item -> item.fields["tier"] == "premium" end)
-      assert length(premium_items) == 2
+      assert [
+               %Item{
+                 fields: %{"status" => "active", "tier" => "premium"},
+                 tags: [:premium_expr, :active_expr]
+               },
+               %Item{fields: %{"tier" => "basic"}, tags: [:active_expr]},
+               %Item{
+                 fields: %{"status" => "inactive", "tier" => "premium"},
+                 tags: [:premium_expr]
+               }
+             ] = results
     end
   end
 end

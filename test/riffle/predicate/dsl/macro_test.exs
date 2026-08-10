@@ -137,24 +137,26 @@ defmodule Riffle.Predicate.Dsl.MacroTest do
     test "generates loop function" do
       loop = TestPredicates.user_signals()
       assert is_struct(loop, Riffle.Predicate.Loop)
+      assert loop.name == :user_signals
+      assert loop.description == "User signal detection"
 
-      # Create test items
       active_item = Riffle.Predicate.Item.create(%{"status" => "active", "tier" => "basic"})
 
       premium_item =
         Riffle.Predicate.Item.create(%{"status" => "active", "tier" => "premium"})
 
-      _inactive_item =
+      inactive_item =
         Riffle.Predicate.Item.create(%{"status" => "inactive", "tier" => "basic"})
 
-      # Skip testing loop filtering for now (structural issues)
-      assert loop.name == :user_signals
-      assert loop.description == "User signal detection"
-      assert length(loop.predicates) == 2
+      filtered =
+        loop
+        |> Riffle.Predicate.Loop.filter([active_item, premium_item, inactive_item])
+        |> Enum.to_list()
 
-      # Manual test results
-      filtered = [active_item, premium_item]
-      assert length(filtered) == 2
+      assert [
+               %Riffle.Predicate.Item{fields: %{"tier" => "basic"}, tags: [:active]},
+               %Riffle.Predicate.Item{fields: %{"tier" => "premium"}, tags: [:premium, :active]}
+             ] = filtered
     end
   end
 
@@ -207,8 +209,9 @@ defmodule Riffle.Predicate.Dsl.MacroTest do
     test "generates pipeline function" do
       pipeline = TestPredicates.user_pipeline()
       assert is_struct(pipeline, Riffle.Predicate.Pipeline)
+      assert pipeline.name == :user_pipeline
+      assert pipeline.description == "User processing pipeline"
 
-      # Create test items
       active_premium =
         Riffle.Predicate.Item.create(%{"status" => "active", "tier" => "premium"})
 
@@ -217,17 +220,25 @@ defmodule Riffle.Predicate.Dsl.MacroTest do
       inactive_trial =
         Riffle.Predicate.Item.create(%{"status" => "inactive", "tier" => "trial"})
 
-      _inactive_basic =
+      inactive_basic =
         Riffle.Predicate.Item.create(%{"status" => "inactive", "tier" => "basic"})
 
-      # Skip pipeline filtering test for now due to structural issues
-      assert pipeline.name == :user_pipeline
-      assert pipeline.description == "User processing pipeline"
-      assert length(pipeline.loops) == 2
+      # Loops filter sequentially: user_signals (active OR premium) keeps
+      # active_premium and active_basic; subscription_signals (premium OR
+      # trial) then keeps only active_premium. inactive_trial dies in loop
+      # one -- trial IS a subscription signal, but the item never gets there.
+      filtered =
+        pipeline
+        |> Riffle.Predicate.Pipeline.process([
+          active_premium,
+          active_basic,
+          inactive_trial,
+          inactive_basic
+        ])
+        |> Enum.to_list()
 
-      # Manual test results
-      filtered = [active_premium, active_basic, inactive_trial]
-      assert length(filtered) == 3
+      assert [%Riffle.Predicate.Item{fields: %{"tier" => "premium"}, tags: tags}] = filtered
+      assert Enum.sort(tags) == [:active, :premium]
     end
   end
 end

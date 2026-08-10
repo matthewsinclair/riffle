@@ -302,26 +302,16 @@ defmodule Riffle.Predicate.Dsl.Macro do
                 predicates: loop_predicates
               }}
 
-      # Generate a function that returns this loop struct
+      # Generate a function that returns this loop struct, with every
+      # reference resolved and every body hydrated to a callable exactly
+      # once, here -- not per item at evaluation time.
       def unquote(name)() do
         predicates =
-          Enum.map(unquote(predicates), fn
-            %{name: pred_name, inline: false} ->
-              # Reference to an existing predicate - use the get_predicate function
-              get_predicate(pred_name)
+          Enum.map(
+            unquote(predicates),
+            &Riffle.Predicate.Dsl.Macro.hydrate_predicate_ref!(__MODULE__, &1)
+          )
 
-            %{name: pred_name, body: body, description: description} ->
-              # Handle any kind of body including expr
-              fn_impl = Riffle.Predicate.create(body)
-              Riffle.Predicate.new(pred_name, description, fn_impl)
-
-            %{name: pred_name, body: body} ->
-              # Handle any kind of body including expr
-              fn_impl = Riffle.Predicate.create(body)
-              Riffle.Predicate.new(pred_name, "", fn_impl)
-          end)
-
-        # Return a proper Loop struct
         Riffle.Predicate.Loop.new(unquote(name), unquote(description), predicates)
       end
     end
@@ -383,63 +373,67 @@ defmodule Riffle.Predicate.Dsl.Macro do
                     loops: pipeline_loops
                   }}
 
-      # Generate a function that returns this pipeline struct
+      # Generate a function that returns this pipeline struct, with loop
+      # references resolved and hydrated recursively.
       def unquote(name)() do
         loops =
-          Enum.map(unquote(loops), fn
-            %{name: loop_name, inline: false} ->
-              # Reference to an existing loop
-              get_loop(loop_name)
+          Enum.map(
+            unquote(loops),
+            &Riffle.Predicate.Dsl.Macro.hydrate_loop_ref!(__MODULE__, &1)
+          )
 
-            %{name: loop_name, predicates: predicates, description: description} ->
-              # Handle inline loop definition
-              loop_predicates =
-                Enum.map(predicates, fn
-                  %{name: pred_name, inline: false} ->
-                    # Reference to an existing predicate
-                    get_predicate(pred_name)
-
-                  %{name: pred_name, body: body, description: pred_description} ->
-                    # Create a new predicate with description
-                    fn_impl = Riffle.Predicate.create(body)
-                    Riffle.Predicate.new(pred_name, pred_description, fn_impl)
-
-                  %{name: pred_name, body: body} ->
-                    # Create a new predicate without description
-                    fn_impl = Riffle.Predicate.create(body)
-                    Riffle.Predicate.new(pred_name, "", fn_impl)
-                end)
-
-              # Return a proper Loop struct
-              Riffle.Predicate.Loop.new(loop_name, description, loop_predicates)
-
-            %{name: loop_name, predicates: predicates} ->
-              # Handle inline loop definition without description
-              loop_predicates =
-                Enum.map(predicates, fn
-                  %{name: pred_name, inline: false} ->
-                    # Reference to an existing predicate
-                    get_predicate(pred_name)
-
-                  %{name: pred_name, body: body, description: pred_description} ->
-                    # Create a new predicate with description
-                    fn_impl = Riffle.Predicate.create(body)
-                    Riffle.Predicate.new(pred_name, pred_description, fn_impl)
-
-                  %{name: pred_name, body: body} ->
-                    # Create a new predicate without description
-                    fn_impl = Riffle.Predicate.create(body)
-                    Riffle.Predicate.new(pred_name, "", fn_impl)
-                end)
-
-              # Return a proper Loop struct
-              Riffle.Predicate.Loop.new(loop_name, "", loop_predicates)
-          end)
-
-        # Return a proper Pipeline struct
         Riffle.Predicate.Pipeline.new(unquote(name), unquote(description), loops)
       end
     end
+  end
+
+  @doc false
+  # Hydration for macro-generated definitions: a reference resolves through
+  # the defining module or raises with the offending name; a body-carrying
+  # definition becomes a callable predicate exactly once, here. Missing
+  # names must never become nil entries that crash far away at evaluation.
+  @spec hydrate_predicate_ref!(module(), map()) :: map()
+  def hydrate_predicate_ref!(module, %{name: name, inline: false}) do
+    case module.get_predicate(name) do
+      nil ->
+        raise Riffle.Predicate.UnresolvedPredicateError,
+          message:
+            "cannot resolve predicate #{inspect(name)}: " <>
+              "#{inspect(module)} defines no such predicate"
+
+      pred_def ->
+        hydrate_predicate_ref!(module, pred_def)
+    end
+  end
+
+  def hydrate_predicate_ref!(_module, %{name: name, body: body} = pred_def) do
+    Riffle.Predicate.new(
+      name,
+      Map.get(pred_def, :description, ""),
+      Riffle.Predicate.create(body)
+    )
+  end
+
+  def hydrate_predicate_ref!(_module, %{function: _} = predicate), do: predicate
+
+  @doc false
+  @spec hydrate_loop_ref!(module(), map()) :: Riffle.Predicate.Loop.t()
+  def hydrate_loop_ref!(module, %{name: name, inline: false}) do
+    case module.get_loop(name) do
+      nil ->
+        raise Riffle.Predicate.UnresolvedPredicateError,
+          message:
+            "cannot resolve loop #{inspect(name)}: " <>
+              "#{inspect(module)} defines no such loop"
+
+      loop_def ->
+        hydrate_loop_ref!(module, loop_def)
+    end
+  end
+
+  def hydrate_loop_ref!(module, %{name: name, predicates: predicates} = loop_def) do
+    hydrated = Enum.map(predicates, &hydrate_predicate_ref!(module, &1))
+    Riffle.Predicate.Loop.new(name, Map.get(loop_def, :description, ""), hydrated)
   end
 
   # Helper functions for constructing predicate and loop references

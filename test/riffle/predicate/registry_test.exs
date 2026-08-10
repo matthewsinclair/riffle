@@ -28,9 +28,10 @@ defmodule Riffle.Predicate.RegistryTest do
   end
 
   setup do
-    # Start a registry for each test with a unique name
+    # Start a registry for each test with a unique name; the test supervisor
+    # owns its lifecycle (no manual stop, no leak on failure).
     registry_name = :"test_registry_#{:erlang.unique_integer([:positive])}"
-    {:ok, registry_pid} = Registry.start_link(name: registry_name)
+    registry_pid = start_supervised!({Registry, [name: registry_name]})
 
     # Create fixtures directory if it doesn't exist
     File.mkdir_p!(@fixtures_dir)
@@ -57,12 +58,7 @@ defmodule Riffle.Predicate.RegistryTest do
     File.write!("#{@fixtures_dir}/test.pred", basic_pred_file)
 
     on_exit(fn ->
-      # Clean up test registry - using pid directly for more reliable cleanup
-      if Process.alive?(registry_pid) do
-        GenServer.stop(registry_pid)
-      end
-
-      # Clean up test files
+      # Clean up test files (the supervisor handles the process)
       File.rm_rf!(@fixtures_dir)
     end)
 
@@ -104,19 +100,21 @@ defmodule Riffle.Predicate.RegistryTest do
       Registry.register_module(TestPredicates, registry)
 
       {:ok, user_signals} = Registry.get_loop(:user_signals, registry)
+      assert user_signals.name == :user_signals
 
-      # Create test items
       active_item = Item.create(%{"status" => "active", "tier" => "basic"})
       premium_item = Item.create(%{"status" => "active", "tier" => "premium"})
-      _inactive_item = Item.create(%{"status" => "inactive", "tier" => "basic"})
+      inactive_item = Item.create(%{"status" => "inactive", "tier" => "basic"})
 
-      # Skip loop filtering test temporarily
-      assert user_signals.name == :user_signals
-      # Create a manual result for now
-      filtered = [active_item, premium_item]
-      assert length(filtered) == 2
-      assert Enum.member?(filtered, active_item)
-      assert Enum.member?(filtered, premium_item)
+      filtered =
+        user_signals
+        |> Riffle.Predicate.Loop.filter([active_item, premium_item, inactive_item])
+        |> Enum.to_list()
+
+      assert [
+               %Item{fields: %{"tier" => "basic"}, tags: [:active]},
+               %Item{fields: %{"tier" => "premium"}, tags: [:premium, :active]}
+             ] = filtered
     end
 
     test "returns error for non-existent module", %{registry: registry} do

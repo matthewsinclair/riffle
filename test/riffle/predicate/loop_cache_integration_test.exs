@@ -141,21 +141,20 @@ defmodule Riffle.Predicate.LoopCacheIntegrationTest do
       # Process third item (inactive)
       {false, _} = Loop.process(loop, item3)
 
-      # More evaluations for this item
-      # active (+1)
+      # Loop.process evaluates every predicate unconditionally (no
+      # short-circuit), so a non-matching item still evaluates all three
       assert :counters.get(counters, 1) == 3
-      # Premium and verified might not be evaluated if the loop short-circuits
+      assert :counters.get(counters, 2) == 3
+      assert :counters.get(counters, 3) == 3
 
       # Processing first item again should use cache
       {true, _} = Loop.process(loop, item1)
 
-      # No additional evaluations for first item
-      # unchanged
+      # Cache is keyed per {predicate, item}: the counters sit exactly
+      # where item3's full evaluation left them
       assert :counters.get(counters, 1) == 3
-      # unchanged or +1 depending on short-circuit
-      assert :counters.get(counters, 2) <= 3
-      # unchanged or +1 depending on short-circuit
-      assert :counters.get(counters, 3) <= 3
+      assert :counters.get(counters, 2) == 3
+      assert :counters.get(counters, 3) == 3
     end
 
     test "clearing cache causes re-evaluation",
