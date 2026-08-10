@@ -3,7 +3,7 @@ verblock: "10 Aug 2026:v0.1: matts - Initial version"
 wp_id: WP-03
 title: "Predicate engine port"
 scope: Medium
-status: Not Started
+status: WIP
 ---
 
 # WP-03: Predicate engine port

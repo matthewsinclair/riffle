@@ -1,0 +1,75 @@
+# Simple predicate for filtering suspended users
+predicate(:user_suspended, "Users with suspended account status") do
+  expr @account_status == "suspended"
+end
+
+# Add an expensive predicate that would benefit from caching
+predicate(:high_value_user, "High value users with many logins") do
+  # This would be an expensive operation that benefits from caching
+  expr to_integer(@login_count) > 100 && @account_status == "active" && @account_age > "365"
+end
+
+# Combine predicates in a complex condition
+predicate(:premium_active_user, "Premium active users") do
+  expr @subscription_tier == "premium" && @account_status == "active"
+end
+
+# Loop containing the user_suspended predicate
+loop(:suspended_users_loop, "Loop for filtering suspended users") do
+  predicate(:user_suspended)
+end
+
+# Loop containing predicates that benefit from caching
+loop(:user_analysis_loop, "Loop for analyzing user patterns") do
+  predicate(:high_value_user)
+  predicate(:premium_active_user)
+end
+
+# Pipeline containing all loops
+pipeline(:user_analysis_pipeline, "Pipeline for analyzing users") do
+  loop(:suspended_users_loop)
+  loop(:user_analysis_loop)
+end
+
+# USAGE EXAMPLES:
+#
+# To use this pipeline with default cache settings:
+# 
+# 1. Enable caching globally:
+#    Riffle.Predicate.with_caching(true)
+#
+# 2. Process items through pipeline (caching automatically used):
+#    Riffle.Predicate.Pipeline.process(pipeline, items)
+#
+# 3. Configure cache settings:
+#    Riffle.Predicate.configure_cache(max_size: 5000, ttl: 1800)
+#
+# 4. Get cache statistics:
+#    stats = Riffle.Predicate.cache_stats()
+#    IO.puts("Cache hits: #{stats.hits}, misses: #{stats.misses}")
+#
+# 5. Clear cache if needed:
+#    Riffle.Predicate.clear_cache()
+#
+# 6. Disable caching:
+#    Riffle.Predicate.with_caching(false)
+#
+# Example code to run this pipeline with caching:
+#
+# ```elixir
+# # Load the pipeline
+# {:ok, instances} = Riffle.Predicate.Dsl.Loader.load_file("user_test.pred") |> 
+#                    Riffle.Predicate.Dsl.Loader.create_instances()
+# pipeline = instances.pipelines.user_analysis_pipeline
+#
+# # Enable caching with custom settings
+# Riffle.Predicate.with_caching(true)
+# Riffle.Predicate.configure_cache(max_size: 10_000, ttl: 3600)
+#
+# # Process items through the pipeline (with caching)
+# filtered_items = Riffle.Predicate.Pipeline.process(pipeline, items)
+#
+# # Get cache performance statistics
+# stats = Riffle.Predicate.cache_stats()
+# IO.puts("Cache performance: #{stats.hits} hits, #{stats.misses} misses")
+# ```
