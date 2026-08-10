@@ -4,25 +4,13 @@ defmodule Riffle.Sia.SourcesTest do
   use ExUnit.Case, async: false
 
   alias Riffle.CacheHelpers
+  alias Riffle.ConfigHelpers
   alias Riffle.Ctx
   alias Riffle.Predicate.Pipeline
   alias Riffle.Sia
   alias Riffle.Sia.DefaultPipeline
   alias Riffle.Sia.Pipelines
   alias Riffle.SiaFixtures
-
-  setup do
-    original = Application.fetch_env(:riffle, :default_pipeline)
-
-    on_exit(fn ->
-      case original do
-        {:ok, value} -> Application.put_env(:riffle, :default_pipeline, value)
-        :error -> Application.delete_env(:riffle, :default_pipeline)
-      end
-    end)
-
-    :ok
-  end
 
   describe "fetch/2 -- the closed vocabulary" do
     test "success: a struct source is the pipeline, named or not" do
@@ -58,13 +46,13 @@ defmodule Riffle.Sia.SourcesTest do
     end
 
     test "success: :default_module reads the configured module" do
-      Application.put_env(:riffle, :default_pipeline, DefaultPipeline)
+      ConfigHelpers.put_default_pipeline(DefaultPipeline)
 
       assert {:ok, %Pipeline{name: :main}} = Pipelines.fetch(:default_module, nil)
     end
 
     test "failure: :default_module with nothing configured is a tagged error, not a crash" do
-      Application.delete_env(:riffle, :default_pipeline)
+      ConfigHelpers.delete_default_pipeline()
 
       assert Pipelines.fetch(:default_module, nil) == {:error, :no_default_pipeline_module}
     end
@@ -76,7 +64,7 @@ defmodule Riffle.Sia.SourcesTest do
     end
 
     test "failure: an unresolvable source fails the run rather than raising out of it" do
-      Application.put_env(:riffle, :default_pipeline, DefaultPipeline)
+      ConfigHelpers.put_default_pipeline(DefaultPipeline)
 
       {ctx, _emissions} =
         Sia.run(Ctx.new(run_id: "sources"), :default_module, [], pipeline: :no_such_pipeline)

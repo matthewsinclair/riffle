@@ -51,6 +51,10 @@
 | Concern                                 | THE Module                          | Notes                                                                          |
 | --------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------ |
 | Namespaces + fence introspection        | Riffle.FenceHelpers (test/support)  | namespace, source paths, typespec + AST walks shared by every fence (DD-9)     |
+| :riffle app-env preconditions           | Riffle.ConfigHelpers (test/support) | default-pipeline set/unset with automatic restore; three suites shared one copy |
+| Cache preconditions + spy predicates    | Riffle.CacheHelpers (test/support)  | reset_cache/1, spy_predicate/4                                                 |
+| Pattern-layer test inputs               | Riffle.SiaFixtures (test/support)   | staging pipelines (mechanics) + the four characterisation rows                 |
+| DSL fixture corpus                      | Riffle.DslFixtures (test/support)   | the macro module and `.pred` sources shared by the registry + loader suites    |
 
 <!-- Add entries as modules are created. Group by domain. Example:
 

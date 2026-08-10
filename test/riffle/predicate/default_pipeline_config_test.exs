@@ -1,6 +1,7 @@
 defmodule Riffle.Predicate.DefaultPipelineConfigTest do
   use ExUnit.Case, async: true
 
+  alias Riffle.Predicate.Pipeline
   alias Riffle.Predicate.PipelineConfig
 
   # Define a test module that uses DefaultPipelineConfig
@@ -54,18 +55,12 @@ defmodule Riffle.Predicate.DefaultPipelineConfigTest do
     end
 
     test "get_pipeline returns pipeline by atom name" do
-      pipeline = TestPipeline.get_pipeline(:test_pipeline1)
-
-      assert is_map(pipeline)
-      assert pipeline.name == :test_pipeline1
-      assert pipeline.description == "Test pipeline 1"
+      assert %Pipeline{name: :test_pipeline1, description: "Test pipeline 1"} =
+               TestPipeline.get_pipeline(:test_pipeline1)
     end
 
     test "get_pipeline returns pipeline by string name" do
-      pipeline = TestPipeline.get_pipeline("test_pipeline1")
-
-      assert is_map(pipeline)
-      assert pipeline.name == :test_pipeline1
+      assert %Pipeline{name: :test_pipeline1} = TestPipeline.get_pipeline("test_pipeline1")
     end
 
     test "get_pipeline returns nil for non-existent pipeline" do
@@ -79,19 +74,12 @@ defmodule Riffle.Predicate.DefaultPipelineConfigTest do
     end
 
     test "get_loop returns loop by name" do
-      loop = TestPipeline.get_loop(:test_loop)
-
-      assert is_map(loop)
-      assert loop.name == :test_loop
-      assert loop.description == "Test loop"
+      assert %{name: :test_loop, description: "Test loop"} = TestPipeline.get_loop(:test_loop)
     end
 
     test "get_predicate returns predicate by name" do
-      predicate = TestPipeline.get_predicate(:test_predicate1)
-
-      assert is_map(predicate)
-      assert predicate.name == :test_predicate1
-      assert predicate.description == "Test predicate 1"
+      assert %{name: :test_predicate1, description: "Test predicate 1"} =
+               TestPipeline.get_predicate(:test_predicate1)
     end
   end
 end

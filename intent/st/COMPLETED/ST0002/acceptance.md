@@ -57,9 +57,10 @@ None -- WP-distributed.
 - AT-01.1 test/riffle/ctx/ctx_test.exs (3 invariants: the declared overlay is exactly metadata, every other slot carries a concrete type, no slot accumulates catalog types -- the last carries a positive control) -- covers AC-01.1 -- status: green
 - AT-01.2 test/riffle/ctx/catalog_fence_test.exs::"invariant: an unknown tag loud-fails at both catalogs" -- covers AC-01.2 -- status: green
 - AT-01.3 test/riffle/ctx/catalog_fence_test.exs (4 fences: per-catalog module/registry bijection, and per-catalog union-type/membership agreement) -- covers AC-01.3 -- status: green
-- AT-01.4 test/riffle/ctx/boundary_fence_test.exs::"fence: the waist names no engine module" (AST-based; carries a brace-alias positive control) -- covers AC-01.4 -- status: green
-- AT-01.5 test/riffle/ctx/boundary_fence_test.exs::"fence: the engine names no waist module" -- covers AC-01.5 -- status: green
+- AT-01.4 test/riffle/boundary_fence_test.exs::"fence: the waist names no engine module" (AST-based; carries a brace-alias positive control) -- covers AC-01.4 -- status: green
+- AT-01.5 test/riffle/boundary_fence_test.exs::"fence: the engine names no waist module" -- covers AC-01.5 -- status: green
 - Coverage: AC-01.1..5 covered above; AC-01.6 is non-test with evidence inline.
+- Path note (2026-08-11, ST0003 DD-9): the boundary fence moved from `test/riffle/ctx/` to `test/riffle/` when the pattern layer gave it two more directions to check. It was already project-level despite the path -- it has asserted things about the engine since this thread. Cited paths above corrected; the fences themselves are unchanged.
 
 ### WP-02
 

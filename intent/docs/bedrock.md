@@ -1,10 +1,12 @@
 # Architectural Bedrock -- Riffle
 
-> The commitments Riffle's waist is built on. A contradiction with this document is a bug in the contradicting document, not a choice. Established by ST0002 (2026-08-10); a change to any commitment here is a change to the shape of the system, argued at this level, never taken locally inside a work package.
+> The commitments Riffle is built on. A contradiction with this document is a bug in the contradicting document, not a choice. Established by ST0002 (2026-08-10) and extended by ST0003 (2026-08-11); a change to any commitment here is a change to the shape of the system, argued at this level, never taken locally inside a work package.
 
 ## Preamble
 
 Riffle is a predicate engine and a sense-infer-act pattern layer sitting on a context waist. The waist follows The Bowtie Pattern (Sinclair, Feb 2026).
+
+Three parts, and the shape of the whole is which of them may name which. The engine names nothing. The waist names nothing. The pattern layer names both, and is named by neither -- it is the edge where they compose, and it is the only place they do.
 
 Riffle is **an example** of that pattern, not its reference implementation. The pattern is a conceptual idea; nothing here exists to demonstrate its generality. Each commitment below is kept because it earns its keep in this codebase, and every one of them is enforced by a fence rather than by memory or review taste. The distinction matters: Riffle borrows the discipline, not the obligation to showcase it.
 
@@ -38,11 +40,19 @@ They enter and they leave. Neither is persisted in the context, and no slot accu
 
 Inference is broader than LLMs: rules engines, classical models, and human-in-the-loop interpretation are all inference. Riffle's Predicate engine is a rules engine, and it is also impure -- evaluation runs through a cache owned by a process. So it lives at an edge: an edge component evaluates and feeds the typed result in as a perturbation.
 
-The waist names no engine module and the engine names no waist module. They compose only where an edge joins them.
+The waist names no engine module and the engine names no waist module. They compose only where an edge joins them, and the edge is named by neither -- the core does not know who is listening, and the engine does not know what it is being used for. As built: `Riffle.Sia`, which stages a predicate pipeline through the knot, evaluating at the edge and feeding each typed result in as a perturbation.
 
 ### 7. Every failure surfaces as a typed signal
 
 No silent no-op, no rescue-and-swallow. An unrecognised tag returns an error; a struct outside the catalog raises; a perturbation that no clause claims surfaces as a typed default pass rather than vanishing.
+
+There are two kinds of failure and they are treated differently on purpose. A failure a correct program can meet at runtime -- a missing file, a name nothing defines, an unset configuration -- is a **tagged error**, and where it happens inside a run it fails that run as a typed signal a caller can read. A failure that means the program is wrong -- a value outside a declared vocabulary, an argument that contradicts another -- **raises**, naming what arrived. Neither is ever a quiet empty result.
+
+### 8. No derived claim outlives its evidence
+
+Established by ST0003, from the defect that thread was built to eliminate: a run computed correct results, derived statistics from them, discarded the results, and recorded a flag saying the results were available. The flag was not stale -- it was false the moment it was written.
+
+So: a count, a statistic or a status is recorded only alongside the collection it describes, and it is computed as a projection of facts already emitted rather than tallied in parallel. Where results are reported in more than one place, the places must agree exactly. A statistic that needs a fence to stay honest is a statistic that should have been a projection.
 
 ## The NOT-list
 
@@ -53,6 +63,8 @@ Stated negatively, because the failure modes a state-bearing system is prone to 
 - **Perturbations and emissions are never untyped.** No maps, no stringly-typed atoms, no type outside its registry.
 - **The waist is not a framework.** No extensibility surface exists for its own sake. If a mechanism has no consumer in Riffle, it is not built.
 - **The engine and the waist do not name each other.** Neither direction, at any depth of the call closure.
+- **Nothing but the knot changes a context.** No reaching in, in either spelling of update syntax, anywhere outside the waist.
+- **No availability flag.** The presence of the thing is the fact. A boolean asserting that a payload exists, next to the payload, is redundant; without the payload it is a lie waiting to happen.
 
 ## How the commitments are held
 
@@ -64,8 +76,11 @@ Each is enforced mechanically, by a fence that enumerates the source of truth ex
 | Typed composite root (3)      | `ctx_test` -- reads the declared typespec, not the runtime values                    |
 | Closed catalogs (4)           | `catalog_fence_test` -- modules on disk against registry, and union type against membership |
 | Transience (5)                | `ctx_test` -- no slot's type references a catalog namespace                          |
-| Edge separation (6)           | `boundary_fence_test` (parsed AST, both directions), `purity_fence_test` (call closure) |
+| Edge separation (6)           | `boundary_fence_test` (parsed AST, four directions), `purity_fence_test` (call closure) |
 | No silent failure (7)         | `delivery_floor_fence_test` -- every perturbation yields a real emission, no default |
+| No silent failure (7)         | `sia/no_rescue_fence_test` -- no rescue, catch or after in the pattern layer         |
+| No derived claim alone (8)    | `sia/evidence_fence_test` -- results agree in three places; every count carries its collection |
+| Single transition point (3)   | `single_transition_fence_test` -- no context update outside the knot, either spelling |
 | Measured surface              | `measured_surface_fence_test` -- both directions, capability to type and back        |
 
 Every fence is mutation-checked when written: break the thing it guards, and it goes red. A fence that cannot fail is not a fence -- and one of these was exactly that for a while, matching the Erlang remote-type form with the wrong arity so that it silently recognised nothing. Two fences now carry positive controls for that reason.
@@ -78,3 +93,5 @@ These sit outside bedrock and evolve freely.
 - **Multi-clause dispatch** in the knot rather than a subscriber routing table, because Riffle has no independent subscribers competing for tags. The trade-off and the fence that covers it are in ST0002 design.md, DD-4.
 - **No fan-out registry.** The knot returns emissions; the caller decides. One consumer does not justify a registry.
 - **No z-order on emissions.** That is a rendering concern, and Riffle does not render.
+- **A stage is a loop.** The pattern layer takes a pipeline's loop sequence as its staging and names each stage for its loop, so sense-infer-act is what a definition file says rather than a shape the runner imposes. No stage registry, no behaviour, no tag-prefix convention.
+- **No datasource layer.** Ingest is an enumerable of field maps or items and nothing else. A fan-in source is a natural later addition that would then genuinely prove source independence; adding one now would prove nothing.

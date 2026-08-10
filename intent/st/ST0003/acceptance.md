@@ -22,9 +22,9 @@ title: "SIA pattern layer rewrite -- acceptance contract"
 
 ### ST-level
 
-- AC-00.1 (non-test) `mix gate` green at close -- format, compile and test both under warnings-as-errors, `credo --strict` -- evidence: impl.md gate record -- satisfied: no
-- AC-00.2 (non-test) Every fence this thread adds is mutation-checked: break the thing it guards, watch it go red, restore. A fence that cannot fail is not a fence -- evidence: impl.md mutation table -- satisfied: no
-- AC-00.3 (non-test) Every module created is registered in `intent/llm/MODULES.md` before its file exists -- evidence: MODULES.md "SIA (the pattern layer)" section -- satisfied: no
+- AC-00.1 (non-test) `mix gate` green at close -- format, compile and test both under warnings-as-errors, `credo --strict` -- evidence: impl.md Gate section -- 363 passed (68 doctests, 295 tests), 642 mods/funs, zero credo findings -- satisfied: yes
+- AC-00.2 (non-test) Every fence this thread adds is mutation-checked: break the thing it guards, watch it go red, restore. A fence that cannot fail is not a fence -- evidence: impl.md mutation table -- M1..M11, every fence broken on purpose and seen red; M9 exposed the cache masking the file source -- satisfied: yes
+- AC-00.3 (non-test) Every module created is registered in `intent/llm/MODULES.md` before its file exists -- evidence: MODULES.md: SIA (the pattern layer) 3 rows + Test support 5 rows, registered before each file was created -- satisfied: yes
 
 ### WP-01 -- The staged edge (status: WIP)
 
@@ -48,11 +48,11 @@ title: "SIA pattern layer rewrite -- acceptance contract"
 
 ### WP-03 -- Record and close (status: WIP)
 
-- AC-03.1 (non-test) design.md records the decisions with their rationale, including what was deliberately not built -- evidence: intent/st/ST0003/design.md -- satisfied: no
-- AC-03.2 (non-test) impl.md records the as-built, the critic rounds and their outcomes, and the mutation table -- evidence: intent/st/ST0003/impl.md -- satisfied: no
-- AC-03.3 (non-test) Rule-library conformance at ST0001/ST0002's bar: `critic-elixir` review and test-check over every file this thread touched, every CRITICAL and every Highlander WARNING fixed at source, none suppressed -- evidence: impl.md critic section -- satisfied: no
-- AC-03.4 (non-test) Zero source-project traces in the new files -- evidence: `extrication_gate_test` green -- satisfied: no
-- AC-03.5 (non-test) `intent/docs/bedrock.md` reflects the pattern layer: the commitments it adds, or the recorded finding that none changed -- evidence: intent/docs/bedrock.md -- satisfied: no
+- AC-03.1 (non-test) design.md records the decisions with their rationale, including what was deliberately not built -- evidence: intent/st/ST0003/design.md -- DD-1..DD-10 incl. DD-10 'what was deliberately not built', plus four rejected alternatives with reasons -- satisfied: yes
+- AC-03.2 (non-test) impl.md records the as-built, the critic rounds and their outcomes, and the mutation table -- evidence: intent/st/ST0003/impl.md -- as-built, mutation table M1..M11, two critic rounds, and the two departures recorded -- satisfied: yes
+- AC-03.3 (non-test) Rule-library conformance at ST0001/ST0002's bar: `critic-elixir` review and test-check over every file this thread touched, every CRITICAL and every Highlander WARNING fixed at source, none suppressed -- evidence: impl.md Critic rounds -- round 1: 2 WARNING (IN-EX-TEST-005) fixed at source as a Highlander problem across 3 suites; round 2 clean; whole-tree sweep at style found 7 inherited CRITICALs, all fixed; tree clean at every severity across 86 files -- satisfied: yes
+- AC-03.4 (non-test) Zero source-project traces in the new files -- evidence: extrication_gate_test green across the new lib/, priv/ and test/ files -- part of the 363 -- satisfied: yes
+- AC-03.5 (non-test) `intent/docs/bedrock.md` reflects the pattern layer: the commitments it adds, or the recorded finding that none changed -- evidence: intent/docs/bedrock.md -- commitment 8 (no derived claim outlives its evidence) added, commitments 6 and 7 extended, 2 new negations, fence table updated -- satisfied: yes
 
 ## Acceptance Tests
 

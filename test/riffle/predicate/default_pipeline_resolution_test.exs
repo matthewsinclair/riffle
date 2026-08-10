@@ -2,6 +2,7 @@ defmodule Riffle.Predicate.DefaultPipelineResolutionTest do
   # Mutates the :riffle application environment -- cannot run async.
   use ExUnit.Case, async: false
 
+  alias Riffle.ConfigHelpers
   alias Riffle.Predicate.Item
   alias Riffle.Predicate.Loop
   alias Riffle.Predicate.UnresolvedPredicateError
@@ -20,21 +21,8 @@ defmodule Riffle.Predicate.DefaultPipelineResolutionTest do
     predicates: [%{name: :always_true, inline: false}]
   }
 
-  setup do
-    original = Application.fetch_env(:riffle, :default_pipeline)
-
-    on_exit(fn ->
-      case original do
-        {:ok, value} -> Application.put_env(:riffle, :default_pipeline, value)
-        :error -> Application.delete_env(:riffle, :default_pipeline)
-      end
-    end)
-
-    :ok
-  end
-
   test "success: configured module resolves a moduleless predicate reference" do
-    Application.put_env(:riffle, :default_pipeline, ConfiguredPipeline)
+    ConfigHelpers.put_default_pipeline(ConfiguredPipeline)
 
     items = [Item.new(["n"], ["1"])]
 
@@ -43,7 +31,7 @@ defmodule Riffle.Predicate.DefaultPipelineResolutionTest do
   end
 
   test "failure: unset config raises naming the missing config key" do
-    Application.delete_env(:riffle, :default_pipeline)
+    ConfigHelpers.delete_default_pipeline()
 
     items = [Item.new(["n"], ["1"])]
 
@@ -53,7 +41,7 @@ defmodule Riffle.Predicate.DefaultPipelineResolutionTest do
   end
 
   test "failure: configured module without the predicate raises naming the module" do
-    Application.put_env(:riffle, :default_pipeline, ConfiguredPipeline)
+    ConfigHelpers.put_default_pipeline(ConfiguredPipeline)
 
     loop = %{@moduleless_loop | predicates: [%{name: :no_such_predicate, inline: false}]}
     items = [Item.new(["n"], ["1"])]
@@ -64,15 +52,15 @@ defmodule Riffle.Predicate.DefaultPipelineResolutionTest do
   end
 
   test "success: default_pipeline/0 returns the configured module, nil when unset" do
-    Application.put_env(:riffle, :default_pipeline, ConfiguredPipeline)
+    ConfigHelpers.put_default_pipeline(ConfiguredPipeline)
     assert Riffle.Predicate.default_pipeline() == ConfiguredPipeline
 
-    Application.delete_env(:riffle, :default_pipeline)
+    ConfigHelpers.delete_default_pipeline()
     assert Riffle.Predicate.default_pipeline() == nil
   end
 
   test "success: resolver falls back to the configured module for a nil source" do
-    Application.put_env(:riffle, :default_pipeline, ConfiguredPipeline)
+    ConfigHelpers.put_default_pipeline(ConfiguredPipeline)
 
     assert {:ok, %{name: :always_true, function: function}} =
              Riffle.Predicate.Resolver.resolve_predicate(nil, %{name: :always_true, inline: false})
@@ -81,7 +69,7 @@ defmodule Riffle.Predicate.DefaultPipelineResolutionTest do
   end
 
   test "success: a nil source still hydrates an inline body without reading config" do
-    Application.delete_env(:riffle, :default_pipeline)
+    ConfigHelpers.delete_default_pipeline()
 
     ref = %{name: :inline_pred, body: quote(do: fn _item -> true end)}
 
@@ -92,14 +80,14 @@ defmodule Riffle.Predicate.DefaultPipelineResolutionTest do
   end
 
   test "failure: a nil source with no configured default is a tagged no_source error" do
-    Application.delete_env(:riffle, :default_pipeline)
+    ConfigHelpers.delete_default_pipeline()
 
     assert Riffle.Predicate.Resolver.resolve_predicate(nil, %{name: :always_true, inline: false}) ==
              {:error, {:no_source, :always_true}}
   end
 
   test "failure: the no_source bang raise names the missing config key" do
-    Application.delete_env(:riffle, :default_pipeline)
+    ConfigHelpers.delete_default_pipeline()
 
     assert_raise UnresolvedPredicateError, ~r/config :riffle, :default_pipeline/, fn ->
       Riffle.Predicate.Resolver.resolve_predicate!(nil, %{name: :always_true, inline: false})

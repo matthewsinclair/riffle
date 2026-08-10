@@ -79,9 +79,7 @@ defmodule Riffle.Predicate.Dsl.MacroTest do
 
     test "generates predicate struct" do
       predicate = TestPredicates.active()
-      assert is_map(predicate)
-      assert predicate.name == :active
-      assert predicate.description == "Active users"
+      assert %{name: :active, description: "Active users"} = predicate
       assert is_function(predicate.function, 1)
 
       # Create a test item
@@ -136,9 +134,9 @@ defmodule Riffle.Predicate.Dsl.MacroTest do
 
     test "generates loop function" do
       loop = TestPredicates.user_signals()
-      assert is_struct(loop, Riffle.Predicate.Loop)
-      assert loop.name == :user_signals
-      assert loop.description == "User signal detection"
+
+      assert %Riffle.Predicate.Loop{name: :user_signals, description: "User signal detection"} =
+               loop
 
       active_item = Riffle.Predicate.Item.create(%{"status" => "active", "tier" => "basic"})
 
@@ -208,9 +206,11 @@ defmodule Riffle.Predicate.Dsl.MacroTest do
 
     test "generates pipeline function" do
       pipeline = TestPredicates.user_pipeline()
-      assert is_struct(pipeline, Riffle.Predicate.Pipeline)
-      assert pipeline.name == :user_pipeline
-      assert pipeline.description == "User processing pipeline"
+
+      assert %Riffle.Predicate.Pipeline{
+               name: :user_pipeline,
+               description: "User processing pipeline"
+             } = pipeline
 
       active_premium =
         Riffle.Predicate.Item.create(%{"status" => "active", "tier" => "premium"})

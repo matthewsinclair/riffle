@@ -4,6 +4,7 @@ defmodule Riffle.Sia.CharacterisationTest do
   use ExUnit.Case, async: false
 
   alias Riffle.CacheHelpers
+  alias Riffle.ConfigHelpers
   alias Riffle.Ctx
   alias Riffle.Ctx.Emission
   alias Riffle.Sia
@@ -56,8 +57,7 @@ defmodule Riffle.Sia.CharacterisationTest do
   ]
 
   setup do
-    original = Application.fetch_env(:riffle, :default_pipeline)
-    Application.put_env(:riffle, :default_pipeline, DefaultPipeline)
+    ConfigHelpers.put_default_pipeline(DefaultPipeline)
 
     # The evaluation cache is keyed on the predicate's name and the item, and
     # the module and the file share every predicate name. With it on, the first
@@ -70,14 +70,7 @@ defmodule Riffle.Sia.CharacterisationTest do
     # left these tests green.
     CacheHelpers.reset_cache(enabled: false)
 
-    on_exit(fn ->
-      CacheHelpers.reset_cache()
-
-      case original do
-        {:ok, value} -> Application.put_env(:riffle, :default_pipeline, value)
-        :error -> Application.delete_env(:riffle, :default_pipeline)
-      end
-    end)
+    on_exit(fn -> CacheHelpers.reset_cache() end)
 
     :ok
   end
