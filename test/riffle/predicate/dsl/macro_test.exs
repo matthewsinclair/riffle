@@ -48,7 +48,7 @@ defmodule Riffle.Predicate.Dsl.MacroTest do
               |> DateTime.to_unix()
 
             # Less than 30 days
-            now - created_unix < 86400 * 30
+            now - created_unix < 86_400 * 30
           end
         end
       end

@@ -3,8 +3,8 @@ defmodule Riffle.Predicate.RegistryTest do
   use ExUnit.Case, async: true
 
   alias Riffle.DslFixtures.UserPredicates
-  alias Riffle.Predicate.Registry
   alias Riffle.Predicate.Item
+  alias Riffle.Predicate.Registry
 
   @moduletag :tmp_dir
 

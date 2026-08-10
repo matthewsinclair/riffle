@@ -92,30 +92,35 @@ defmodule Riffle.Predicate.Cache do
   @spec get(atom(), Item.t()) :: {:ok, any()} | {:error, :not_found | :disabled}
   def get(predicate_id, %Item{} = item) do
     case GenServer.call(__MODULE__, :enabled?) do
+      true -> lookup(generate_key(predicate_id, item))
+      false -> {:error, :disabled}
+    end
+  end
+
+  defp lookup(key) do
+    case :ets.lookup(@table_name, key) do
+      [{^key, {value, expiry}}] -> take_if_fresh(key, value, expiry)
+      [] -> miss()
+    end
+  end
+
+  # An expired entry is evicted on the read that found it, so a stale value is
+  # never returned and never lingers.
+  defp take_if_fresh(key, value, expiry) do
+    case System.os_time(:second) < expiry do
       true ->
-        key = generate_key(predicate_id, item)
-
-        case :ets.lookup(@table_name, key) do
-          [{^key, {value, expiry}}] ->
-            current_time = System.os_time(:second)
-
-            if current_time < expiry do
-              GenServer.cast(__MODULE__, {:record_hit})
-              {:ok, value}
-            else
-              GenServer.cast(__MODULE__, {:remove, key})
-              GenServer.cast(__MODULE__, {:record_miss})
-              {:error, :not_found}
-            end
-
-          [] ->
-            GenServer.cast(__MODULE__, {:record_miss})
-            {:error, :not_found}
-        end
+        GenServer.cast(__MODULE__, {:record_hit})
+        {:ok, value}
 
       false ->
-        {:error, :disabled}
+        GenServer.cast(__MODULE__, {:remove, key})
+        miss()
     end
+  end
+
+  defp miss do
+    GenServer.cast(__MODULE__, {:record_miss})
+    {:error, :not_found}
   end
 
   @doc """

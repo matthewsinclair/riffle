@@ -3,8 +3,8 @@ defmodule Riffle.Predicate.LoopTest do
   doctest Riffle.Predicate.Loop
 
   alias Riffle.Predicate
-  alias Riffle.Predicate.Loop
   alias Riffle.Predicate.Item
+  alias Riffle.Predicate.Loop
 
   describe "new/3" do
     test "creates a new loop definition" do

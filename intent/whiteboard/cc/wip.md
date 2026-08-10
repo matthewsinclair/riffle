@@ -27,7 +27,8 @@ claims: []
 - No silent failures anywhere: unresolvable references raise; rescue-and-swallow forbidden.
 - One resolution path (Resolver), one evaluation entry point (Loop.process), one coercion contract (Coerce), one block grammar (Dsl.Statements), one top-level dispatch -- no parallel paths.
 - Zero source-project traces in lib/ + test/ -- extrication_gate_test enforces; keep it green.
-- Peer sessions (hv-driven) land commits on main: launcher 026310b, credo fb3e34a. Credo baseline cleanup (21 findings) is THEIR workstream; cc keeps its own delta at zero-added. Commit by explicit pathspec, never -A.
+- Credo is at ZERO and `mix gate` now runs `credo --strict`, so CI enforces it -- a new finding fails the gate locally and upstream. Keep it at zero rather than re-accumulating a baseline.
+- Peer sessions (hv-driven) land commits on main: launcher 026310b, credo fb3e34a. Commit by explicit pathspec, never -A.
 
 ## Decisions
 

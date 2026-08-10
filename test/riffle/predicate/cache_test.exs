@@ -155,7 +155,7 @@ defmodule Riffle.Predicate.CacheTest do
       assert {:ok, _} = Cache.configure(max_size: 1)
       assert {:ok, _} = Cache.configure(max_size: 1_000_000)
       assert {:ok, _} = Cache.configure(ttl: 0)
-      assert {:ok, _} = Cache.configure(ttl: 86400)
+      assert {:ok, _} = Cache.configure(ttl: 86_400)
 
       # Invalid configurations
       assert {:error, {:invalid_enabled, "true"}} = Cache.configure(enabled: "true")

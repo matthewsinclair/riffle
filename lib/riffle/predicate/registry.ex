@@ -252,46 +252,20 @@ defmodule Riffle.Predicate.Registry do
 
   @impl true
   def handle_call({:register_module, module}, _from, state) do
-    # Extract predicate, loop, and pipeline maps from the module
-    try do
-      # Get module's predicates
-      predicates = apply(module, :predicates, [])
+    # Each DSL module exposes its definitions by kind, and a generated
+    # zero-arity function per name that returns the resolved instance.
+    instances = %{
+      predicates: instances_of(module, module.predicates()),
+      loops: instances_of(module, module.loops()),
+      pipelines: instances_of(module, module.pipelines())
+    }
 
-      # Generate predicate instances
-      predicate_instances =
-        predicates
-        |> Enum.map(fn {name, _definition} -> {name, apply(module, name, [])} end)
-        |> Map.new()
-
-      # Get module's loops
-      loops = apply(module, :loops, [])
-
-      # Generate loop instances
-      loop_instances =
-        loops
-        |> Enum.map(fn {name, _definition} -> {name, apply(module, name, [])} end)
-        |> Map.new()
-
-      # Get module's pipelines
-      pipelines = apply(module, :pipelines, [])
-
-      # Generate pipeline instances
-      pipeline_instances =
-        pipelines
-        |> Enum.map(fn {name, _definition} -> {name, apply(module, name, [])} end)
-        |> Map.new()
-
-      instances = %{
-        predicates: predicate_instances,
-        loops: loop_instances,
-        pipelines: pipeline_instances
-      }
-
-      {:reply, :ok, merge_instances(state, instances)}
-    rescue
-      error ->
-        {:reply, {:error, {:module_registration_error, module, error}}, state}
-    end
+    {:reply, :ok, merge_instances(state, instances)}
+  rescue
+    # A module that does not answer the DSL contract is a caller error, not a
+    # registry crash: it is reported to that caller and the registry lives on.
+    error ->
+      {:reply, {:error, {:module_registration_error, module, error}}, state}
   end
 
   @impl true
@@ -305,6 +279,13 @@ defmodule Riffle.Predicate.Registry do
   end
 
   # Private helper functions for better structure
+
+  # The generated accessor is named for the definition, so the name is only
+  # known at runtime -- apply/3 is the call, not a shortcut around one.
+  @spec instances_of(module(), map()) :: map()
+  defp instances_of(module, definitions) do
+    Map.new(definitions, fn {name, _definition} -> {name, apply(module, name, [])} end)
+  end
 
   @spec merge_instances(map(), map()) :: map()
   defp merge_instances(state, instances) do

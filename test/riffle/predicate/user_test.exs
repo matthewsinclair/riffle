@@ -2,8 +2,8 @@ defmodule Riffle.Predicate.UserTest do
   use ExUnit.Case, async: true
 
   alias Riffle.Predicate.Dsl.Loader
-  alias Riffle.Predicate.Loop
   alias Riffle.Predicate.Item
+  alias Riffle.Predicate.Loop
 
   @test_pred_path "test/fixtures/predicate/examples/predicates/user_test.pred"
   @test_csv_path "test/fixtures/users/users_small.csv"

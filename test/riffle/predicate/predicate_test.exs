@@ -98,11 +98,11 @@ defmodule Riffle.PredicateTest do
 
   describe "from_call/3" do
     defmodule TestHelperModule do
-      def is_active(item), do: item.fields["status"] == "active"
+      def active?(item), do: item.fields["status"] == "active"
     end
 
     test "creates a predicate from a function reference" do
-      predicate = Predicate.from_call(:active, "Active users", &TestHelperModule.is_active/1)
+      predicate = Predicate.from_call(:active, "Active users", &TestHelperModule.active?/1)
       assert predicate.name == :active
       assert predicate.description == "Active users"
       assert is_function(predicate.function, 1)

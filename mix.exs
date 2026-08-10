@@ -48,7 +48,11 @@ defmodule Riffle.MixProject do
       gate: [
         "format --check-formatted",
         "compile --warnings-as-errors --force",
-        "test --warnings-as-errors"
+        "test --warnings-as-errors",
+        # Credo joins the gate now that the tree is at zero findings. A clean
+        # baseline no CI job enforces is a baseline that rots between sessions;
+        # what the check MEANS still lives in .credo.exs, not here.
+        "credo --strict"
       ]
     ]
   end

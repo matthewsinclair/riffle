@@ -59,20 +59,16 @@ defmodule Riffle.Predicate.Dsl.Evaluator do
   """
   @spec parse(expression()) :: parsing_result()
   def parse(expression) when is_binary(expression) do
-    try do
-      {:ok, quoted} = Code.string_to_quoted(expression)
-      parse(quoted)
-    rescue
-      e -> {:error, "Failed to parse expression: #{inspect(e)}"}
-    end
+    {:ok, quoted} = Code.string_to_quoted(expression)
+    parse(quoted)
+  rescue
+    e -> {:error, "Failed to parse expression: #{inspect(e)}"}
   end
 
   def parse(quoted) do
-    try do
-      {:ok, create_function(quoted)}
-    rescue
-      e -> {:error, "Failed to create function from expression: #{inspect(e)}"}
-    end
+    {:ok, create_function(quoted)}
+  rescue
+    e -> {:error, "Failed to create function from expression: #{inspect(e)}"}
   end
 
   @doc """

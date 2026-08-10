@@ -77,60 +77,11 @@ defmodule Riffle.Predicate.Dsl.Macro do
   - get_pipeline/1 - Returns a specific pipeline by name
   """
   defmacro __before_compile__(env) do
-    # The three get_* accessors are injected ONLY when the module has not
-    # already defined them, and that condition is the whole fix.
-    #
-    # __before_compile__ runs AFTER the module body, so anything generated here
-    # lands as a LATER clause than the module's own. A module that also does
-    # `use Riffle.Predicate.DefaultPipelineConfig` -- which defines the same
-    # three inline, at `use` time -- therefore received these as dead clauses
-    # sitting behind ones that already matched every atom. Silent on Elixir
-    # 1.18; three "the following clause is redundant" warnings on 1.20.
-    #
-    # They were not harmless duplicates. DefaultPipelineConfig's get_pipeline/1
-    # resolves the name with `apply(__MODULE__, name, [])` and yields a
-    # %Riffle.Predicate.Pipeline{} struct, where the clause below yields the
-    # plain map held in pipelines(). Different values from the same call, and
-    # the unreachable one was this one.
-    #
-    # Modules that use the DSL on its own (standard_lib and the DSL test
-    # modules) define no accessors of their own, so they still get all three.
-    # Dropping them outright would have broken those; asking first does not.
-    get_predicate =
-      unless Module.defines?(env.module, {:get_predicate, 1}) do
-        quote do
-          @doc """
-          Returns a specific predicate by name.
-          """
-          def get_predicate(name) when is_atom(name) do
-            Map.get(predicates(), name)
-          end
-        end
-      end
-
-    get_loop =
-      unless Module.defines?(env.module, {:get_loop, 1}) do
-        quote do
-          @doc """
-          Returns a specific loop by name.
-          """
-          def get_loop(name) when is_atom(name) do
-            Map.get(loops(), name)
-          end
-        end
-      end
-
-    get_pipeline =
-      unless Module.defines?(env.module, {:get_pipeline, 1}) do
-        quote do
-          @doc """
-          Returns a specific pipeline by name.
-          """
-          def get_pipeline(name) when is_atom(name) do
-            Map.get(pipelines(), name)
-          end
-        end
-      end
+    accessors =
+      Enum.map(
+        [{:get_predicate, :predicates}, {:get_loop, :loops}, {:get_pipeline, :pipelines}],
+        fn {accessor, collection} -> accessor(env, accessor, collection) end
+      )
 
     quote do
       @doc """
@@ -148,9 +99,43 @@ defmodule Riffle.Predicate.Dsl.Macro do
       """
       def pipelines, do: Map.new(@pipelines)
 
-      unquote(get_predicate)
-      unquote(get_loop)
-      unquote(get_pipeline)
+      unquote_splicing(accessors)
+    end
+  end
+
+  # An accessor is injected ONLY when the module has not already defined it,
+  # and that condition is the whole fix.
+  #
+  # __before_compile__ runs AFTER the module body, so anything generated here
+  # lands as a LATER clause than the module's own. A module that also does
+  # `use Riffle.Predicate.DefaultPipelineConfig` -- which defines the same
+  # three inline, at `use` time -- therefore received these as dead clauses
+  # sitting behind ones that already matched every atom. Silent on Elixir
+  # 1.18; three "the following clause is redundant" warnings on 1.20.
+  #
+  # They were not harmless duplicates. DefaultPipelineConfig's get_pipeline/1
+  # resolves the name with `apply(__MODULE__, name, [])` and yields a
+  # %Riffle.Predicate.Pipeline{} struct, where the clause here yields the
+  # plain map held in pipelines(). Different values from the same call, and
+  # the unreachable one was this one.
+  #
+  # Modules that use the DSL on its own (standard_lib and the DSL test
+  # modules) define no accessors of their own, so they still get all three.
+  # Dropping them outright would have broken those; asking first does not.
+  defp accessor(env, accessor, collection) do
+    case Module.defines?(env.module, {accessor, 1}) do
+      true ->
+        nil
+
+      false ->
+        quote do
+          @doc """
+          Returns a specific #{unquote(collection)} entry by name.
+          """
+          def unquote(accessor)(name) when is_atom(name) do
+            Map.get(unquote(collection)(), name)
+          end
+        end
     end
   end
 

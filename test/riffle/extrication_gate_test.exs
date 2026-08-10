@@ -8,10 +8,9 @@ defmodule Riffle.ExtricationGateTest do
 
   test "invariant: lib/ and test/ carry zero source-project traces" do
     offending =
-      Path.wildcard("{lib,test}/**/*")
-      |> Enum.filter(&File.regular?/1)
-      |> Enum.filter(fn path ->
-        path |> File.read!() |> String.downcase() |> String.contains?(@needle)
+      Enum.filter(Path.wildcard("{lib,test}/**/*"), fn path ->
+        File.regular?(path) and
+          path |> File.read!() |> String.downcase() |> String.contains?(@needle)
       end)
 
     assert offending == []

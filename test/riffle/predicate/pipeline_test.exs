@@ -3,9 +3,9 @@ defmodule Riffle.Predicate.PipelineTest do
   doctest Riffle.Predicate.Pipeline
 
   alias Riffle.Predicate
+  alias Riffle.Predicate.Item
   alias Riffle.Predicate.Loop
   alias Riffle.Predicate.Pipeline
-  alias Riffle.Predicate.Item
 
   describe "new/3" do
     test "creates a new pipeline definition" do

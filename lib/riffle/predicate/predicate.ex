@@ -17,8 +17,9 @@ defmodule Riffle.Predicate do
       [:active]
   """
 
-  alias Riffle.Predicate.Item
   alias Riffle.Predicate.Cache
+  alias Riffle.Predicate.Dsl.Evaluator
+  alias Riffle.Predicate.Item
 
   @type predicate_function :: (Item.t() -> predicate_result())
   @type predicate_result :: boolean() | [atom()] | {boolean(), map()} | {[atom()], map()}
@@ -110,21 +111,13 @@ defmodule Riffle.Predicate do
         {true, Item.add_tag(item, name)}
 
       tags when is_list(tags) ->
-        if Enum.all?(tags, &is_atom/1) do
-          {true, Item.add_tags(item, tags)}
-        else
-          raise ArgumentError, "Tag list must contain only atoms, got: #{inspect(tags)}"
-        end
+        {true, Item.add_tags(item, atoms!(tags))}
 
       {true, metadata} when is_map(metadata) ->
         {true, item |> Item.add_tag(name) |> Item.add_metadata(metadata)}
 
       {tags, metadata} when is_list(tags) and is_map(metadata) ->
-        if Enum.all?(tags, &is_atom/1) do
-          {true, item |> Item.add_tags(tags) |> Item.add_metadata(metadata)}
-        else
-          raise ArgumentError, "Tag list must contain only atoms, got: #{inspect(tags)}"
-        end
+        {true, item |> Item.add_tags(atoms!(tags)) |> Item.add_metadata(metadata)}
 
       other ->
         raise ArgumentError,
@@ -172,9 +165,9 @@ defmodule Riffle.Predicate do
 
       iex> alias Riffle.{Predicate, Predicate.Item}
       iex> defmodule Riffle.Predicate.DocTest.TestModule do
-      ...>   def is_active(item), do: item.fields["status"] == "active"
+      ...>   def active?(item), do: item.fields["status"] == "active"
       ...> end
-      iex> predicate = Predicate.from_call(:active, "Active users", &Riffle.Predicate.DocTest.TestModule.is_active/1)
+      iex> predicate = Predicate.from_call(:active, "Active users", &Riffle.Predicate.DocTest.TestModule.active?/1)
       iex> predicate.name == :active and predicate.description == "Active users" and is_function(predicate.function, 1)
       true
   """
@@ -237,8 +230,6 @@ defmodule Riffle.Predicate do
           {:ok, predicate_definition()} | {:error, term()}
   def from_expression(name, description, expression)
       when is_atom(name) and is_binary(description) and is_binary(expression) do
-    alias Riffle.Predicate.Dsl.Evaluator
-
     case Evaluator.parse(expression) do
       {:ok, function} -> {:ok, new(name, description, function)}
       {:error, reason} -> {:error, reason}
@@ -272,44 +263,7 @@ defmodule Riffle.Predicate do
   end
 
   def create({:expr, expression}) do
-    # Handle expression syntax with @field_name
-    alias Riffle.Predicate.Dsl.Evaluator
-
-    # Handle both string expressions and AST expressions
-    case expression do
-      expr when is_binary(expr) ->
-        # String-based expression
-        case Evaluator.parse(expr) do
-          {:ok, function} -> function
-          {:error, error} -> raise ArgumentError, "Error parsing expression: #{inspect(error)}"
-        end
-
-      # Handle keyword lists (which is what we expect from properly processed expr macros)
-      expr when is_list(expr) ->
-        expr_str = if Keyword.keyword?(expr), do: Macro.to_string(expr), else: inspect(expr)
-
-        case Evaluator.parse(expr_str) do
-          {:ok, function} ->
-            function
-
-          {:error, error} ->
-            raise ArgumentError,
-                  "Error parsing expression: #{inspect(expr_str)} - #{inspect(error)}"
-        end
-
-      # For other AST expressions (maps or tuples from Macro.escape)
-      expr ->
-        expr_str = Macro.to_string(expr)
-
-        case Evaluator.parse(expr_str) do
-          {:ok, function} ->
-            function
-
-          {:error, error} ->
-            raise ArgumentError,
-                  "Error parsing expression: #{inspect(expr_str)} - #{inspect(error)}"
-        end
-    end
+    expression |> expr_source() |> parse_expr!()
   end
 
   # Raw expr AST as parsed from .pred files: {:expr, meta, [expression]}.
@@ -370,6 +324,38 @@ defmodule Riffle.Predicate do
                     "-- body AST: #{inspect(ast_body)}"
               ],
               __STACKTRACE__
+  end
+
+  # A tag list is only ever atoms; anything else is a defect in the predicate
+  # body and must not reach an Item.
+  defp atoms!(tags) do
+    case Enum.all?(tags, &is_atom/1) do
+      true -> tags
+      false -> raise ArgumentError, "Tag list must contain only atoms, got: #{inspect(tags)}"
+    end
+  end
+
+  # An expr body reaches here as a source string, a keyword list, or raw AST;
+  # all three become one source string, parsed in one place.
+  defp expr_source(expression) when is_binary(expression), do: expression
+
+  defp expr_source(expression) when is_list(expression) do
+    case Keyword.keyword?(expression) do
+      true -> Macro.to_string(expression)
+      false -> inspect(expression)
+    end
+  end
+
+  defp expr_source(expression), do: Macro.to_string(expression)
+
+  defp parse_expr!(source) do
+    case Evaluator.parse(source) do
+      {:ok, function} ->
+        function
+
+      {:error, error} ->
+        raise ArgumentError, "Error parsing expression: #{inspect(source)} - #{inspect(error)}"
+    end
   end
 
   # THE runtime binding for the STD name: DSL bodies have `STD` expanded to

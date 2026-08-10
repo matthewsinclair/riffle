@@ -91,16 +91,9 @@ defmodule Riffle.Predicate.Dsl.Loader do
   def load_directory(dir_path, recursive \\ true) do
     pattern = if recursive, do: "#{dir_path}/**/*.pred", else: "#{dir_path}/*.pred"
 
-    with {:ok, files} <- find_files(pattern) do
-      results = Enum.map(files, &load_file/1)
-      errors = Enum.filter(results, &match?({:error, _}, &1))
-
-      if not Enum.empty?(errors) do
-        {:error, {:directory_load_errors, errors}}
-      else
-        merged = merge_definitions(Enum.map(results, fn {:ok, defs} -> defs end))
-        {:ok, merged}
-      end
+    with {:ok, files} <- find_files(pattern),
+         {:ok, definitions} <- load_all(files) do
+      {:ok, merge_definitions(definitions)}
     end
   end
 
@@ -148,6 +141,18 @@ defmodule Riffle.Predicate.Dsl.Loader do
   end
 
   # Private helpers
+
+  # Every file loads, or the whole directory fails carrying each file's own
+  # reason -- a partial corpus resolves into dangling references later.
+  defp load_all(files) do
+    {loaded, errors} =
+      files |> Enum.map(&load_file/1) |> Enum.split_with(&match?({:ok, _}, &1))
+
+    case errors do
+      [] -> {:ok, Enum.map(loaded, fn {:ok, definitions} -> definitions end)}
+      errors -> {:error, {:directory_load_errors, errors}}
+    end
+  end
 
   defp find_files(pattern) do
     case Path.wildcard(pattern) do
