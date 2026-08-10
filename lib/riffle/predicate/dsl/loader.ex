@@ -7,7 +7,7 @@ defmodule Riffle.Predicate.Dsl.Loader do
   """
 
   alias Riffle.Predicate.Dsl.Parser
-  alias Riffle.Predicate.Dsl.Evaluator
+  alias Riffle.Predicate.Resolver
 
   @type loading_result :: {:ok, map()} | {:error, term()}
 
@@ -125,89 +125,29 @@ defmodule Riffle.Predicate.Dsl.Loader do
 
   # Access instances
   user_pipeline = instances.pipelines.user_pipeline
-  filtered_items = Riffle.Predicate.Pipeline.filter(user_pipeline, items)
+  filtered_items = Riffle.Predicate.Pipeline.process(user_pipeline, items)
   ```
   """
   @spec create_instances(map()) :: loading_result()
   def create_instances(%{predicates: predicates, loops: loops, pipelines: pipelines}) do
-    try do
-      # Create predicates first
-      predicate_instances =
-        predicates
-        |> Enum.map(fn pred ->
-          predicate_fn = create_predicate_function(pred.body)
-          {pred.name, Riffle.Predicate.new(pred.name, pred.description || "", predicate_fn)}
-        end)
-        |> Map.new()
+    # Instances build in dependency order -- predicates, then loops, then
+    # pipelines -- each phase resolving against everything built so far. An
+    # unresolved reference is a tagged error, never a nil entry.
+    source0 = %{predicates: %{}, loops: %{}, pipelines: %{}}
 
-      # Then create loops referencing predicates
-      loop_instances =
-        loops
-        |> Enum.map(fn loop ->
-          loop_predicates =
-            Enum.map(loop.predicates, fn
-              %{name: pred_name, inline: false} ->
-                Map.get(predicate_instances, pred_name)
-
-              %{name: pred_name, body: body, description: description} ->
-                fn_impl = create_predicate_function(body)
-                Riffle.Predicate.new(pred_name, description || "", fn_impl)
-
-              %{name: pred_name, body: body} ->
-                fn_impl = create_predicate_function(body)
-                Riffle.Predicate.new(pred_name, "", fn_impl)
-            end)
-
-          loop_instance =
-            Riffle.Predicate.Loop.new(loop.name, loop.description || "", loop_predicates)
-
-          {loop.name, loop_instance}
-        end)
-        |> Map.new()
-
-      # Finally create pipelines referencing loops
-      pipeline_instances =
-        pipelines
-        |> Enum.map(fn pipeline ->
-          pipeline_loops =
-            Enum.map(pipeline.loops, fn
-              %{name: loop_name, inline: false} ->
-                Map.get(loop_instances, loop_name)
-
-              %{name: loop_name, predicates: predicates} = loop_def ->
-                # Handle inline loop definition
-                loop_predicates =
-                  Enum.map(predicates, fn
-                    %{name: pred_name, inline: false} ->
-                      Map.get(predicate_instances, pred_name)
-
-                    %{body: body} ->
-                      create_predicate_function(body)
-                  end)
-
-                Riffle.Predicate.Loop.new(
-                  loop_name,
-                  Map.get(loop_def, :description, ""),
-                  loop_predicates
-                )
-            end)
-
-          pipeline_instance =
-            Riffle.Predicate.Pipeline.new(
-              pipeline.name,
-              pipeline.description || "",
-              pipeline_loops
-            )
-
-          {pipeline.name, pipeline_instance}
-        end)
-        |> Map.new()
-
+    with {:ok, predicate_instances} <- build(predicates, source0, &Resolver.resolve_predicate/2),
+         source1 = %{source0 | predicates: predicate_instances},
+         {:ok, loop_instances} <- build(loops, source1, &Resolver.resolve_loop/2),
+         source2 = %{source1 | loops: loop_instances},
+         {:ok, pipeline_instances} <- build(pipelines, source2, &Resolver.resolve_pipeline/2) do
       {:ok,
        %{predicates: predicate_instances, loops: loop_instances, pipelines: pipeline_instances}}
-    rescue
-      e -> {:error, {:instance_creation_error, e}}
     end
+  rescue
+    # .pred content is user input: a definition body that fails to
+    # materialise surfaces as a tagged error at this boundary, message intact.
+    e in ArgumentError ->
+      {:error, {:invalid_predicate_body, Exception.message(e)}}
   end
 
   # Private helpers
@@ -229,26 +169,14 @@ defmodule Riffle.Predicate.Dsl.Loader do
     end)
   end
 
-  defp create_predicate_function({:expr, _, [expr]}) do
-    # Handle expression syntax
-    expr_str = Macro.to_string(expr)
-
-    case Evaluator.parse(expr_str) do
-      {:ok, function} -> function
-      {:error, error} -> raise "Error parsing expression: #{inspect(error)}"
-    end
-  end
-
-  defp create_predicate_function({:call, module, function}) do
-    # Handle call syntax
-    module_func = Module.concat(Elixir, module)
-    function_atom = String.to_atom(function)
-    apply(module_func, function_atom, [])
-  end
-
-  defp create_predicate_function(ast) do
-    # Handle fn syntax (anonymous functions)
-    {predicate_fn, _} = Code.eval_quoted(ast)
-    predicate_fn
+  # Each definition resolves against the instances built so far; the first
+  # failure halts the build with its tagged reason.
+  defp build(definitions, source, resolve) do
+    Enum.reduce_while(definitions, {:ok, %{}}, fn definition, {:ok, acc} ->
+      case resolve.(source, definition) do
+        {:ok, instance} -> {:cont, {:ok, Map.put(acc, definition.name, instance)}}
+        {:error, _reason} = error -> {:halt, error}
+      end
+    end)
   end
 end

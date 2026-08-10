@@ -175,21 +175,51 @@ defmodule Riffle.Predicate.Dsl.LoaderTest do
       assert hd(filtered).fields == active_item.fields
     end
 
-    test "handles inline definitions correctly", %{fixtures_dir: fixtures_dir} do
-      {:ok, definitions} = Loader.load_file(Path.join(fixtures_dir, "complex.pred"))
+    test "handles inline definitions alongside cross-file references", %{
+      fixtures_dir: fixtures_dir
+    } do
+      {:ok, definitions} = Loader.load_directory(fixtures_dir)
       {:ok, instances} = Loader.create_instances(definitions)
 
-      # The complex pipeline includes both external references and inline definitions
-      complex_pipeline = instances.pipelines.complex_pipeline
-
-      # One match pins the struct AND both fields; is_struct/2 alone passed for
-      # any Pipeline at all, including one with the wrong name.
+      # The complex pipeline mixes an inline loop (holding a reference to
+      # basic.pred's :active plus an inline :new_user definition) with a
+      # reference to nested/trial.pred's :trial_signals loop. Every leaf must
+      # come back runnable -- no nil entries, no unresolved refs.
       assert %Riffle.Predicate.Pipeline{
                name: :complex_pipeline,
-               description: "Complex processing pipeline"
-             } = complex_pipeline
+               description: "Complex processing pipeline",
+               loops: [
+                 %Riffle.Predicate.Loop{
+                   name: :signal_detection,
+                   predicates: [%{name: :active}, %{name: :new_user}]
+                 },
+                 %Riffle.Predicate.Loop{
+                   name: :trial_signals,
+                   predicates: [%{name: :trial}]
+                 }
+               ]
+             } = instances.pipelines.complex_pipeline
 
-      refute Enum.empty?(complex_pipeline.loops)
+      assert Enum.all?(
+               hd(instances.pipelines.complex_pipeline.loops).predicates,
+               &is_function(&1.function, 1)
+             )
+    end
+
+    test "failure: an unresolved reference in a .pred file is a tagged error, never a nil entry",
+         %{fixtures_dir: fixtures_dir} do
+      broken = Path.join(fixtures_dir, "broken.pred")
+
+      File.write!(broken, """
+      loop(:broken_loop, "References a predicate that does not exist") do
+        predicate(:does_not_exist)
+      end
+      """)
+
+      {:ok, definitions} = Loader.load_file(broken)
+
+      assert Loader.create_instances(definitions) ==
+               {:error, {:unresolved, :predicate, :does_not_exist, :definitions}}
     end
   end
 end
