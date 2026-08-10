@@ -44,6 +44,11 @@ defmodule Riffle.Predicate.Dsl.Loader do
 
       {:ok, %{predicates: predicates, loops: loops, pipelines: pipelines}}
     end
+  rescue
+    # DSL content is user input: an unrecognised in-block statement raised by
+    # the parser surfaces as a tagged error at this boundary, message intact.
+    e in ArgumentError ->
+      {:error, {:invalid_dsl, Exception.message(e)}}
   end
 
   @doc """

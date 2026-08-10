@@ -241,4 +241,40 @@ defmodule Riffle.Predicate.Dsl.MacroTest do
       assert Enum.sort(tags) == [:active, :premium]
     end
   end
+
+  describe "in-block junk fails the build" do
+    test "failure: an unrecognised statement inside defloop raises at expansion" do
+      assert_raise ArgumentError, ~r/unrecognised statement in defloop/, fn ->
+        defmodule BadLoopDsl do
+          use Riffle.Predicate.Dsl.Macro
+
+          defpredicate :fine do
+            fn _item -> true end
+          end
+
+          defloop :sloppy do
+            predicate(:fine)
+            predicat(:typo)
+          end
+        end
+      end
+    end
+
+    test "failure: an unrecognised statement inside defpipeline raises at expansion" do
+      assert_raise ArgumentError, ~r/unrecognised statement in defpipeline/, fn ->
+        defmodule BadPipelineDsl do
+          use Riffle.Predicate.Dsl.Macro
+
+          defloop :fine_loop do
+            predicate(:fine, "Inline", do: fn _item -> true end)
+          end
+
+          defpipeline :sloppy_pipeline do
+            loop(:fine_loop)
+            lop(:typo)
+          end
+        end
+      end
+    end
+  end
 end

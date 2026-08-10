@@ -241,8 +241,14 @@ defmodule Riffle.Predicate.Dsl.Parser do
     [%{name: name, description: "", body: {:expr, expr}, inline: true}]
   end
 
-  defp extract_predicate_reference(_) do
-    []
+  # An unrecognised statement inside a loop block is a defect in the DSL
+  # content, never something to drop: a silently vanished predicate changes
+  # what the loop matches with no signal.
+  defp extract_predicate_reference(statement) do
+    raise ArgumentError,
+          "unrecognised statement in a loop block: `#{Macro.to_string(statement)}` " <>
+            "-- a loop may contain only predicate references (predicate :name) " <>
+            "or inline predicate definitions"
   end
 
   defp extract_pipeline_loops({:__block__, _, statements}) do
@@ -287,7 +293,12 @@ defmodule Riffle.Predicate.Dsl.Parser do
     [%{name: name, description: "", predicates: predicates, inline: true}]
   end
 
-  defp extract_loop_reference(_) do
-    []
+  # Same contract as extract_predicate_reference/1: pipeline blocks hold only
+  # loop statements, and anything else fails loudly.
+  defp extract_loop_reference(statement) do
+    raise ArgumentError,
+          "unrecognised statement in a pipeline block: `#{Macro.to_string(statement)}` " <>
+            "-- a pipeline may contain only loop references (loop :name) " <>
+            "or inline loop definitions"
   end
 end

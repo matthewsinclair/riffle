@@ -444,9 +444,13 @@ defmodule Riffle.Predicate.Dsl.Macro do
     [%{name: name, description: "", body: {:expr, expr}, inline: true}]
   end
 
-  @doc false
-  defp extract_predicate(_) do
-    []
+  # An unrecognised statement inside a defloop block fails the build: a
+  # silently dropped predicate changes what the loop matches with no signal.
+  defp extract_predicate(statement) do
+    raise ArgumentError,
+          "unrecognised statement in defloop: `#{Macro.to_string(statement)}` " <>
+            "-- a defloop block may contain only predicate references " <>
+            "(predicate :name) or inline predicate definitions"
   end
 
   @doc false
@@ -489,9 +493,13 @@ defmodule Riffle.Predicate.Dsl.Macro do
     [%{name: name, description: "", predicates: predicates, inline: true}]
   end
 
-  @doc false
-  defp extract_loop(_) do
-    []
+  # Same contract as extract_predicate/1: defpipeline blocks hold only loop
+  # statements, and anything else fails the build.
+  defp extract_loop(statement) do
+    raise ArgumentError,
+          "unrecognised statement in defpipeline: `#{Macro.to_string(statement)}` " <>
+            "-- a defpipeline block may contain only loop references " <>
+            "(loop :name) or inline loop definitions"
   end
 
   @doc false

@@ -250,4 +250,32 @@ defmodule Riffle.Predicate.Dsl.LoaderTest do
                {:error, {:unresolved, :predicate, :does_not_exist, :definitions}}
     end
   end
+
+  describe "load_string/1 in-block junk" do
+    test "failure: junk inside a loop block is a tagged invalid_dsl error" do
+      dsl_content = """
+      loop(:sloppy, "Loop with a typo statement") do
+        predicate(:active)
+        predicat(:premium)
+      end
+      """
+
+      assert {:error, {:invalid_dsl, message}} = Loader.load_string(dsl_content)
+      assert message =~ "unrecognised statement in a loop block"
+      assert message =~ "predicat(:premium)"
+    end
+
+    test "failure: junk inside a pipeline block is a tagged invalid_dsl error" do
+      dsl_content = """
+      pipeline(:sloppy_pipeline, "Pipeline with a typo statement") do
+        loop(:user_signals)
+        lop(:trial_signals)
+      end
+      """
+
+      assert {:error, {:invalid_dsl, message}} = Loader.load_string(dsl_content)
+      assert message =~ "unrecognised statement in a pipeline block"
+      assert message =~ "lop(:trial_signals)"
+    end
+  end
 end
