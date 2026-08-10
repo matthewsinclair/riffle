@@ -11,3 +11,16 @@ Thumbs.db
 *~
 .vscode/
 .idea/
+
+# Elixir
+/_build/
+/cover/
+/deps/
+/doc/
+/.fetch
+erl_crash.dump
+*.ez
+riffle-*.tar
+/tmp/
+.elixir_ls/
+.elixir-tools/
