@@ -1,4 +1,5 @@
 defmodule Riffle.Predicate.CacheIntegrationTest do
+  # Exercises the global named Cache GenServer -- cannot run async.
   use ExUnit.Case, async: false
 
   alias Riffle.Predicate
@@ -9,10 +10,7 @@ defmodule Riffle.Predicate.CacheIntegrationTest do
     {:ok, _} = Predicate.configure_cache(enabled: true, max_size: 10_000, ttl: 3600)
     :ok = Predicate.clear_cache()
 
-    # Force statistics reset by reaching into process state (for test purposes only)
-    :sys.replace_state(Riffle.Predicate.Cache, fn state ->
-      %{state | stats: %{hits: 0, misses: 0, size: 0}}
-    end)
+    :ok = Riffle.Predicate.Cache.reset_stats()
 
     # Create a spy predicate that tracks how many times it's evaluated
     counter = :counters.new(1, [:atomics])

@@ -186,6 +186,30 @@ defmodule Riffle.Predicate.Cache do
   end
 
   @doc """
+  Resets hit/miss statistics to zero. Cache contents are untouched.
+
+  ## Returns
+
+  * `:ok` - Always returns :ok
+  """
+  @spec reset_stats() :: :ok
+  def reset_stats do
+    GenServer.call(__MODULE__, :reset_stats)
+  end
+
+  @doc """
+  Returns the current cache configuration.
+
+  ## Returns
+
+  * `config` - Map with `:enabled`, `:max_size`, and `:ttl`
+  """
+  @spec config() :: config()
+  def config do
+    GenServer.call(__MODULE__, :config)
+  end
+
+  @doc """
   Updates the cache configuration.
 
   ## Parameters
@@ -254,6 +278,16 @@ defmodule Riffle.Predicate.Cache do
     stats = %{state.stats | size: size}
 
     {:reply, stats, %{state | stats: stats}}
+  end
+
+  @impl true
+  def handle_call(:reset_stats, _from, state) do
+    {:reply, :ok, %{state | stats: %{hits: 0, misses: 0, size: 0}}}
+  end
+
+  @impl true
+  def handle_call(:config, _from, state) do
+    {:reply, state.config, state}
   end
 
   @impl true

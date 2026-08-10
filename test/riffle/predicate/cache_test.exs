@@ -1,4 +1,5 @@
 defmodule Riffle.Predicate.CacheTest do
+  # Exercises the global named Cache GenServer -- cannot run async.
   use ExUnit.Case, async: false
 
   alias Riffle.Predicate.Cache
@@ -54,10 +55,7 @@ defmodule Riffle.Predicate.CacheTest do
     end
 
     test "cache statistics", %{item: item} do
-      # Force statistics reset by reaching into process state (for test purposes only)
-      :sys.replace_state(Riffle.Predicate.Cache, fn state ->
-        %{state | stats: %{hits: 0, misses: 0, size: 0}}
-      end)
+      :ok = Cache.reset_stats()
 
       # Start with empty stats
       initial_stats = Cache.stats()

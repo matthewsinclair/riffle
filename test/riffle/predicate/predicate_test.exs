@@ -1,4 +1,5 @@
 defmodule Riffle.PredicateTest do
+  # Toggles the global cache configuration -- cannot run async.
   use ExUnit.Case, async: false
   doctest Riffle.Predicate
 
@@ -6,13 +7,12 @@ defmodule Riffle.PredicateTest do
   alias Riffle.Predicate.Item
 
   setup do
-    # Disable caching for all tests to ensure predictable behavior
+    # Disable caching so evaluation is deterministic; restore the prior
+    # configuration afterwards rather than assuming it was enabled.
+    %{enabled: prior_enabled} = Riffle.Predicate.Cache.config()
     {:ok, _} = Predicate.with_caching(false)
 
-    on_exit(fn ->
-      # Re-enable caching after test
-      Predicate.with_caching(true)
-    end)
+    on_exit(fn -> {:ok, _} = Predicate.with_caching(prior_enabled) end)
 
     :ok
   end

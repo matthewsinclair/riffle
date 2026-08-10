@@ -1,20 +1,13 @@
 defmodule Riffle.Predicate.Dsl.LoaderTest do
+  # Per-test tmp_dir fixtures: no shared mutable paths, safe async.
   use ExUnit.Case, async: true
 
   alias Riffle.Predicate.Dsl.Loader
 
-  @fixtures_dir "test/fixtures/predicates"
+  @moduletag :tmp_dir
 
-  setup do
-    # Create fixtures directory if it doesn't exist
-    File.mkdir_p!(@fixtures_dir)
-
-    # Clean up any previous files
-    File.rm_rf!(@fixtures_dir)
-    File.mkdir_p!(@fixtures_dir)
-
-    # Create a test file
-    basic_pred_file = """
+  setup %{tmp_dir: tmp_dir} do
+    File.write!(Path.join(tmp_dir, "basic.pred"), """
     predicate(:active, "Active users") do
       fn item -> item.fields["status"] == "active" end
     end
@@ -31,12 +24,11 @@ defmodule Riffle.Predicate.Dsl.LoaderTest do
     pipeline(:user_pipeline, "User processing pipeline") do
       loop(:user_signals)
     end
-    """
+    """)
 
-    File.write!("#{@fixtures_dir}/basic.pred", basic_pred_file)
+    File.mkdir_p!(Path.join(tmp_dir, "nested"))
 
-    # Create a nested predicate file
-    nested_pred_file = """
+    File.write!(Path.join(tmp_dir, "nested/trial.pred"), """
     predicate(:trial, "Trial users") do
       fn item -> item.fields["tier"] == "trial" end
     end
@@ -48,14 +40,9 @@ defmodule Riffle.Predicate.Dsl.LoaderTest do
     pipeline(:trial_pipeline) do
       loop(:trial_signals)
     end
-    """
+    """)
 
-    # Create a subdirectory
-    File.mkdir_p!("#{@fixtures_dir}/nested")
-    File.write!("#{@fixtures_dir}/nested/trial.pred", nested_pred_file)
-
-    # Create a complex file with inline definitions
-    complex_pred_file = """
+    File.write!(Path.join(tmp_dir, "complex.pred"), """
     pipeline(:complex_pipeline, "Complex processing pipeline") do
       loop(:signal_detection, "Signal detection loop") do
         predicate(:active)
@@ -74,21 +61,14 @@ defmodule Riffle.Predicate.Dsl.LoaderTest do
 
       loop(:trial_signals)
     end
-    """
+    """)
 
-    File.write!("#{@fixtures_dir}/complex.pred", complex_pred_file)
-
-    on_exit(fn ->
-      # Clean up test files after tests
-      File.rm_rf!(@fixtures_dir)
-    end)
-
-    :ok
+    {:ok, fixtures_dir: tmp_dir}
   end
 
   describe "load_file/1" do
-    test "loads predicates, loops, and pipelines from a file" do
-      {:ok, definitions} = Loader.load_file("#{@fixtures_dir}/basic.pred")
+    test "loads predicates, loops, and pipelines from a file", %{fixtures_dir: fixtures_dir} do
+      {:ok, definitions} = Loader.load_file(Path.join(fixtures_dir, "basic.pred"))
 
       assert length(definitions.predicates) == 2
       assert length(definitions.loops) == 1
@@ -115,9 +95,9 @@ defmodule Riffle.Predicate.Dsl.LoaderTest do
                Loader.load_file("nonexistent.pred")
     end
 
-    test "returns error for invalid syntax" do
+    test "returns error for invalid syntax", %{fixtures_dir: fixtures_dir} do
       # Create a file with invalid syntax
-      invalid_file = "#{@fixtures_dir}/invalid.pred"
+      invalid_file = Path.join(fixtures_dir, "invalid.pred")
       File.write!(invalid_file, "invalid { syntax")
 
       assert {:error, {:file_load_error, ^invalid_file, _}} = Loader.load_file(invalid_file)
@@ -125,8 +105,8 @@ defmodule Riffle.Predicate.Dsl.LoaderTest do
   end
 
   describe "load_directory/2" do
-    test "loads all files in directory non-recursively" do
-      {:ok, definitions} = Loader.load_directory(@fixtures_dir, false)
+    test "loads all files in directory non-recursively", %{fixtures_dir: fixtures_dir} do
+      {:ok, definitions} = Loader.load_directory(fixtures_dir, false)
 
       assert length(definitions.predicates) == 2
       assert length(definitions.loops) == 1
@@ -137,8 +117,8 @@ defmodule Riffle.Predicate.Dsl.LoaderTest do
       assert Enum.all?(definitions.predicates, &(&1.name != :trial))
     end
 
-    test "loads all files recursively (default)" do
-      {:ok, definitions} = Loader.load_directory(@fixtures_dir)
+    test "loads all files recursively (default)", %{fixtures_dir: fixtures_dir} do
+      {:ok, definitions} = Loader.load_directory(fixtures_dir)
 
       # active, premium, trial
       assert length(definitions.predicates) == 3
@@ -157,8 +137,8 @@ defmodule Riffle.Predicate.Dsl.LoaderTest do
   end
 
   describe "create_instances/1" do
-    test "creates runtime instances from definitions" do
-      {:ok, definitions} = Loader.load_directory(@fixtures_dir)
+    test "creates runtime instances from definitions", %{fixtures_dir: fixtures_dir} do
+      {:ok, definitions} = Loader.load_directory(fixtures_dir)
       {:ok, instances} = Loader.create_instances(definitions)
 
       # Check predicates
@@ -195,8 +175,8 @@ defmodule Riffle.Predicate.Dsl.LoaderTest do
       assert hd(filtered).fields == active_item.fields
     end
 
-    test "handles inline definitions correctly" do
-      {:ok, definitions} = Loader.load_file("#{@fixtures_dir}/complex.pred")
+    test "handles inline definitions correctly", %{fixtures_dir: fixtures_dir} do
+      {:ok, definitions} = Loader.load_file(Path.join(fixtures_dir, "complex.pred"))
       {:ok, instances} = Loader.create_instances(definitions)
 
       # The complex pipeline includes both external references and inline definitions
