@@ -169,7 +169,7 @@ defmodule Riffle.Predicate.Dsl.LoaderTest do
       # Test pipeline with pipeline
       pipeline = instances.pipelines.user_pipeline
       items = [active_item, inactive_item]
-      filtered = Riffle.Predicate.Pipeline.filter(pipeline, items) |> Enum.to_list()
+      filtered = Riffle.Predicate.Pipeline.process(pipeline, items) |> Enum.to_list()
 
       assert length(filtered) == 1
       assert hd(filtered).fields == active_item.fields
