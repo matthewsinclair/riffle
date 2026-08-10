@@ -1012,9 +1012,16 @@ defmodule Riffle.Predicate.StandardLib do
 
     defp normalize_date(date_string) when is_binary(date_string) do
       case parse_date(date_string) do
-        {:ok, date} -> date
-        # Fallback to today if parsing fails
-        _ -> Elixir.Date.utc_today()
+        {:ok, date} ->
+          date
+
+        _ ->
+          # The comparison date is author-supplied configuration, resolved at
+          # predicate construction -- a typo must fail there, not silently
+          # become "today" on every evaluation.
+          raise ArgumentError,
+                "invalid comparison date #{inspect(date_string)}: " <>
+                  "expected an ISO 8601 date or datetime"
       end
     end
 

@@ -29,7 +29,7 @@ defmodule Riffle.Predicate.Cache do
   }
 
   # Types
-  @type cache_key :: {atom(), String.t()}
+  @type cache_key :: {atom(), Item.t()}
   @type cache_value :: {any(), non_neg_integer()}
   @type cache_stats :: %{
           hits: non_neg_integer(),
@@ -317,33 +317,12 @@ defmodule Riffle.Predicate.Cache do
 
   @spec generate_key(atom(), Item.t()) :: cache_key()
   defp generate_key(predicate_id, %Item{} = item) do
-    # Use a more efficient hash generation that is optimized for large datasets
-    # but doesn't make assumptions about specific field names
-
-    # For complex items, hashing the entire fields structure can be expensive
-    # We'll create a more efficient hash using a subset of the item's properties
-
-    # Instead of scanning the whole item structure, we'll combine:
-    # 1. The hash of the first 3 values (which typically are the most important discriminating values)
-    # 2. The number of fields (quick metadata that helps distinguish items)
-    # 3. The hash of signal tags (most important tag type for predicates)
-
-    # Get signal tags (they're most important for predicate evaluation)
-    signal_tags =
-      Enum.filter(item.tags, fn tag ->
-        tag_str = Atom.to_string(tag)
-        String.starts_with?(tag_str, "signal_")
-      end)
-
-    # Take first few values and tag info to create an efficient hash
-    # This provides good distinction without the full expense of hashing everything
-    sample_values = Enum.take(Map.values(item.fields), 3)
-    field_count = map_size(item.fields)
-
-    # Create a focused hash combining these elements
-    item_hash = :erlang.phash2({sample_values, field_count, signal_tags})
-
-    {predicate_id, to_string(item_hash)}
+    # The key is the exact item, not a hash of a sample of it. An earlier
+    # optimisation keyed on the first three field values plus a field count,
+    # which made distinct rows share keys -- and a shared key returns another
+    # row's cached result as a silent wrong answer. ETS compares full terms;
+    # exactness is the point of a cache key.
+    {predicate_id, item}
   end
 
   @spec random_key() :: cache_key() | nil

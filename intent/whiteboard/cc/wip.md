@@ -13,7 +13,7 @@ claims: [ST0001]
 
 ## DOING
 
-- (2026-08-10) First pickup done. Orientation complete (handoff + ST0001/2/3 + archive recon). Day plan for ST0001 presented to hv -- awaiting go.
+- (2026-08-10) ST0001 WP-03 remediation phase: mechanical port LANDED (commit 7b7f912, gate green 237 passed). critic-elixir review + test-check running on the ported tree; CRITICAL/HIGH findings get fixed per DD-4-as-amended.
 
 ## TODO
 
@@ -37,3 +37,4 @@ claims: [ST0001]
 - (2026-08-10) hv: push policy -- commit locally as needed; hv pushes upstream when a chunk is public-worthy (fewer CI triggers = lower cost). cc does not push unprompted.
 - (2026-08-10) hv (mid-session): fresh-start flexibility -- rewrite whatever needs rewriting, code AND tests; the rewrite must be worthwhile. DD-4 amended: quality over fidelity; critic pass is remediation, not advisory; AC-03.4 added. Engine semantics still port (the asset); commits layered for reviewability.
 - (2026-08-10) cc: WP-01 verdict -- D2 is SIA GLUE (sia.ex never writes cargo :results; removed deliberately in archive commit e0b5dc2a). Engine exonerated: produces correctly tagged sense->infer->act items. Nothing travels with the port. Full evidence: ST0001 design.md "D2 verdict".
+- (2026-08-10) hv (mid-session 2): PFIC the ported engine -- not just critic patches. DD-7: merged with hydration consolidation into WP-04 (one loud resolver, pattern-matched heads, file-by-file, gate green each step). Correctness pins (WP-03 criticals + un-neutered tests) land first.

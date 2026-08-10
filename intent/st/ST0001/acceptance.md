@@ -34,7 +34,7 @@ None -- WP-distributed.
 
 - AC-02.1 (non-test) CI runs format check + compile + test with warnings-as-errors covering test compilation, green on the skeleton before the port lands -- evidence: .github/workflows/ci.yml runs `mix gate` (the single local/CI gate alias in mix.exs); local `mix gate` green on skeleton 2026-08-10 (upstream Actions run lands on next hv push) -- satisfied: yes
 
-### WP-03 -- Predicate engine port (status: Not Started)
+### WP-03 -- Predicate engine port (status: WIP)
 
 - AC-03.1 The ported engine and its full ported test suite are green under `mix test --warnings-as-errors` (D5 class structurally excluded)
 - AC-03.2 Zero source-project traces in `lib/` and `test/` -- modules, atoms, app-env keys, strings, comments, moduledocs (hv ruling 2026-08-10)
@@ -53,7 +53,7 @@ None -- WP-distributed.
 
 ### WP-03
 
-- AT-03.1 full ported suite under `mix test --warnings-as-errors` -- covers AC-03.1 -- status: to-write (red-first)
-- AT-03.2 test/riffle/extrication_gate_test.exs::"lib/ and test/ carry zero source-project traces" -- covers AC-03.2 -- status: to-write (red-first)
-- AT-03.3 test/riffle/predicate/default_pipeline_resolution_test.exs::"configured module resolves; unset config errors explicitly" -- covers AC-03.3 -- status: to-write (red-first)
+- AT-03.1 full ported suite under `mix test --warnings-as-errors` (237 passed: 61 doctests, 176 tests) -- covers AC-03.1 -- status: green
+- AT-03.2 test/riffle/extrication_gate_test.exs::"invariant: lib/ and test/ carry zero source-project traces" -- covers AC-03.2 -- status: green
+- AT-03.3 test/riffle/predicate/default_pipeline_resolution_test.exs (4 tests: configured resolution, unset-config raise, missing-predicate raise, default_pipeline/0) -- covers AC-03.3 -- status: green
 - Coverage: complete -- AC-03.1..3 each covered by an AT above; non-test ACs (AC-01.1, AC-02.1, AC-03.4) carry evidence inline.

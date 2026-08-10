@@ -212,8 +212,9 @@ defmodule Riffle.Predicate.Registry do
 
   @impl true
   def handle_call({:get_loop, name}, _from, state) do
-    with {:ok, loop} <- fetch_loop(name, state) do
-      {:reply, {:ok, ensure_loop_struct(loop)}, state}
+    with {:ok, loop} <- fetch_loop(name, state),
+         {:ok, loop_struct} <- ensure_loop_struct(loop, state) do
+      {:reply, {:ok, loop_struct}, state}
     else
       {:error, reason} -> {:reply, {:error, reason}, state}
     end
@@ -221,8 +222,9 @@ defmodule Riffle.Predicate.Registry do
 
   @impl true
   def handle_call({:get_pipeline, name}, _from, state) do
-    with {:ok, pipeline} <- fetch_pipeline(name, state) do
-      {:reply, {:ok, ensure_pipeline_struct(pipeline)}, state}
+    with {:ok, pipeline} <- fetch_pipeline(name, state),
+         {:ok, pipeline_struct} <- ensure_pipeline_struct(pipeline, state) do
+      {:reply, {:ok, pipeline_struct}, state}
     else
       {:error, reason} -> {:reply, {:error, reason}, state}
     end
@@ -288,14 +290,13 @@ defmodule Riffle.Predicate.Registry do
         |> Enum.map(fn {name, _definition} -> {name, apply(module, name, [])} end)
         |> Map.new()
 
-      # Merge with existing state
-      new_state = %{
-        predicates: Map.merge(state.predicates, predicate_instances),
-        loops: Map.merge(state.loops, loop_instances),
-        pipelines: Map.merge(state.pipelines, pipeline_instances)
+      instances = %{
+        predicates: predicate_instances,
+        loops: loop_instances,
+        pipelines: pipeline_instances
       }
 
-      {:reply, :ok, new_state}
+      {:reply, :ok, merge_instances(state, instances)}
     rescue
       error ->
         {:reply, {:error, {:module_registration_error, module, error}}, state}
@@ -304,48 +305,12 @@ defmodule Riffle.Predicate.Registry do
 
   @impl true
   def handle_call({:load_file, path}, _from, state) do
-    case Loader.load_file(path) do
-      {:ok, definitions} ->
-        case Loader.create_instances(definitions) do
-          {:ok, instances} ->
-            new_state = %{
-              predicates: Map.merge(state.predicates, instances.predicates),
-              loops: Map.merge(state.loops, instances.loops),
-              pipelines: Map.merge(state.pipelines, instances.pipelines)
-            }
-
-            {:reply, :ok, new_state}
-
-          {:error, reason} ->
-            {:reply, {:error, {:instance_creation_error, reason}}, state}
-        end
-
-      {:error, reason} ->
-        {:reply, {:error, reason}, state}
-    end
+    register_loaded(state, Loader.load_file(path))
   end
 
   @impl true
   def handle_call({:load_directory, dir_path, recursive}, _from, state) do
-    case Loader.load_directory(dir_path, recursive) do
-      {:ok, definitions} ->
-        case Loader.create_instances(definitions) do
-          {:ok, instances} ->
-            new_state = %{
-              predicates: Map.merge(state.predicates, instances.predicates),
-              loops: Map.merge(state.loops, instances.loops),
-              pipelines: Map.merge(state.pipelines, instances.pipelines)
-            }
-
-            {:reply, :ok, new_state}
-
-          {:error, reason} ->
-            {:reply, {:error, {:instance_creation_error, reason}}, state}
-        end
-
-      {:error, reason} ->
-        {:reply, {:error, reason}, state}
-    end
+    register_loaded(state, Loader.load_directory(dir_path, recursive))
   end
 
   # Private helper functions for better structure
@@ -384,53 +349,106 @@ defmodule Riffle.Predicate.Registry do
 
   defp create_callable_predicate(predicate), do: predicate
 
-  @spec ensure_loop_struct(struct() | map()) :: Riffle.Predicate.Loop.t()
-  defp ensure_loop_struct(%Riffle.Predicate.Loop{} = loop), do: loop
-
-  defp ensure_loop_struct(%{name: name, description: description, predicates: predicates}) do
-    # Convert to an actual Loop struct with proper predicate objects
-    loop_predicates =
-      Enum.map(predicates, fn
-        %{name: pred_name, description: desc} ->
-          Riffle.Predicate.new(pred_name, desc || "", fn _ -> true end)
-
-        %{name: pred_name} ->
-          Riffle.Predicate.new(pred_name, "", fn _ -> true end)
-
-        predicate ->
-          predicate
-      end)
-
-    Riffle.Predicate.Loop.new(name, description, loop_predicates)
+  @spec merge_instances(map(), map()) :: map()
+  defp merge_instances(state, instances) do
+    %{
+      predicates: Map.merge(state.predicates, instances.predicates),
+      loops: Map.merge(state.loops, instances.loops),
+      pipelines: Map.merge(state.pipelines, instances.pipelines)
+    }
   end
 
-  defp ensure_loop_struct(loop), do: loop
-
-  @spec ensure_pipeline_struct(struct() | map()) :: Riffle.Predicate.Pipeline.t()
-  defp ensure_pipeline_struct(%Riffle.Predicate.Pipeline{} = pipeline), do: pipeline
-
-  defp ensure_pipeline_struct(%{name: name, description: description, loops: loops}) do
-    # Convert to an actual Pipeline struct with proper Loop objects
-    pipeline_loops =
-      Enum.map(loops, fn
-        %{name: loop_name, description: desc, predicates: preds} ->
-          predicates =
-            Enum.map(preds, fn
-              %{name: pred_name} -> Riffle.Predicate.new(pred_name, "", fn _ -> true end)
-              pred -> pred
-            end)
-
-          Riffle.Predicate.Loop.new(loop_name, desc || "", predicates)
-
-        %{name: loop_name} ->
-          Riffle.Predicate.Loop.new(loop_name, "", [])
-
-        loop ->
-          loop
-      end)
-
-    Riffle.Predicate.Pipeline.new(name, description, pipeline_loops)
+  @spec register_loaded(map(), {:ok, map()} | {:error, term()}) ::
+          {:reply, :ok | {:error, term()}, map()}
+  defp register_loaded(state, {:ok, definitions}) do
+    case Loader.create_instances(definitions) do
+      {:ok, instances} -> {:reply, :ok, merge_instances(state, instances)}
+      {:error, reason} -> {:reply, {:error, {:instance_creation_error, reason}}, state}
+    end
   end
 
-  defp ensure_pipeline_struct(pipeline), do: pipeline
+  defp register_loaded(state, {:error, reason}), do: {:reply, {:error, reason}, state}
+
+  # Reference resolution goes through registry state; a name with no
+  # registered definition is a tagged error, never a synthesised stand-in.
+  # (The previous shape stubbed missing predicates as always-true -- matching
+  # and tagging every item -- and missing loops as empty, silently.)
+  @spec ensure_loop_struct(struct() | map(), map()) ::
+          {:ok, Riffle.Predicate.Loop.t() | term()} | {:error, term()}
+  defp ensure_loop_struct(%Riffle.Predicate.Loop{} = loop, _state), do: {:ok, loop}
+
+  defp ensure_loop_struct(%{name: name, description: description, predicates: predicates}, state) do
+    with {:ok, resolved} <- resolve_predicates(predicates, state) do
+      {:ok, Riffle.Predicate.Loop.new(name, description, resolved)}
+    end
+  end
+
+  defp ensure_loop_struct(loop, _state), do: {:ok, loop}
+
+  @spec ensure_pipeline_struct(struct() | map(), map()) ::
+          {:ok, Riffle.Predicate.Pipeline.t() | term()} | {:error, term()}
+  defp ensure_pipeline_struct(%Riffle.Predicate.Pipeline{} = pipeline, _state),
+    do: {:ok, pipeline}
+
+  defp ensure_pipeline_struct(%{name: name, description: description, loops: loops}, state) do
+    with {:ok, resolved} <- resolve_loops(loops, state) do
+      {:ok, Riffle.Predicate.Pipeline.new(name, description, resolved)}
+    end
+  end
+
+  defp ensure_pipeline_struct(pipeline, _state), do: {:ok, pipeline}
+
+  @spec resolve_predicates([map()], map()) :: {:ok, [map()]} | {:error, term()}
+  defp resolve_predicates(predicates, state) do
+    predicates
+    |> Enum.reduce_while({:ok, []}, fn
+      %{function: _} = pred, {:ok, acc} ->
+        {:cont, {:ok, [pred | acc]}}
+
+      %{body: _} = pred, {:ok, acc} ->
+        {:cont, {:ok, [pred | acc]}}
+
+      %{name: pred_name}, {:ok, acc} ->
+        case Map.fetch(state.predicates, pred_name) do
+          {:ok, pred} -> {:cont, {:ok, [pred | acc]}}
+          :error -> {:halt, {:error, {:unresolved, :predicate, pred_name}}}
+        end
+
+      other, {:ok, _acc} ->
+        {:halt, {:error, {:invalid_predicate, other}}}
+    end)
+    |> finish_resolution()
+  end
+
+  @spec resolve_loops([map()], map()) :: {:ok, [term()]} | {:error, term()}
+  defp resolve_loops(loops, state) do
+    loops
+    |> Enum.reduce_while({:ok, []}, fn
+      %Riffle.Predicate.Loop{} = loop, {:ok, acc} ->
+        {:cont, {:ok, [loop | acc]}}
+
+      %{predicates: _} = loop_map, {:ok, acc} ->
+        case ensure_loop_struct(loop_map, state) do
+          {:ok, loop} -> {:cont, {:ok, [loop | acc]}}
+          {:error, reason} -> {:halt, {:error, reason}}
+        end
+
+      %{name: loop_name}, {:ok, acc} ->
+        with {:ok, loop_def} <- fetch_loop(loop_name, state),
+             {:ok, loop} <- ensure_loop_struct(loop_def, state) do
+          {:cont, {:ok, [loop | acc]}}
+        else
+          {:error, reason} -> {:halt, {:error, reason}}
+        end
+
+      other, {:ok, _acc} ->
+        {:halt, {:error, {:invalid_loop, other}}}
+    end)
+    |> finish_resolution()
+  end
+
+  @spec finish_resolution({:ok, [term()]} | {:error, term()}) ::
+          {:ok, [term()]} | {:error, term()}
+  defp finish_resolution({:ok, acc}), do: {:ok, Enum.reverse(acc)}
+  defp finish_resolution({:error, _} = error), do: error
 end

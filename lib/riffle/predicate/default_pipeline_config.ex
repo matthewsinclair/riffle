@@ -25,24 +25,22 @@ defmodule Riffle.Predicate.DefaultPipelineConfig do
       # Standard implementation of get_pipeline for atom names
       @impl true
       def get_pipeline(name) when is_atom(name) do
-        # Pipeline definitions are just functions with arity 0
-        # so we can simply call the function with the given name
-        try do
+        # Probe rather than rescue: a rescue around the apply would also
+        # swallow a genuine error raised INSIDE the pipeline definition,
+        # masking it as "pipeline not found".
+        if function_exported?(__MODULE__, name, 0) do
           apply(__MODULE__, name, [])
-        rescue
-          # Return nil when the pipeline function doesn't exist
-          UndefinedFunctionError -> nil
+        else
+          nil
         end
       end
 
       # Standard implementation of get_pipeline for string names
       @impl true
       def get_pipeline(name) when is_binary(name) do
-        try do
-          get_pipeline(String.to_existing_atom(name))
-        rescue
-          # Return nil when the name can't be converted to an existing atom
-          ArgumentError -> nil
+        case Riffle.Predicate.DefaultPipelineConfig.existing_atom(name) do
+          {:ok, atom} -> get_pipeline(atom)
+          :error -> nil
         end
       end
 
@@ -75,5 +73,15 @@ defmodule Riffle.Predicate.DefaultPipelineConfig do
       # Allow modules to override these functions if needed
       defoverridable get_pipeline: 1, get_loop: 1, get_predicate: 1, list_pipelines: 0
     end
+  end
+
+  @doc false
+  # Tagged conversion so callers pattern-match instead of nil-checking; the
+  # rescue is scoped to exactly the conversion (unknown name), nothing else.
+  @spec existing_atom(String.t()) :: {:ok, atom()} | :error
+  def existing_atom(string) when is_binary(string) do
+    {:ok, String.to_existing_atom(string)}
+  rescue
+    ArgumentError -> :error
   end
 end

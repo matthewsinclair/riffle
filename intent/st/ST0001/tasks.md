@@ -17,12 +17,13 @@
 
 ### WP-03 -- Predicate engine port
 
-- [ ] Copy `predicate/` sources + tests (unrenamed; will not compile)
-- [ ] Write AT-03.2 zero-trace gate (RED) and AT-03.3 config-resolution tests (RED)
-- [ ] Mechanical rename per the design map
-- [ ] Sever stitch 1 (DD-1); scrub the `dsl/macro.ex` comment
-- [ ] Fix D5 arg shape
-- [ ] Full suite green under the gate; ATs green (mechanical-port commit)
+- [x] Copy `predicate/` sources + tests + 2 data fixtures (user_test.pred, users_small.csv)
+- [x] Write AT-03.2 zero-trace gate and AT-03.3 config-resolution tests
+- [x] Mechanical rename per the design map (sed over tree; residue was exactly the 8 stitch lines)
+- [x] Sever stitch 1 (DD-1): config-injected resolution; 6 silent always-false fallbacks in loop.ex replaced with UnresolvedPredicateError raises; magic name list [:main, :sense_pipeline, :infer_pipeline] removed from pipeline.ex; macro.ex comment scrubbed
+- [x] Riffle.Application supervises engine cache (mirrors source app tree)
+- [x] Fix D5 arg shape (pipe fed fn as name, function was a string -- never evaluated by tests)
+- [x] Full suite green under the gate: 237 passed (61 doctests, 176 tests) -- mechanical-port commit 7b7f912
 - [ ] Remediation pass: critic-elixir on ported tree; fix CRITICAL/HIGH in code + tests; strengthen weak assertions; async where safe (hv rewrite ruling; layered commits, green at each step)
 
 ## Task Notes

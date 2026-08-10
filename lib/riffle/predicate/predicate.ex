@@ -307,19 +307,7 @@ defmodule Riffle.Predicate do
 
       # Handle keyword lists (which is what we expect from properly processed expr macros)
       expr when is_list(expr) ->
-        # Check if it's a keyword list at runtime instead of in the guard
-        is_keyword = Keyword.keyword?(expr)
-        # Convert to string
-        expr_str =
-          try do
-            if is_keyword do
-              Macro.to_string(expr)
-            else
-              inspect(expr)
-            end
-          rescue
-            _ -> inspect(expr)
-          end
+        expr_str = if Keyword.keyword?(expr), do: Macro.to_string(expr), else: inspect(expr)
 
         case Evaluator.parse(expr_str) do
           {:ok, function} ->
@@ -331,13 +319,7 @@ defmodule Riffle.Predicate do
 
       # For other AST expressions (maps or tuples from Macro.escape)
       expr ->
-        # Try to convert to string
-        expr_str =
-          try do
-            Macro.to_string(expr)
-          rescue
-            _ -> inspect(expr)
-          end
+        expr_str = Macro.to_string(expr)
 
         case Evaluator.parse(expr_str) do
           {:ok, function} ->
@@ -350,42 +332,32 @@ defmodule Riffle.Predicate do
   end
 
   def create({:__block__, _, _statements} = ast_body) do
-    function = fn _item ->
-      try do
-        # Evaluate the AST
-        {result, _bindings} = Code.eval_quoted(ast_body)
-        result
-      rescue
-        _e ->
-          false
-      end
+    # A body that fails to evaluate is a defect in the predicate definition;
+    # the raise propagates from evaluation. It must never quietly become an
+    # always-false predicate that filters every item with no signal.
+    fn _item ->
+      {result, _bindings} = Code.eval_quoted(ast_body)
+      result
     end
-
-    # Return the function
-    function
   end
 
   def create(ast_body) do
-    try do
-      {function, _bindings} = Code.eval_quoted(ast_body)
+    {function, _bindings} = Code.eval_quoted(ast_body)
 
-      if is_function(function, 1) do
-        function
-      else
-        fn _item -> function end
-      end
-    rescue
-      _e ->
-        fn _item ->
-          try do
-            {result, _} = Code.eval_quoted(ast_body)
-            result
-          rescue
-            _inner ->
-              false
-          end
-        end
+    if is_function(function, 1) do
+      function
+    else
+      fn _item -> function end
     end
+  rescue
+    e ->
+      reraise ArgumentError,
+              [
+                message:
+                  "predicate body failed to evaluate: #{Exception.message(e)} " <>
+                    "-- body AST: #{inspect(ast_body)}"
+              ],
+              __STACKTRACE__
   end
 
   @doc """
