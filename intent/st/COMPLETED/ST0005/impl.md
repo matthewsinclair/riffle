@@ -70,14 +70,14 @@ One round. Seven `IN-EX-TEST-005` warnings for `case` expressions in the fence f
 
 The grouping is the point of it. All 61 modules are placed explicitly across six groups -- `Overview` and the five layers in the order the README gives them -- and the placement was checked by reading the generated sidebar rather than by assuming the config took:
 
-| Group | Modules |
-| ---------------------------------- | --- |
-| Overview | 1 |
-| The engine (`Riffle.Predicate`) | 24 |
-| The waist (`Riffle.Ctx`) | 25 |
-| The pattern layer (`Riffle.Sia`) | 3 |
-| The service (`Riffle.Service`) | 3 |
-| The CLI (`Riffle.Cli`) | 4 |
+| Group                            | Modules |
+| -------------------------------- | ------- |
+| Overview                         | 1       |
+| The engine (`Riffle.Predicate`)  | 24      |
+| The waist (`Riffle.Ctx`)         | 25      |
+| The pattern layer (`Riffle.Sia`) | 3       |
+| The service (`Riffle.Service`)   | 3       |
+| The CLI (`Riffle.Cli`)           | 4       |
 
 60 in the module section plus `Mix.Tasks.Riffle.Cli`, which `ex_doc` files under its own Mix Tasks heading while still carrying the CLI group label. Nothing landed in a leftover bucket, which was the failure mode worth checking: an unplaced module falls into a trailing `Modules` heading, and that trailing heading is the alphabetical list the grouping exists to replace.
 
@@ -103,12 +103,12 @@ Only `docs/pred-language.md` is written as a markdown link, because it is an `ex
 
 ### The surface it had to cover, measured
 
-| Surface | Count | Source of truth |
-| ---------------------------- | ----- | ---------------------------------------- |
-| Definition forms | 3 | `Dsl.Parser.bucket_statement/2` |
-| Predicate body forms | 3 | `Predicate.create/1` |
-| Expression forms | 28 | `Dsl.Evaluator.evaluate/2` clauses |
-| Standard-library builders | 29 | the modules, enumerated by the fence |
+| Surface                   | Count | Source of truth                      |
+| ------------------------- | ----- | ------------------------------------ |
+| Definition forms          | 3     | `Dsl.Parser.bucket_statement/2`      |
+| Predicate body forms      | 3     | `Predicate.create/1`                 |
+| Expression forms          | 28    | `Dsl.Evaluator.evaluate/2` clauses   |
+| Standard-library builders | 29    | the modules, enumerated by the fence |
 
 The builder count is 29 rather than the 25 carried forward from the survey: 25 are in the five category modules and four are the combinators on the parent (`all/1`, `any/1`, `none/1`, `not_pred/1`), which are equally public and equally reachable from a `.pred` body.
 
@@ -130,15 +130,15 @@ The document marks its blocks by what they are -- `pred` for complete definition
 
 Numbering continues from WP-01's M1-M5.
 
-| # | Mutation | Fence | Result |
-| --- | ----------------------------------------------------- | ------------------------------- | ------ |
-| M6 | a snippet references a loop that is not defined | snippets load and materialise | red |
-| M7 | an unsupported form is added to an `expr` block | expressions evaluate | red |
-| M8 | one builder's row is dropped from the reference | every builder appears | red |
-| M9 | a new public builder lands in `StandardLib`, undocumented | every builder appears | red |
-| M10 | a README route points at a file that is not there | every route resolves | red |
+| #   | Mutation                                                  | Fence                         | Result |
+| --- | --------------------------------------------------------- | ----------------------------- | ------ |
+| M6  | a snippet references a loop that is not defined           | snippets load and materialise | red    |
+| M7  | an unsupported form is added to an `expr` block           | expressions evaluate          | red    |
+| M8  | one builder's row is dropped from the reference           | every builder appears         | red    |
+| M9  | a new public builder lands in `StandardLib`, undocumented | every builder appears         | red    |
+| M10 | a README route points at a file that is not there         | every route resolves          | red    |
 
-M9 is the one worth keeping. M8 only proves the fence reads the document; M9 proves it reads the *code*, and it failed naming `STD.Text.is_shouty/1` exactly -- which is what a transcribed table could never do.
+M9 is the one worth keeping. M8 only proves the fence reads the document; M9 proves it reads the _code_, and it failed naming `STD.Text.is_shouty/1` exactly -- which is what a transcribed table could never do.
 
 M10 fenced a defect this thread was about to ship. The README's route to the language reference was written a work package before the file existed, and without the fence the only thing standing between that and a dead link in the published README was remembering.
 
