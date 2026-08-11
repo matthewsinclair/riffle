@@ -73,6 +73,8 @@
 | Cache preconditions + spy predicates    | Riffle.CacheHelpers (test/support)  | reset_cache/1, spy_predicate/4                                                 |
 | Pattern-layer test inputs               | Riffle.SiaFixtures (test/support)   | staging pipelines (mechanics) + the four characterisation rows                 |
 | DSL fixture corpus                      | Riffle.DslFixtures (test/support)   | the macro module and `.pred` sources shared by the registry + loader suites    |
+| Service + CLI test inputs               | Riffle.ServiceFixtures (test/support) | temp CSVs, the four-loop pipeline, and its `.pred` twin                      |
+| Documentation introspection             | Riffle.DocHelpers (test/support)    | doc walks for the conformance fences; branching code, so it lives in support   |
 
 <!-- Add entries as modules are created. Group by domain. Example:
 

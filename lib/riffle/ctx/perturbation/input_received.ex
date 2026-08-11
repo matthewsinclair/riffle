@@ -1,6 +1,12 @@
 defmodule Riffle.Ctx.Perturbation.InputReceived do
   @moduledoc """
-  A source has supplied the run's input. The payload is opaque to the waist.
+  A source hands the run its input.
+
+  `payload` is the ingested items, not the raw material they were built from,
+  so a run can be replayed from the context alone.
+
+  Through the knot it writes `payload` into the context's input slot and yields
+  a `Riffle.Ctx.Emission.InputSet` carrying the same value.
   """
 
   @behaviour Riffle.Ctx.Catalog

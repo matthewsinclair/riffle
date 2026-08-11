@@ -61,8 +61,18 @@ defmodule Riffle.Predicate.Cache do
 
   ## Examples
 
-      iex> {:ok, _pid} = Riffle.Predicate.Cache.start_link()
-      iex> {:ok, _pid} = Riffle.Predicate.Cache.start_link(enabled: false)
+  `Riffle.Application` starts the cache under the supervision tree, so an
+  application that depends on `:riffle` has one already. It is a named
+  singleton, and a second `start_link/1` says so rather than quietly handing
+  back a second cache:
+
+      iex> {:error, {:already_started, pid}} = Riffle.Predicate.Cache.start_link()
+      iex> is_pid(pid)
+      true
+
+  The example that used to sit here asserted `{:ok, _pid}` twice over, which
+  had never run: nothing declared a doctest for this module, so a claim that
+  was false the moment the supervisor booted went unchecked.
   """
   @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(opts \\ []) do
@@ -86,7 +96,8 @@ defmodule Riffle.Predicate.Cache do
 
   ## Examples
 
-      iex> Riffle.Predicate.Cache.get(:active, item)
+      iex> item = Riffle.Predicate.Item.create(%{"status" => "active"})
+      iex> Riffle.Predicate.Cache.get(:doc_never_cached, item)
       {:error, :not_found}
   """
   @spec get(atom(), Item.t()) :: {:ok, any()} | {:error, :not_found | :disabled}
@@ -139,8 +150,12 @@ defmodule Riffle.Predicate.Cache do
 
   ## Examples
 
-      iex> Riffle.Predicate.Cache.put(:active, item, {true, updated_item})
+      iex> item = Riffle.Predicate.Item.create(%{"status" => "active"})
+      iex> tagged = Riffle.Predicate.Item.add_tag(item, :doc_put_example)
+      iex> Riffle.Predicate.Cache.put(:doc_put_example, item, {true, tagged})
       :ok
+      iex> Riffle.Predicate.Cache.get(:doc_put_example, item)
+      {:ok, {true, tagged}}
   """
   @spec put(atom(), Item.t(), any()) :: :ok | {:error, :disabled}
   def put(predicate_id, %Item{} = item, value) do

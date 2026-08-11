@@ -1,6 +1,11 @@
 defmodule Riffle.Ctx.Emission.InputSet do
   @moduledoc """
-  The run's input was set to the carried payload.
+  The run's input was set.
+
+  `payload` is the ingested items.
+
+  Yielded by `Riffle.Ctx.Perturbation.InputReceived`, carrying the same value
+  that was written to the context's input slot.
   """
 
   @behaviour Riffle.Ctx.Catalog

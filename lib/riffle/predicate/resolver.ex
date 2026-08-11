@@ -5,8 +5,10 @@ defmodule Riffle.Predicate.Resolver do
 
   A *source* is where definitions live:
 
-    * a module exporting `get_predicate/1` (and `get_loop/1` / `get_pipeline/1`
-      as needed) -- DSL macro modules and pipeline-config modules
+    * a module exporting `c:Riffle.Predicate.PipelineConfig.get_predicate/1`
+      (and `c:Riffle.Predicate.PipelineConfig.get_loop/1` /
+      `c:Riffle.Predicate.PipelineConfig.get_pipeline/1` as needed) -- DSL
+      macro modules and pipeline-config modules
     * a definitions map `%{predicates: %{}, loops: %{}, pipelines: %{}}` --
       registry state and loader-built instances
     * `nil` -- resolution falls back to the configured default pipeline

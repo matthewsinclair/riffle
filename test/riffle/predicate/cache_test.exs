@@ -2,6 +2,8 @@ defmodule Riffle.Predicate.CacheTest do
   # Exercises the global named Cache GenServer -- cannot run async.
   use ExUnit.Case, async: false
 
+  doctest Riffle.Predicate.Cache
+
   alias Riffle.Predicate.Cache
   alias Riffle.Predicate.Item
 

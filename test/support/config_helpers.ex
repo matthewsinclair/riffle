@@ -9,7 +9,7 @@ defmodule Riffle.ConfigHelpers do
   returns -- control flow in a setup, written out three times. It lives here
   once, and the branch is a multi-clause private function rather than a `case`.
 
-  Restoration registers with `on_exit/1` at the moment the value is set, so a
+  Restoration registers with `ExUnit.Callbacks.on_exit/1` at the moment the value is set, so a
   test that changes nothing needs no teardown, and a suite cannot leak a
   configured module into the one that follows it.
   """

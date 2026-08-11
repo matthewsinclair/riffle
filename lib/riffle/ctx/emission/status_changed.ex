@@ -1,6 +1,13 @@
 defmodule Riffle.Ctx.Emission.StatusChanged do
   @moduledoc """
-  The run's status moved. A transition is a fact the knot reports, never a setter a caller drives.
+  The run's status changed.
+
+  `from` and `to` are the statuses either side of the change, so a reader can
+  reconstruct the whole status history from the emission stream without
+  holding the context.
+
+  Yielded by every perturbation that moves the run's status:
+  `Riffle.Ctx.Perturbation.RunStarted`, `RunCompleted` and `RunFailed`.
   """
 
   @behaviour Riffle.Ctx.Catalog

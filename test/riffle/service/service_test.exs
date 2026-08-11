@@ -1,6 +1,8 @@
 defmodule Riffle.ServiceTest do
   use ExUnit.Case, async: true
 
+  doctest Riffle.Service
+
   alias Riffle.Service
   alias Riffle.ServiceFixtures
 

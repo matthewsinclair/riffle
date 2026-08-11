@@ -72,7 +72,21 @@ defmodule Riffle.Ctx do
 
   Tagged rather than bare, and for a concrete reason: a recorded metadata value
   may itself be `nil`, so a bare read cannot distinguish "absent" from "present
-  and nil". This is the same shape the catalogs' `fetch_by_tag/1` uses.
+  and nil". This is the same shape `Riffle.Ctx.Emission.fetch_by_tag/1` uses.
+
+      iex> ctx = Riffle.Ctx.new(run_id: "doc", metadata: %{stage_counts: [only: 2]})
+      iex> Riffle.Ctx.fetch_metadata(ctx, :stage_counts)
+      {:ok, [only: 2]}
+
+      iex> Riffle.Ctx.fetch_metadata(Riffle.Ctx.new(run_id: "doc"), :absent)
+      :error
+
+  A value that is present and `nil` is distinguishable from one that is absent,
+  which is the whole reason this is tagged:
+
+      iex> ctx = Riffle.Ctx.new(run_id: "doc", metadata: %{measured: nil})
+      iex> {Riffle.Ctx.fetch_metadata(ctx, :measured), Riffle.Ctx.fetch_metadata(ctx, :never_set)}
+      {{:ok, nil}, :error}
   """
   @spec fetch_metadata(t(), atom()) :: {:ok, term()} | :error
   def fetch_metadata(%__MODULE__{metadata: metadata}, key) when is_atom(key),

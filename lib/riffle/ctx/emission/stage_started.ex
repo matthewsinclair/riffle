@@ -1,6 +1,11 @@
 defmodule Riffle.Ctx.Emission.StageStarted do
   @moduledoc """
-  A named stage of work began.
+  A named stage began.
+
+  `stage` is the stage's own name.
+
+  Yielded by `Riffle.Ctx.Perturbation.StageEntered`. No state changed to
+  produce it.
   """
 
   @behaviour Riffle.Ctx.Catalog

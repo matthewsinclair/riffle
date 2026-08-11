@@ -220,7 +220,14 @@ defmodule Riffle.Predicate.Dsl.Macro do
                      body: unquote(predicate_body)
                    }}
 
-      # Generate a function that returns this predicate object
+      # Generate a function that returns this predicate object.
+      #
+      # It carries the definition's own description as its @doc. These
+      # accessors are real API -- a caller reaches a definition by name through
+      # them -- so hiding them with `@doc false` would be a lie of omission,
+      # and leaving them bare would fill the module's page with undocumented
+      # entries. The description is already the sentence a reader wants.
+      @doc unquote(description)
       def unquote(name)() do
         # Create a predicate function from the body
         # Use predicate_body directly - we've already processed it above
@@ -283,6 +290,7 @@ defmodule Riffle.Predicate.Dsl.Macro do
       # Generate a function that returns this loop struct, with every
       # reference resolved and every body hydrated to a callable exactly
       # once, here -- not per item at evaluation time.
+      @doc unquote(description)
       def unquote(name)() do
         Riffle.Predicate.Resolver.resolve_loop!(__MODULE__, %{
           name: unquote(name),
@@ -343,6 +351,7 @@ defmodule Riffle.Predicate.Dsl.Macro do
 
       # Generate a function that returns this pipeline struct, with loop
       # references resolved and hydrated recursively.
+      @doc unquote(description)
       def unquote(name)() do
         Riffle.Predicate.Resolver.resolve_pipeline!(__MODULE__, %{
           name: unquote(name),

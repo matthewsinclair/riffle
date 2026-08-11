@@ -1,6 +1,8 @@
 defmodule Riffle.Ctx.KnotTest do
   use ExUnit.Case, async: true
 
+  doctest Riffle.Ctx.Knot
+
   alias Riffle.Ctx
   alias Riffle.Ctx.Emission
   alias Riffle.Ctx.Knot

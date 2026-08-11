@@ -1,5 +1,7 @@
 defmodule Riffle.Predicate.Dsl.EvaluatorTest do
   use ExUnit.Case, async: true
+
+  doctest Riffle.Predicate.Dsl.Evaluator
   alias Riffle.Predicate.Dsl.Evaluator
   alias Riffle.Predicate.Item
 

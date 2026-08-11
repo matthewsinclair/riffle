@@ -37,6 +37,29 @@ defmodule Riffle.Ctx.Knot do
 
   Returns the new context and the emissions describing what happened, in firing
   order. Every perturbation yields at least one emission.
+
+  A perturbation that changes state yields the emissions describing the change:
+
+      iex> ctx = Riffle.Ctx.new(run_id: "doc")
+      iex> {running, emissions} = Riffle.Ctx.Knot.tick(ctx, %Riffle.Ctx.Perturbation.RunStarted{})
+      iex> {running.status, emissions}
+      {:running, [%Riffle.Ctx.Emission.StatusChanged{from: :pending, to: :running}]}
+
+  One that carries results hands them over and announces them in the same tick,
+  so a run cannot report completion while its results are elsewhere:
+
+      iex> ctx = Riffle.Ctx.new(run_id: "doc")
+      iex> {done, emissions} = Riffle.Ctx.Knot.tick(ctx, %Riffle.Ctx.Perturbation.RunCompleted{output: [:a, :b]})
+      iex> {done.status, done.output, List.last(emissions)}
+      {:completed, [:a, :b], %Riffle.Ctx.Emission.OutputProduced{payload: [:a, :b]}}
+
+  A perturbation that changes nothing still yields an emission, because the
+  fact that it happened is itself worth reporting:
+
+      iex> ctx = Riffle.Ctx.new(run_id: "doc")
+      iex> {^ctx, [emission]} = Riffle.Ctx.Knot.tick(ctx, %Riffle.Ctx.Perturbation.StageEntered{stage: :only})
+      iex> emission
+      %Riffle.Ctx.Emission.StageStarted{stage: :only}
   """
   @spec tick(Ctx.t(), Perturbation.t()) :: {Ctx.t(), [Emission.t()]}
   def tick(%Ctx{} = ctx, perturbation) when is_struct(perturbation) do

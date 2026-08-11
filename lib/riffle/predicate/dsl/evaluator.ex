@@ -6,22 +6,45 @@ defmodule Riffle.Predicate.Dsl.Evaluator do
   way to define predicates without writing full Elixir functions. It parses expressions
   and converts them to executable predicate functions.
 
-  ## Examples
+  An expression reads fields off an item and returns a value -- usually a
+  boolean, since the caller is deciding whether a predicate matches. Fields are
+  reached as `fields["name"]`, or with the `@name` shorthand for the same
+  thing.
 
-      # Simple equality comparison
-      Evaluator.parse(`fields["status"] == "active"`)
-      # Or with syntactic sugar
-      Evaluator.parse(`@status == "active"`)
+      iex> item = Riffle.Predicate.Item.new(["status", "age"], ["active", "42"])
+      iex> {:ok, match?} = Riffle.Predicate.Dsl.Evaluator.parse(~s(fields["status"] == "active"))
+      iex> match?.(item)
+      true
 
-      # Numeric comparison
-      Evaluator.parse(`fields["age"] > 30`)
-      # Or with syntactic sugar
-      Evaluator.parse(`@age > 30`)
+      iex> item = Riffle.Predicate.Item.new(["status", "age"], ["active", "42"])
+      iex> {:ok, match?} = Riffle.Predicate.Dsl.Evaluator.parse(~s(@status == "active"))
+      iex> match?.(item)
+      true
 
-      # Logical operators
-      Evaluator.parse(`fields["status"] == "active" && fields["tier"] == "premium"`)
-      # Or with syntactic sugar
-      Evaluator.parse(`@status == "active" && @tier == "premium"`)
+  Comparisons coerce: a field read from a file is text, and `>` against a
+  number parses it rather than comparing a string to an integer.
+
+      iex> item = Riffle.Predicate.Item.new(["age"], ["42"])
+      iex> {:ok, match?} = Riffle.Predicate.Dsl.Evaluator.parse(~s(@age > 30))
+      iex> match?.(item)
+      true
+
+  Expressions compose with `&&`, `||` and `!`, and can ask about tags an
+  earlier stage applied:
+
+      iex> item = Riffle.Predicate.Item.new(["status", "tier"], ["active", "premium"])
+      iex> {:ok, match?} = Riffle.Predicate.Dsl.Evaluator.parse(~s(@status == "active" && @tier == "premium"))
+      iex> match?.(item)
+      true
+
+      iex> item = Riffle.Predicate.Item.new(["n"], ["1"]) |> Riffle.Predicate.Item.add_tag(:seen)
+      iex> {:ok, match?} = Riffle.Predicate.Dsl.Evaluator.parse(~s[has_tag(:seen) && !has_tag(:done)])
+      iex> match?.(item)
+      true
+
+  The examples above parse from strings, which is how `.pred` text arrives. A
+  quoted expression works too -- see `parse/1` -- with one wrinkle around the
+  `@name` shorthand that is documented there.
   """
 
   alias Riffle.Predicate.Coerce
@@ -44,18 +67,23 @@ defmodule Riffle.Predicate.Dsl.Evaluator do
 
       iex> alias Riffle.Predicate.Dsl.Evaluator
       iex> alias Riffle.Predicate.Item
-      iex> {:ok, func} = Evaluator.parse(quote do: fields["status"] == "active" end)
+      iex> {:ok, func} = Evaluator.parse(quote(do: fields["status"] == "active"))
       iex> is_function(func, 1)
       true
       iex> item = Item.new(["status"], ["active"])
       iex> func.(item)
       true
-      
-      # Using syntactic sugar with @field
-      iex> {:ok, func} = Evaluator.parse(quote do: @status == "active" end)
-      iex> item = Item.new(["status"], ["active"])
-      iex> func.(item)
+      iex> {:ok, sugared} = Evaluator.parse(~s(@status == "active"))
+      iex> sugared.(item)
       true
+
+  The second uses the `@field` shorthand for the first one's `fields["field"]`,
+  and it is parsed from a string rather than from `Kernel.SpecialForms.quote/2` deliberately. The
+  shorthand is recognised as a bare `@name` -- a variable with no hygiene
+  context -- which is what `.pred` text and `parse/1`'s string clause produce.
+  `quote(do: @status)` inside a module stamps that module as the variable's
+  context, and the expression is then refused as unsupported rather than read
+  as a field.
   """
   @spec parse(expression()) :: parsing_result()
   def parse(expression) when is_binary(expression) do
@@ -84,16 +112,18 @@ defmodule Riffle.Predicate.Dsl.Evaluator do
 
       iex> alias Riffle.Predicate.Dsl.Evaluator
       iex> alias Riffle.Predicate.Item
-      iex> func = Evaluator.create_function(quote do: fields["status"] == "active" end)
+      iex> func = Evaluator.create_function(quote(do: fields["status"] == "active"))
       iex> item = Item.new(["status"], ["active"])
       iex> func.(item)
       true
-      
-      # Using @field syntax
-      iex> func = Evaluator.create_function(quote do: @status == "active" end)
-      iex> item = Item.new(["status"], ["active"])
-      iex> func.(item)
+      iex> sugared = Evaluator.create_function(Code.string_to_quoted!(~s(@status == "active")))
+      iex> sugared.(item)
       true
+
+  The `@field` shorthand is recognised as a bare `@name`, so it has to reach
+  here without a hygiene context -- from `.pred` text, or from
+  `Code.string_to_quoted!/1` as above. `quote(do: @status)` inside a module
+  stamps that module as the context and the expression is refused.
   """
   @spec create_function(term()) :: function()
   def create_function(expr) do
@@ -123,14 +153,17 @@ defmodule Riffle.Predicate.Dsl.Evaluator do
       iex> alias Riffle.Predicate.Dsl.Evaluator
       iex> alias Riffle.Predicate.Item
       iex> item = Item.new(["status", "tier"], ["active", "premium"])
-      iex> Evaluator.evaluate(quote do: fields["status"] == "active" end, item)
+      iex> Evaluator.evaluate(quote(do: fields["status"] == "active"), item)
       true
-      iex> Evaluator.evaluate(quote do: fields["tier"] == "basic" end, item)
+      iex> Evaluator.evaluate(quote(do: fields["tier"] == "basic"), item)
       false
-      
-      # Using @field syntax
-      iex> Evaluator.evaluate(quote do: @status == "active" end, item)
+      iex> Evaluator.evaluate(Code.string_to_quoted!(~s(@status == "active")), item)
       true
+
+  The last uses the `@field` shorthand, which reads exactly the field
+  `fields["field"]` reads. It comes through `Code.string_to_quoted!/1` rather
+  than `Kernel.SpecialForms.quote/2` because the shorthand is recognised as a bare `@name`, and
+  quoting inside a module stamps a hygiene context onto it.
   """
   @spec evaluate(term(), Item.t()) :: boolean() | term()
   # Handle direct fields access

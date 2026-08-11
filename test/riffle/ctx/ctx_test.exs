@@ -1,6 +1,8 @@
 defmodule Riffle.CtxTest do
   use ExUnit.Case, async: true
 
+  doctest Riffle.Ctx
+
   alias Riffle.Ctx
   alias Riffle.FenceHelpers
 
