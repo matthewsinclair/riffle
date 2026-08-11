@@ -33,7 +33,11 @@ raw rows --> Riffle.Sia (the edge) --> {ctx, emissions}
 
 ## Where to go next
 
-Nothing is queued and the next unit is hv's call. `intent/wip.md` lays out three candidates -- a second consumer, a thin CLI, or publishing -- with the reasoning. The first is the one that would teach the most: every mechanism in Riffle currently has exactly one consumer, which is the honest reason several were not built, and a second consumer is what would show whether the separation is real or merely declared.
+**hv's instruction on this bounce is to reassess, not to continue.** Nothing is queued, no thread is open, and the next unit is a decision. Bring the candidates and the reasoning; do not pick one and start.
+
+`intent/wip.md` lays out three, with the argument for each -- a second consumer, a thin CLI, or publishing. The first would teach the most: every mechanism in Riffle currently has exactly one consumer, which is the honest reason several were not built, and a second consumer is what would show whether the separation is real or merely declared.
+
+Worth putting on the table alongside them: the backlog below has four items waiting on an hv ruling, and two of those (the perturbation/emission structural twins, and one error vocabulary at the loader boundary) are small enough to clear in a session if hv would rather bank tidy-up than open new ground.
 
 The backlog is filed in `intent/wip.md` with each item labelled by what it is waiting on. Most need an hv ruling; two need a thread of their own; one needs only an agent invocation.
 

@@ -3,9 +3,9 @@ node: cc
 name: Control Claude
 role: control
 session_id: 8b09c4df-a4be-4d1c-87d9-7b8a76293477
-heartbeat_at: 2026-08-10T23:15Z
+heartbeat_at: 2026-08-11T05:59Z
 status: paused
-focus: "All three threads CLOSED -- the extraction is complete and the queue is empty; next unit is hv's call"
+focus: "All three threads CLOSED; on the bounce, reassess what's next with hv (hv's instruction, 2026-08-11)"
 claims: []
 ---
 
@@ -13,11 +13,12 @@ claims: []
 
 ## DOING
 
-- (paused at localfold #5, 2026-08-10) Nothing in flight. ST0003 CLOSED 22/22, joining ST0001 (11/11) and ST0002 (17/17). The extraction Riffle was created to perform is done: engine, waist, and the pattern layer that composes them. `mix gate` green -- 363 passed, zero credo findings, zero critic findings at any severity across 86 files. Globalfold complete (wip v0.8, restart v0.6, .claude/restart.md, README, treeindex, todo). Session archives: .history/20260810/wip.md (Sessions 1-5).
+- (paused at localfold #5, 2026-08-11) Nothing in flight. ST0003 CLOSED 22/22, joining ST0001 (11/11) and ST0002 (17/17). The extraction Riffle was created to perform is done: engine, waist, and the pattern layer that composes them. `mix gate` green -- 363 passed, zero credo findings, zero critic findings at any severity across 86 files. Globalfold complete (wip v0.8, restart v0.6, .claude/restart.md, README, treeindex, todo); head is 161d5c2, pushed to both remotes, CI green. Session archives: .history/20260810/wip.md (Sessions 1-5).
 
 ## TODO
 
-- **Nothing queued.** hv's call on the next unit. `intent/wip.md` lays out three candidates with reasoning: a second consumer (teaches the most -- every mechanism here currently has exactly one, which is the honest reason several were not built), a thin CLI, or publishing.
+- **On the bounce: reassess what's next, with hv** (hv's instruction, 2026-08-11). This is a decision, not a continuation -- nothing is queued and no thread is open. Bring the three candidates below rather than picking one unilaterally.
+- The candidates, with reasoning in `intent/wip.md`: a second consumer (teaches the most -- every mechanism here currently has exactly one, which is the honest reason several were not built); a thin CLI (the smallest thing that makes Riffle usable by someone not writing Elixir); publishing (`mix hex.publish` is wired but deliberately off).
 - Backlog needing an hv ruling: socrates on the perturbation/emission structural twins; whether the measured-surface fence should parse the handoff doc rather than transcribe it; one error vocabulary for malformed DSL text at the loader boundary (public contract change); socrates on a single definition-argument-shape recogniser in `Dsl.Statements`.
 - Backlog needing a thread: Cache perf (ST0001 DD-9/M4); cache key source-qualification (the key is the predicate's *name*, so two sources defining the same name share an entry).
 - Open question filed for hv: should Riffle ship a `config/` pointing `:default_pipeline` at `Riffle.Sia.DefaultPipeline`? It would make `:default_module` work out of the box and also wire the example in as everyone's default. Left unconfigured.
