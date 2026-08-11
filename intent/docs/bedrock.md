@@ -1,12 +1,14 @@
 # Architectural Bedrock -- Riffle
 
-> The commitments Riffle is built on. A contradiction with this document is a bug in the contradicting document, not a choice. Established by ST0002 (2026-08-10) and extended by ST0003 (2026-08-11); a change to any commitment here is a change to the shape of the system, argued at this level, never taken locally inside a work package.
+> The commitments Riffle is built on. A contradiction with this document is a bug in the contradicting document, not a choice. Established by ST0002 (2026-08-10) and extended by ST0003, ST0004 and ST0005 (2026-08-11); a change to any commitment here is a change to the shape of the system, argued at this level, never taken locally inside a work package.
 
 ## Preamble
 
-Riffle is a predicate engine and a sense-infer-act pattern layer sitting on a context waist. The waist follows The Bowtie Pattern (Sinclair, Feb 2026).
+Riffle is a predicate engine and a sense-infer-act pattern layer sitting on a context waist, with a service module as the way in and a CLI over that. The waist follows The Bowtie Pattern (Sinclair, Feb 2026).
 
-Three parts, and the shape of the whole is which of them may name which. The engine names nothing. The waist names nothing. The pattern layer names both, and is named by neither -- it is the edge where they compose, and it is the only place they do.
+Five layers, and the shape of the whole is which of them may name which. Each names the one below it and is named by none of them.
+
+The engine names nothing. The waist names nothing. The pattern layer names both, and is named by neither -- it is the edge where they compose, and it is the only place they do. The service names the pattern layer and no delivery mechanism. The CLI names the service and nothing beneath it.
 
 Riffle is **an example** of that pattern, not its reference implementation. The pattern is a conceptual idea; nothing here exists to demonstrate its generality. Each commitment below is kept because it earns its keep in this codebase, and every one of them is enforced by a fence rather than by memory or review taste. The distinction matters: Riffle borrows the discipline, not the obligation to showcase it.
 
@@ -54,6 +56,24 @@ Established by ST0003, from the defect that thread was built to eliminate: a run
 
 So: a count, a statistic or a status is recorded only alongside the collection it describes, and it is computed as a projection of facts already emitted rather than tallied in parallel. Where results are reported in more than one place, the places must agree exactly. A statistic that needs a fence to stay honest is a statistic that should have been a projection.
 
+### 9. The way in is the service, and it names no delivery mechanism
+
+`Riffle.Service.run/1` holds the business logic of a run -- read the rows, resolve the pipeline, stage it, report what happened -- and every caller enters there: the CLI command, the mix task, an Elixir caller with rows of its own. The service names no CLI framework, so the library is usable by someone who wants none of one.
+
+The direction is the commitment, and it runs both ways. The engine, the waist and the pattern layer name no service module either. The service is above them, and they do not know it exists.
+
+### 10. A coordinator is thin, and thin is a fence
+
+A CLI command parses, makes one call, and renders. It may name the service and nothing beneath it: no engine module, no waist module, no pattern-layer module. Put that way, "thin coordinator" stops being a style assertion and becomes a mechanical property -- a command that starts doing the work has to name something it is not allowed to name.
+
+One doorway, one parser. `mix riffle.cli` and the escript both hand argv to the framework rather than reading it themselves, so exactly one place decides what a flag means. A second doorway that grew its own parser would be a second answer to that question.
+
+### 11. A documentation claim is checked, not reviewed
+
+Wherever a machine can check what a document says, it does. Every `fun/arity` reference in every doc resolves. Every documented example is a doctest that runs. Every `.pred` snippet in the language reference loads through the loader a reader's own file goes through, and every documented expression is evaluated rather than parsed -- because parsing succeeds for text that the evaluator will refuse. The standard library's documented surface is derived from the modules, so a new builder makes the reference red until it is written up. Every route in the README resolves to something that exists.
+
+The reason is the same as for every other fence here. A document reviewed once is correct once. The moduledoc of the module named after the project taught a model the architecture had already refuted, and forty-four lines of examples had never run -- in a tree where every other claim was already fenced.
+
 ## The NOT-list
 
 Stated negatively, because the failure modes a state-bearing system is prone to are violations of the negative form.
@@ -65,6 +85,10 @@ Stated negatively, because the failure modes a state-bearing system is prone to 
 - **The engine and the waist do not name each other.** Neither direction, at any depth of the call closure.
 - **Nothing but the knot changes a context.** No reaching in, in either spelling of update syntax, anywhere outside the waist.
 - **No availability flag.** The presence of the thing is the fact. A boolean asserting that a payload exists, next to the payload, is redundant; without the payload it is a lie waiting to happen.
+- **The library does not name a delivery mechanism.** No CLI-framework module anywhere outside the CLI layer, and no service module anywhere below the service.
+- **A coordinator does not do the work.** No CLI module reaches past the service into the engine, the waist or the pattern layer, at any depth.
+- **There is not a second argv parser.** A doorway hands argv to the one parser; it does not grow its own.
+- **A documented claim is not taken on trust.** If a machine can check it, the unchecked version does not ship.
 
 ## How the commitments are held
 
@@ -82,6 +106,15 @@ Each is enforced mechanically, by a fence that enumerates the source of truth ex
 | No derived claim alone (8)  | `sia/evidence_fence_test` -- results agree in three places; every count carries its collection |
 | Single transition point (3) | `single_transition_fence_test` -- no context update outside the knot, either spelling          |
 | Measured surface            | `measured_surface_fence_test` -- both directions, capability to type and back                  |
+| Service is the way in (9)   | `boundary_fence_test` -- the engine, the waist and the pattern layer name no service module    |
+| No delivery below the CLI (9) | `boundary_fence_test` -- nothing outside the CLI layer names a CLI-framework module          |
+| Thin coordinator (10)       | `cli/thin_coordinator_fence_test` -- no CLI module names an engine, waist or pattern-layer module |
+| One argv parser (10)        | `cli/mix_task_test` -- the mix task names the framework and no Riffle module at all            |
+| No silent failure (7)       | `service/no_rescue_fence_test` -- every rescue in the service names its type; no catch, no after |
+| A stage is a loop           | `service/stage_agnostic_fence_test` -- a four-loop pipeline summarises as four stages, under their own names |
+| Configuration completeness  | `cli/config_test` -- every app-env key the framework fetches with `fetch_env!` is set          |
+| Documentation is checked (11) | `docs/doc_conformance_test` -- references resolve, examples run, catalog members describe their fields, README routes exist |
+| Documentation is checked (11) | `docs/pred_reference_test` -- snippets load and materialise, expressions evaluate, the standard-library surface is derived |
 
 Every fence is mutation-checked when written: break the thing it guards, and it goes red. A fence that cannot fail is not a fence -- and one of these was exactly that for a while, matching the Erlang remote-type form with the wrong arity so that it silently recognised nothing. Two fences now carry positive controls for that reason.
 
@@ -94,4 +127,4 @@ These sit outside bedrock and evolve freely.
 - **No fan-out registry.** The knot returns emissions; the caller decides. One consumer does not justify a registry.
 - **No z-order on emissions.** That is a rendering concern, and Riffle does not render.
 - **A stage is a loop.** The pattern layer takes a pipeline's loop sequence as its staging and names each stage for its loop, so sense-infer-act is what a definition file says rather than a shape the runner imposes. No stage registry, no behaviour, no tag-prefix convention.
-- **No datasource layer.** Ingest is an enumerable of field maps or items and nothing else. A fan-in source is a natural later addition that would then genuinely prove source independence; adding one now would prove nothing.
+- **No datasource layer.** The engine, the waist and the pattern layer take an enumerable of field maps or items and nothing else; reading a file is the service's job, one layer up, and CSV is the only format it reads. A fan-in source is a natural later addition that would then genuinely prove source independence; adding one now would prove nothing.

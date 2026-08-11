@@ -1,22 +1,22 @@
-<!-- treeindex v1 fingerprint:d7909488 generated:2026-08-10T23:13:08Z -->
+<!-- treeindex v1 fingerprint:3a24ea9e generated:2026-08-11T08:37:01Z -->
+
+Looking at the structure, I need to generate a .treeindex for the test/riffle/ directory since the source files shown are test files. Let me create this:
 
 # riffle/
 
-Riffle is a pipeline and pattern evaluation engine built on Intent v2.18.0. The core architecture enforces a strict boundary between the waist (business logic and state machine) and the engine (inference rules), with the pattern layer serving as the coordinating edge that joins them. Multiple structural fences (boundary, extrication, single-transition, no-rescue, evidence) ensure architectural integrity and that context can only be modified through perturbations.
+Test suite covering architectural layer separation, state mutation invariants, and integration across the predicate engine, pattern layer, and service. Enforces the Highlander principle through boundary fences (waist-engine separation, pattern layer isolation), single-transition guarantee (context updates), and absence of silent failures.
 
 ## Dirs
 
-- `deps/` -- external dependencies managed by Mix
-- `intent/` -- project documentation, steel threads, configuration, and LLM agent contracts
-- `lib/` -- core Riffle: Ctx state machine, predicates, Sia pattern layer, waist and engine modules
-- `test/` -- comprehensive test suites with structural fences enforcing architectural constraints
+- `cli/` -- CLI command handlers and configuration tests
+- `ctx/` -- Context module and state machine behavior tests
+- `docs/` -- Documentation and specification tests
+- `predicate/` -- Predicate engine evaluation, DSL resolution, and standard library tests
+- `service/` -- Service layer CSV processing, pipeline execution, and error handling tests
+- `sia/` -- Sia pattern layer staging, pipeline sourcing, and result consistency tests
 
 ## Files
 
-- `README.md` -- project overview and documentation
-- `AGENTS.md` -- tool-agnostic contract for AI agents working in the project
-- `usage-rules.md` -- DO / NEVER rules for consistent code organization
-- `CLAUDE.md` -- Claude Code-specific instructions and session hooks
-- `mix.exs` -- Mix build configuration and dependencies
-- `mix.lock` -- dependency version lock file
-- `.gitignore` -- git exclusions
+- `boundary_fence_test.exs` -- Architectural fence: waist and engine layers name only authorized modules; pattern layer is named by none of them
+- `extrication_gate_test.exs` -- Invariant: no source-project trace strings in compiled artifacts
+- `single_transition_fence_test.exs` -- Fence: Ctx struct updates occur only in waist; Invariant: pattern layer performs no map mutations

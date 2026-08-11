@@ -1,22 +1,22 @@
-<!-- treeindex v1 fingerprint:5eeddda5 generated:2026-08-10T23:11:22Z -->
+<!-- treeindex v1 fingerprint:51f2e38c generated:2026-08-11T08:34:11Z -->
 
 # predicate/
 
-Comprehensive test suite for the Riffle predicate system. Covers the core evaluation engine (Item, Predicate, Loop, Pipeline), type coercion, caching layer, resolution and registration, and standard library predicates. Includes end-to-end integration tests with DSL loading and CSV processing.
+Test suite for the Riffle predicate evaluation system. Covers core structures and evaluation (Items, Predicates, Type Coercion), composition layers (Loops, Pipelines), caching infrastructure, DSL resolution and registry, and standard library predicates. Includes integration tests and end-to-end workflows.
 
 ## Files
 
-- `item_test.exs` -- Item: field storage, tag management, metadata operations
-- `predicate_test.exs` -- Predicate evaluation: matching, tag collection, cache integration
-- `coerce_test.exs` -- Type coercion: integer, float, text, number, boolean conversions
-- `loop_test.exs` -- Loop composition and predicate filtering
-- `pipeline_test.exs` -- Pipeline processing and CSV input handling
-- `standard_lib_test.exs` -- Standard predicates: text, numeric, boolean, collection, date operations
-- `resolver_test.exs` -- Predicate and loop resolution from modules and inline code
-- `registry_test.exs` -- Module-based predicate registration and lookup
-- `default_pipeline_config_test.exs` -- DefaultPipelineConfig implementation
-- `default_pipeline_resolution_test.exs` -- Default pipeline fallback resolution
-- `cache_test.exs` -- Cache: put, get, expiration, TTL, statistics
-- `predicate_cache_integration_test.exs` -- Predicate evaluation with caching
-- `loop_cache_integration_test.exs` -- Loop filtering with caching
-- `user_test.exs` -- End-to-end: DSL loading, CSV processing, filtering workflows
+- `item_test.exs` -- Item struct: fields, tags, metadata operations
+- `coerce_test.exs` -- Type coercion functions (to_integer, to_float, to_text, to_boolean)
+- `predicate_test.exs` -- Predicate definition and evaluation
+- `cache_test.exs` -- Global Cache GenServer configuration and operations
+- `predicate_cache_integration_test.exs` -- Predicate evaluation with cache behavior
+- `loop_cache_integration_test.exs` -- Loop processing with cache integration
+- `loop_test.exs` -- Loop: applying multiple predicates to items
+- `pipeline_test.exs` -- Pipeline: chaining loops and CSV processing
+- `default_pipeline_config_test.exs` -- PipelineConfig behavior implementation
+- `default_pipeline_resolution_test.exs` -- Predicate resolution via configured module
+- `resolver_test.exs` -- Resolver for predicate/loop/pipeline references and cycles
+- `registry_test.exs` -- Registry: registering and retrieving definitions
+- `standard_lib_test.exs` -- StandardLib predicates (Text, Numeric, Boolean, Date)
+- `user_test.exs` -- End-to-end: loading .pred files and processing CSV data

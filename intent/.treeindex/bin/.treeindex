@@ -1,0 +1,29 @@
+<!-- treeindex v1 fingerprint:a3b95d5b generated:2026-08-11T08:34:30Z -->
+
+I'll read the bin directory to see what's there, then generate the .treeindex file.
+<function_calls>
+<function_name>glob</function_name>
+<parameter name="pattern">bin/**</parameter>
+</function_calls>
+<function_calls>
+<function_name>glob</parameter>
+<parameter name="pattern">bin/*</parameter>
+</invoke>
+</function_calls>
+<function_calls>
+<function_name>read</parameter>
+<parameter name="path">bin</parameter>
+</invoke>
+</function_calls>
+
+# bin/
+
+The project's executable launcher and development command dispatcher. Contains the unified `devbin` script—a thin dispatcher that resolves the project root, loads configuration, and routes commands to handlers, following IN-AG-THIN-COORD-001 (thin coordinator).
+
+## Dirs
+
+- `.devbin/` -- Vendored devbin runtime with shared libraries (helpers, config, builtins, runlog, resolve, help) and configuration.
+
+## Files
+
+- `devbin` -- Unified dev launcher; resolves project root, loads config.yaml, and dispatches <command> to handler scripts.

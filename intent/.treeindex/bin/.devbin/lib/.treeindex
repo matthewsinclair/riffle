@@ -1,0 +1,17 @@
+<!-- treeindex v1 fingerprint:c07406bc generated:2026-08-11T08:33:34Z -->
+
+# lib/
+
+Shell library components for the devbin framework, handling command resolution, configuration parsing, and sealed-gate test runners. The system is layered: helpers provide the foundation, builtins define the command catalogue, config reads project settings, and resolve dispatches through precedence rules.
+
+## Files
+
+- `helpers` -- Foundational output and guard primitives with no dependencies; basis for all other modules
+- `builtins` -- Catalogue of built-in commands and options, data table queried by resolution and dispatch
+- `config` -- YAML subset parser; reads project configuration into flat key-value cache via single awk pass
+- `resolve` -- Command resolution engine implementing D2 precedence, D8 synthesised `all`, and D11 activation rules
+- `runlog` -- Sealed-gate subsystem: datestamped run logs with empty-on-success `.errors` companions
+- `gatecmd` -- Shared body of check and test gate commands; wraps sealed-gate runner around option command lines
+- `help` -- Help subsystem; generates listing from known commands and renders leaf detail from help/<cmd>.md
+- `install` -- Vendoring and checksum manifest; defines SEAM boundary between devbin ownership and project files
+- `config.reference.yaml` -- Annotated reference guide for devbin config syntax and all available keys

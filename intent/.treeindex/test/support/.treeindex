@@ -1,13 +1,15 @@
-<!-- treeindex v1 fingerprint:155b9479 generated:2026-08-10T23:11:59Z -->
+<!-- treeindex v1 fingerprint:f0be0f0e generated:2026-08-11T08:35:28Z -->
 
 # support/
 
-Test support modules for Riffle's suites, consolidating duplicated setup logic and fixture definitions into single-source-of-truth highlanders. Provides cache configuration, DSL fixtures, pipeline test inputs, and module introspection helpers shared across the test suite.
+Test helpers and fixtures following the test-highlander principle: setup logic, introspection utilities, and fixture definitions live here once, shared across multiple test suites rather than duplicated.
 
 ## Files
 
-- `fence_helpers.ex` -- Project namespaces (waist, engine, pattern layer) and module introspection; shared by three fence files
-- `cache_helpers.ex` -- Cache suite preconditions and spy predicates for evaluation-counting assertions
-- `config_helpers.ex` -- Application-environment preconditions for default-pipeline module configuration across three test suites
-- `dsl_fixtures.ex` -- Canonical DSL fixture corpus: UserPredicates macro module and `.pred` source definitions
-- `sia_fixtures.ex` -- Pattern layer test inputs: staging/characterisation pipelines and input datasets
+- `fence_helpers.ex` -- introspection over project namespaces and module organization for structural assertion fences
+- `doc_helpers.ex` -- documentation introspection (moduledocs, examples, typespecs) for doc-conformance fences
+- `config_helpers.ex` -- application-environment preconditions, especially default-pipeline module lifecycle
+- `cache_helpers.ex` -- cache setup and evaluation-counting spy predicates for cache test suites
+- `dsl_fixtures.ex` -- canonical DSL fixture corpus: consumer-side macro module and .pred sources for DSL/macro/loader suites
+- `service_fixtures.ex` -- shared test inputs for service and CLI suites: temp files and multi-loop pipeline
+- `sia_fixtures.ex` -- pattern layer test inputs: staging and characterisation pipelines and data

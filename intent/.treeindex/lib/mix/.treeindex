@@ -1,0 +1,17 @@
+<!-- treeindex v1 fingerprint:de22a043 generated:2026-08-11T08:34:59Z -->
+
+I'll explore the `mix/` directory to generate the `.treeindex`.
+
+```
+find mix -type f -name "*.ex" | head -20
+```
+
+```
+ls -la mix/
+```
+
+Which `mix/` directory should I index — is it at the project root, or somewhere under `intent/.treeindex/`? Let me check the structure.
+
+```
+find . -type d -name "mix" | grep -v ".git"
+```

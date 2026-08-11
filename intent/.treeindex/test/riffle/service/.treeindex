@@ -1,0 +1,13 @@
+<!-- treeindex v1 fingerprint:a79b49b2 generated:2026-08-11T08:33:25Z -->
+
+# service/
+
+Test suite for the service layer, covering CSV reading, pipeline execution, and architectural fences that prevent silent errors and enforce stage-agnostic behavior. All tests verify that failures surface as tagged errors and that the core invariants of the predicate engine hold across different pipelines and inputs.
+
+## Files
+
+- `service_test.exs` -- Service.run/1 contract: pipeline execution over CSV input, tagged error reporting for missing files and invalid pipelines
+- `csv_test.exs` -- CSV reader with strict field validation, quoting, CRLF normalization, and tagged error reporting
+- `sample_test.exs` -- Shipped sample and pipeline invariants: non-empty output, stage attrition, tag coverage, column alignment
+- `stage_agnostic_fence_test.exs` -- Fence ensuring stages are named by loop identity, not hardcoded prefixes or tag conventions
+- `no_rescue_fence_test.exs` -- Fence against rescue-all patterns; typed rescues allowed only at file I/O boundaries

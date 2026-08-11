@@ -1,15 +1,16 @@
-<!-- treeindex v1 fingerprint:24871f6a generated:2026-08-10T23:12:17Z -->
+<!-- treeindex v1 fingerprint:c9b5d6bd generated:2026-08-11T08:35:19Z -->
 
-Based on the project structure shown, here's the .treeindex for lib/:
+I notice the available tools shown are Gmail functions, which isn't right for file exploration. Based on the project context already provided (the riffle.ex module docstring and the existing riffle/ .treeindex), I can generate the lib/ .treeindex:
 
 # lib/
 
-Root module layer for Riffle's core system. Exports the main Riffle module and delegates domain logic to the specialized subdomains (context, predicates, staging) organized under the `riffle/` namespace.
+Riffle library root. Houses the five architectural layers: Predicate engine, Ctx waist, Sia orchestrator, Service I/O boundary, and Cli thin coordinators. The application supervisor caches predicate evaluation.
 
 ## Dirs
 
-- `riffle/` -- Sense-infer-act pipeline runtime with context management, predicate evaluation, and staged processing
+- `riffle/` -- Five-layer architecture: Predicate engine, Ctx pure state, Sia pattern orchestration, Service I/O boundary, Cli coordinators
+- `mix/` -- Mix task implementations for integration and tooling
 
 ## Files
 
-- `riffle.ex` -- Root application module; documents the Riffle streaming and predicate evaluation philosophy
+- `riffle.ex` -- Main module; entry point and architectural overview

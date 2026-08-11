@@ -1,0 +1,9 @@
+<!-- treeindex v1 fingerprint:4aa133a8 generated:2026-08-11T08:34:34Z -->
+
+# tasks/
+
+This directory contains Mix task definitions for the Riffle project. Each task serves as a thin coordinator that delegates to the CLI framework, maintaining the Highlander principle by keeping the single entry point at the framework level rather than duplicating argument parsing or business logic.
+
+## Files
+
+- `riffle.cli.ex` -- Mix task doorway for `mix riffle.cli`; hands argv to Arca.Cli.main and returns

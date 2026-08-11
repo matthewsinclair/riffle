@@ -1,12 +1,18 @@
-<!-- treeindex v1 fingerprint:131cb8d0 generated:2026-08-10T23:11:35Z -->
+<!-- treeindex v1 fingerprint:c66aff32 generated:2026-08-11T08:35:01Z -->
 
 # ctx/
 
-THE typed run context and pure state machine. Defines the typed composite root that threads immutably through the knot, the registries of perturbations (inputs) and emissions (outputs), and the pure function that applies state transitions deterministically. Every context change is auditable, and the purity fence ensures replay fidelity.
+The typed context and the knot: the pure state machine at the waist of the bowtie architecture. The context is an immutable composite root threaded through transitions; the knot applies perturbations to produce new contexts and emissions. All state changes happen through this single point, making the core deterministic and replay-verifiable.
+
+## Dirs
+
+- `emission/` -- typed output events from the knot; each struct declares its tag and payload
+- `perturbation/` -- typed input events to the knot; each struct declares its tag and data
 
 ## Files
-- `knot.ex` -- The pure function at the waist; the only way contexts transition
-- `ctx.ex` -- The typed composite root and context construction
-- `perturbation.ex` -- Closed registry of typed inputs to the knot
-- `emission.ex` -- Closed registry of typed outputs from the knot
-- `catalog.ex` -- Registry mechanism and dual-use contract for I/O types
+
+- `ctx.ex` -- immutable composite root with typed slots and metadata overlay; threaded through the knot
+- `catalog.ex` -- registry mechanism: closed membership, compile-time tag map, loud lookup on unknown tags
+- `perturbation.ex` -- closed registry of 10 input types that drive knot transitions
+- `emission.ex` -- closed registry of 10 output types emitted by the knot
+- `knot.ex` -- pure function: applies perturbations to contexts, emits typed facts about what happened

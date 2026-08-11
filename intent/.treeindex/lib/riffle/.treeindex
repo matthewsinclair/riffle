@@ -1,15 +1,17 @@
-<!-- treeindex v1 fingerprint:58a52bc9 generated:2026-08-10T23:11:49Z -->
+<!-- treeindex v1 fingerprint:666f2b6b generated:2026-08-11T08:34:53Z -->
 
 # riffle/
 
-Root application for the Riffle predicate evaluation system. Implements a deterministic, auditable pipeline for processing items through typed contexts and sense-infer-act orchestration. The core layers compose pure state machines, predicate evaluation, and staged processing into a coherent system with typed I/O and no silent failures.
+Riffle is a CSV filtering and pattern-matching engine with service as the public I/O boundary, sia orchestrating sense-infer-act logic, and ctx managing pure state transitions. The root application supervises the predicate evaluation cache.
 
 ## Dirs
 
-- `ctx/` -- Typed run context and state machine; the pure waist through which all transformations flow
-- `predicate/` -- Predicate evaluation engine with caching, pipelines, loops, and DSL support
-- `sia/` -- Sense-infer-act pattern layer; orchestrates staged runs with typed perturbations and emissions
+- `cli/` -- CLI command registry and implementations
+- `ctx/` -- Pure context and control knot; typed state transitions
+- `predicate/` -- Predicate evaluation engine with items, loops, pipelines, DSL, caching
+- `service/` -- Public I/O boundary; orchestrates runs over CSV files
+- `sia/` -- Sense-infer-act pattern orchestration; bridges predicate engine with context
 
 ## Files
 
-- `application.ex` -- OTP application entry point; supervises predicate cache and manages lifecycle
+- `application.ex` -- OTP application; supervises Riffle.Predicate.Cache

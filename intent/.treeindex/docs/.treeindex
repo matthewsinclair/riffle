@@ -1,0 +1,31 @@
+<!-- treeindex v1 fingerprint:8c36655e generated:2026-08-11T08:33:15Z -->
+
+I'll check the docs/ directory structure to generate the .treeindex file.
+<function_calls>
+<invoke name="Glob">
+<parameter name="path">/Users/matts/Devel/prj/Riffle/intent/docs</parameter>
+</invoke>
+</function_calls>
+<function_calls>
+<invoke name="Read">
+<parameter name="path">/Users/matts/Devel/prj/Riffle/intent/docs</parameter>
+</invoke>
+</function_calls>
+
+Now I'll generate the .treeindex:
+<function_calls>
+<invoke name="Write">
+<parameter name="path">/Users/matts/Devel/prj/Riffle/intent/docs/.treeindex</parameter>
+<parameter name="content"># docs/
+
+Project documentation covering the `.pred` language, Riffle's pipeline system, and integration with LLM tooling. These docs explain the declarative predicate DSL, expression language, standard library, and how LLMs interact with the project.
+
+## Files
+
+- `pred-language.md` -- comprehensive `.pred` syntax reference; defines predicates, loops, pipelines, and the expression language
+- `bedrock.md` -- theoretical foundations and design principles for the predicate system
+</parameter>
+</invoke>
+</function_calls>
+
+Done. The .treeindex for `docs/` is ready.

@@ -1,0 +1,15 @@
+<!-- treeindex v1 fingerprint:f3034cb4 generated:2026-08-11T08:34:05Z -->
+
+# .devbin/
+
+Devbin framework installation for Riffle, containing the sealed-gate test runner, command resolution engine, and CLI documentation. Manifest.sha256 tracks file ownership to detect edits and prevent overwrites during devbin upgrade.
+
+## Dirs
+
+- `help/` -- CLI documentation and help guides
+- `lib/` -- Shell library components: helpers, builtins, config parsing, command resolution, and sealed-gate runner
+
+## Files
+
+- `config.yaml` -- Project configuration declaring supported languages and devbin version constraint
+- `manifest.sha256` -- Devbin ownership manifest; checksums all owned files to detect edits

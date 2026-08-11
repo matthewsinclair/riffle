@@ -1,0 +1,13 @@
+<!-- treeindex v1 fingerprint:584cfeac generated:2026-08-11T08:34:25Z -->
+
+# cli/
+
+Defines and registers CLI commands for Riffle. The configurator is the single entry point for declaring all available commands and their metadata to the CLI framework.
+
+## Dirs
+
+- `commands/` -- command implementations (Sia, SiaRun, SiaPipelines)
+
+## Files
+
+- `configurator.ex` -- command registry; registers commands with Arca CLI framework

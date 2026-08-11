@@ -1,23 +1,24 @@
-<!-- treeindex v1 fingerprint:b6d41451 generated:2026-08-10T23:11:15Z -->
+<!-- treeindex v1 fingerprint:34a0ea23 generated:2026-08-11T08:34:10Z -->
 
 # predicate/
 
-Core system for evaluating predicates against items through pipelines and loops, with caching, resolution, and a DSL for defining reusable processing chains.
+Core predicate evaluation engine for Riffle that defines items, predicates, loops, and pipelines forming a composable filtering and pattern-matching system. The engine processes items through sequences of loops (where predicates are OR-joined) composed into pipelines (where loops are AND-joined), with integrated caching and comprehensive type coercion.
 
 ## Dirs
 
-- `dsl/` -- DSL macro expansion, evaluator, and .pred file loader
+- `dsl/` -- DSL parser, evaluator, loader, and compiler for `.pred` files
+- `standard_lib/` -- Library of standard text, numeric, boolean, collection, and date predicates
 
 ## Files
 
-- `item.ex` -- Item struct: field data, tags, and metadata
-- `predicate.ex` -- Core predicate interface and evaluation with caching
-- `loop.ex` -- Loop struct: collection of predicates with ORed matching
-- `pipeline.ex` -- Pipeline struct: sequence of loops with ANDed filtering
-- `pipeline_config.ex` -- PipelineConfig behaviour for configuration modules
-- `resolver.ex` -- Resolution path for predicate/loop/pipeline references and hydration
-- `registry.ex` -- GenServer registry for compile-time and runtime definitions
-- `default_pipeline_config.ex` -- Standard PipelineConfig implementation via macro
-- `cache.ex` -- ETS-based caching for predicate evaluation results
-- `coerce.ex` -- Strict type coercion contract for numbers and booleans
-- `standard_lib.ex` -- Standard predicate library with Text comparison submodule
+- `predicate.ex` -- Core predicate definition, evaluation, and caching interface
+- `item.ex` -- Item struct representing a data row being processed, with fields, tags, and metadata
+- `pipeline.ex` -- Pipeline struct composing loops into AND-joined sequences
+- `loop.ex` -- Loop struct composing predicates into OR-joined groups
+- `resolver.ex` -- Resolution and hydration of predicate, loop, and pipeline references
+- `pipeline_config.ex` -- Behavior defining the PipelineConfig contract for pipeline modules
+- `registry.ex` -- GenServer-based registry for compiled and loaded predicate definitions
+- `default_pipeline_config.ex` -- Default implementation of PipelineConfig behavior for DSL macros
+- `cache.ex` -- ETS-based caching system for predicate evaluation results
+- `coerce.ex` -- Strict type coercion for numeric and boolean values in comparisons
+- `standard_lib.ex` -- High-level organization and documentation of standard predicate library

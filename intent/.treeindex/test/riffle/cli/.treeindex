@@ -1,0 +1,18 @@
+<!-- treeindex v1 fingerprint:35711879 generated:2026-08-11T08:35:07Z -->
+
+# cli/
+
+The CLI layer for Riffle, providing command-line interface entry points and thin coordinators over the service module. Integrates with the `arca_cli` framework for argument parsing and output rendering.
+
+## Dirs
+
+- `commands/` -- individual command handlers (sia_run, sia_pipelines)
+
+## Files
+
+- `configurator.ex` -- application environment configuration; ensures all required arca_cli framework keys are set
+- `config_test.exs` -- fence ensuring every arca_cli fetch_env! key is configured; invariants on configurator registration and default pipeline absence
+- `mix_task_test.exs` -- fence ensuring mix task is a thin coordinator (names arca_cli framework only, no Riffle modules); invariants on task discovery and argv parsing delegation
+- `sia_pipelines_command_test.exs` -- command contract tests; lists pipelines from file or module sources
+- `sia_run_command_test.exs` -- command contract tests; runs pipelines, stage-agnostic table output
+- `thin_coordinator_fence_test.exs` -- fence ensuring CLI layer names only service and framework (no engine, waist, or pattern-layer modules); invariants on file set coverage

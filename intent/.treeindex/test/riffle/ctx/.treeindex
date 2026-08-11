@@ -1,18 +1,33 @@
-<!-- treeindex v1 fingerprint:56a9773a generated:2026-08-10T23:11:38Z -->
+<!-- treeindex v1 fingerprint:916659c6 generated:2026-08-11T08:34:56Z -->
 
 # ctx/
 
-Core state machine and event system for the Riffle pipeline. Ctx is the typed composite root that threads state through a sequence of perturbations (input events) and yields emissions (output observations). The Knot module executes state transitions, and the Emission and Perturbation catalogs are closed registries of event types enforced by fences.
+The context module provides the typed state container and pure state machine for Riffle's processing pipeline. Ctx is the composite root with typed slots for run tracking; Knot is the deterministic state machine that transforms Perturbations (input events) into Emissions (output events), threading state through stages with no I/O or mutation.
 
 ## Dirs
-
-- `emission/` -- concrete emission implementations (closed registry of observable output events)
-- `perturbation/` -- concrete perturbation implementations (closed registry of input events)
+- `emission/` -- typed catalog of output events emitted by state transitions
+- `perturbation/` -- typed catalog of input events that drive state changes
 
 ## Files
-
-- `ctx.ex` -- composite root; typed slots for status, input, output, errors, metadata; DD-2 and DD-6 fences
-- `knot.ex` -- pure state machine ticker; dispatches perturbations to emit streams, threads status through the pipeline
-- `catalog.ex` -- behavior protocol for emission and perturbation catalogs
-- `emission.ex` -- emission catalog registry and `t()` union type; AC-02.3 and AC-03.1 fences
-- `perturbation.ex` -- perturbation catalog registry and `t()` union type; bijection and union fences
+- `ctx.ex` -- composite root; typed state container for run tracking, metadata, input, output, and errors
+- `knot.ex` -- pure state machine; maps each perturbation to emissions and a stepped context
+- `emission.ex` -- catalog and union type for all output events; total delivery guarantee
+- `perturbation.ex` -- catalog and union type for all input events; closed registry
+- `emission/default_passed.ex` -- event type for unhandled flow paths
+- `emission/diagnostic.ex` -- event type for debug and trace logging
+- `emission/error_raised.ex` -- event type for recorded errors
+- `emission/input_set.ex` -- event type for input arrival
+- `emission/metadata_set.ex` -- event type for metadata writes
+- `emission/output_produced.ex` -- event type for run completion output
+- `emission/stage_completed.ex` -- event type for stage exit with product
+- `emission/stage_progress.ex` -- event type for intra-stage progress
+- `emission/status_changed.ex` -- event type for run status transitions
+- `perturbation/diagnostic_reported.ex` -- input type for debug and trace logging
+- `perturbation/error_reported.ex` -- input type for error signals
+- `perturbation/input_received.ex` -- input type for incoming data
+- `perturbation/metadata_recorded.ex` -- input type for metadata writes
+- `perturbation/run_completed.ex` -- input type for run completion
+- `perturbation/run_started.ex` -- input type for run initialization
+- `perturbation/stage_entered.ex` -- input type for stage start
+- `perturbation/stage_exited.ex` -- input type for stage exit
+- `perturbation/stage_progressed.ex` -- input type for intra-stage progress

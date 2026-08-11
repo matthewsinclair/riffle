@@ -119,6 +119,9 @@ defmodule Riffle.MixProject do
   # --force recompiles everything so a warm _build cannot hide warnings.
   defp aliases do
     [
+      # `AGENTS.md` tells an agent to run this, so it exists. There is no
+      # database and nothing to migrate; fetching deps is the whole setup.
+      setup: ["deps.get"],
       gate: [
         "format --check-formatted",
         "compile --warnings-as-errors --force",

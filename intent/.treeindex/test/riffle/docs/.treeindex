@@ -1,0 +1,15 @@
+<!-- treeindex v1 fingerprint:b16d6c22 generated:2026-08-11T08:34:31Z -->
+
+I'll explore the docs/ directory structure to create an accurate .treeindex.
+
+Examining the docs/ directory structure to see what files and subdirectories exist.
+
+Based on the test files shown, I can see there's a `pred-language.md` reference being tested, but let me check the actual directory contents to generate an accurate tree index.
+
+Could you run this so I can see the full structure?
+
+```bash
+find docs/ -type f -o -type d | head -50
+```
+
+Alternatively, if you'd like me to proceed with what I can infer from the test files (which reference `docs/pred-language.md` and document validation), I can generate a .treeindex based on that. The tests indicate docs/ contains language reference documentation and potentially other guides, but I want to make sure I capture the complete structure accurately.

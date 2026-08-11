@@ -1,0 +1,9 @@
+<!-- treeindex v1 fingerprint:1368e348 generated:2026-08-11T08:33:44Z -->
+
+# help/
+
+Riffle's command-line interface documentation and help guides. Contains user-facing references for running the CLI, executing pipelines, and understanding available commands.
+
+## Files
+
+- `cli.md` -- CLI reference guide covering sia.run and sia.pipelines commands, options, and usage examples

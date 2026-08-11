@@ -3,9 +3,9 @@ node: cc
 name: Control Claude
 role: control
 session_id: 8b09c4df-a4be-4d1c-87d9-7b8a76293477
-heartbeat_at: 2026-08-11T10:24Z
-status: active
-focus: "ST0005 CLOSED. All five threads done; nothing is queued. Awaiting hv."
+heartbeat_at: 2026-08-11T11:06Z
+status: paused
+focus: "All five threads closed and globalfolded. Nothing is queued; the next unit is hv's call."
 claims: []
 ---
 
@@ -13,17 +13,18 @@ claims: []
 
 ## DOING
 
-- (2026-08-11) **ST0005 CLOSED -- 17/17 ACs, PASS.** WP-02 wired `ex_doc` dev-only with all 61 modules grouped by the five layers; WP-03 wrote `docs/pred-language.md` and fenced it three ways. **All five threads are now closed** and nothing is queued. Gate green -- 484 passed (90 doctests, 394 tests), 790 mods/funs, zero credo, zero critic findings at any severity across 108 files. `mix docs` clean at zero warnings.
+- (paused at globalfold, end of day 2026-08-11) **All five threads closed; the project is done to its charter.** ST0005 was the last, 17/17. The globalfold rewrote `intent/wip.md`, `intent/restart.md` and `.claude/restart.md` from the three-thread state they were stuck at, extended `intent/docs/bedrock.md` to the five layers it had never learned about, wrote the missing `usage-rules.md`, and regenerated `AGENTS.md` and the tree indexes. Gate green -- 484 passed (90 doctests, 394 tests), 790 mods/funs, zero credo, zero critic findings across 108 files; `mix docs` clean at zero warnings. Session detail archived to `.history/20260811/`.
 
 ## TODO
 
-- **Nothing is queued.** The extraction, the pattern layer, the service, the CLI and the documentation are all done and closed. The next thread is hv's call; the backlog below is what is known to be worth one.
+- **Nothing is queued.** The extraction, the pattern layer, the service, the CLI and the documentation are all done and closed. The next thread is hv's call; `intent/wip.md` lays out three candidates with the argument for each, and the backlog below is what else is known to be worth one.
 - Backlog needing an hv ruling: socrates on the perturbation/emission structural twins; whether the measured-surface fence should parse the handoff doc rather than transcribe it; one error vocabulary for malformed DSL text at the loader boundary (public contract change); socrates on a single definition-argument-shape recogniser in `Dsl.Statements`.
 - Backlog needing a thread: Cache perf (ST0001 DD-9/M4); cache key source-qualification (the key is the predicate's _name_, so two sources defining the same name share an entry).
 - **Publishing is blocked on arca**: `arca_cli` and `arca_config` are GitHub deps, not on hex, so `mix hex.publish` cannot take Riffle while the CLI is a runtime dependency. hv has moving them to hex on the plan; Riffle's own publication unblocks with it. The dep is pinned to `tag: "v0.5.0"` meanwhile.
 
 ## Watch-outs
 
+- **The authoritative document is the one most likely to be left behind.** `bedrock.md` says a contradiction with it is a bug in the contradicting document -- and it sat two layers behind the system for a day while every dependent document was updated around it. When a ruling adds a layer or a commitment, bedrock is the FIRST file to change, not the last.
 - **`intent critic elixir --files "a.ex b.ex"` as one quoted string silently scans ONE file.** The paths must be separate arguments. The `across N file(s)` count in the output is the only signal -- a clean report over one file reads exactly like a clean report over four. Read the count.
 - **`Riffle.Predicate.Dsl.Evaluator.parse/1` succeeds for anything Elixir can parse.** An unsupported form is refused when the returned function is APPLIED, not when it is built. A fence over documented expressions that only parses them is green for every wrong example; it has to evaluate them against an item.
 - **`ex_doc` will not resolve a link from one extra to a repository file that is not itself an extra**, and `mix docs` warns about it. Link only what is in `extras`; write everything else as a path in backticks.

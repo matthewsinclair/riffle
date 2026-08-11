@@ -1,0 +1,11 @@
+<!-- treeindex v1 fingerprint:c78cc85e generated:2026-08-11T08:33:39Z -->
+
+# service/
+
+Entry point and I/O layer for the entire system. Every caller reaches Riffle through this module, which resolves pipelines and orchestrates execution over CSV input files. The boundary enforces clean separation between the CLI (above) and the pattern engine (below).
+
+## Files
+
+- `service.ex` -- Main entry point; resolves pipeline sources and orchestrates runs over file inputs
+- `csv.ex` -- User-input boundary; reads CSV into field maps with robust error handling for malformed files
+- `result.ex` -- Typed outcome; carries stage summaries, row counts, and full emission stream
