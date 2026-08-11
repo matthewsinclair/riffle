@@ -3,7 +3,7 @@ verblock: "11 Aug 2026:v0.1: matts - Initial version"
 wp_id: WP-03
 title: "Bindings: mix task, escript, devbin, sample"
 scope: Small
-status: Not Started
+status: Done
 ---
 
 # WP-03: Bindings: mix task, escript, devbin, sample

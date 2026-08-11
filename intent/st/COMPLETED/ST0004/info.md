@@ -1,10 +1,10 @@
 ---
 verblock: "11 Aug 2026:v0.1: matts - Initial version"
 intent_version: 2.18.0
-status: WIP
+status: Completed
 slug: the-cli-a-thin-coordinator-over-a-service-module
 created: 20260811
-completed:
+completed: 2026-08-11T06:55:38Z
 ---
 
 # ST0004: The CLI: a thin coordinator over a service module

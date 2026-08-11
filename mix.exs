@@ -9,7 +9,25 @@ defmodule Riffle.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      aliases: aliases()
+      aliases: aliases(),
+      escript: escript()
+    ]
+  end
+
+  # A standalone binary running the same commands as `mix riffle.cli`, for the
+  # caller who is not writing Elixir. `main_module` is the framework's own
+  # entry point rather than anything of ours: the escript is a third doorway to
+  # the same parser, not a third parser (ST0004 DD-4).
+  defp escript do
+    [
+      main_module: Arca.Cli,
+      path: "_build/escript/riffle",
+      name: "riffle",
+      # :riffle rather than nil. `app: nil` starts no OTP application, and the
+      # framework's configuration server is an OTP process -- so the binary
+      # built, ran, and died on the first command with a GenServer no-process
+      # exit. Starting :riffle starts its dependencies with it.
+      app: :riffle
     ]
   end
 

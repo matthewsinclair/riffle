@@ -3,7 +3,7 @@ verblock: "11 Aug 2026:v0.1: matts - Initial version"
 wp_id: WP-01
 title: "The service module and its input"
 scope: Small
-status: WIP
+status: Done
 ---
 
 # WP-01: The service module and its input
