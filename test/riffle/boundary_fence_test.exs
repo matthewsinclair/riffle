@@ -51,6 +51,40 @@ defmodule Riffle.BoundaryFenceTest do
     assert_namespace_absent(FenceHelpers.waist_sources(), FenceHelpers.pattern_layer_namespace())
   end
 
+  # ST0004 extends the same rule upward. Two layers now sit above the pattern
+  # layer -- the service, which holds the business logic, and the CLI, which
+  # coordinates over it -- and the direction is unchanged: an outer layer names
+  # the one below it, and is named by none of them.
+  #
+  # The framework clause is the one that matters most. `arca_cli` arrives with
+  # five transitive dependencies and its own OTP application, and the claim that
+  # Riffle stays usable without a CLI is worth exactly as much as the mechanism
+  # holding it. Scoped to the whole library minus the CLI layer, so a framework
+  # reference anywhere below the commands -- not merely in the three layers that
+  # existed when this was written -- takes it red.
+
+  test "fence: the library outside the CLI layer names no CLI-framework module" do
+    assert_namespace_absent(
+      FenceHelpers.library_sources() -- FenceHelpers.cli_sources(),
+      FenceHelpers.cli_framework_namespace()
+    )
+  end
+
+  test "fence: the engine names no service module" do
+    assert_namespace_absent(FenceHelpers.engine_sources(), FenceHelpers.service_namespace())
+  end
+
+  test "fence: the waist names no service module" do
+    assert_namespace_absent(FenceHelpers.waist_sources(), FenceHelpers.service_namespace())
+  end
+
+  test "fence: the pattern layer names no service module" do
+    assert_namespace_absent(
+      FenceHelpers.pattern_layer_sources(),
+      FenceHelpers.service_namespace()
+    )
+  end
+
   test "invariant: the AST walk sees a module named through the brace-alias form" do
     # The positive control. Without it the fence above could go dead the moment
     # the walk stopped resolving names, and still pass.

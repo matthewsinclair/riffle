@@ -65,9 +65,8 @@ defmodule Riffle.Sia.Pipelines do
   def fetch({:module, module}, name), do: from_module(module, name || @default_name)
 
   def fetch({:file, path}, name) do
-    with {:ok, definitions} <- Loader.load_file(path),
-         {:ok, instances} <- Loader.create_instances(definitions) do
-      from_instances(instances.pipelines, name || @default_name, {:file, path})
+    with {:ok, pipelines} <- from_file(path) do
+      from_instances(pipelines, name || @default_name, {:file, path})
     end
   end
 
@@ -75,10 +74,49 @@ defmodule Riffle.Sia.Pipelines do
     from_configured(Predicate.default_pipeline(), name || @default_name)
   end
 
-  def fetch(other, _name) do
+  def fetch(other, _name), do: not_a_source!(other)
+
+  @doc """
+  Lists the pipelines `source` defines, by name, without building a run.
+
+  Sorted, because a listing a person reads should not reorder itself between
+  invocations: the map a source hydrates into has no meaningful key order, and
+  presenting one anyway would imply a sequence the definitions do not carry.
+
+  A struct source lists the one pipeline it is. The same two kinds of failure
+  apply as for `fetch/2`: a path or name a correct program can get wrong is a
+  tagged error, and a shape outside the vocabulary raises.
+  """
+  @spec names(source()) :: {:ok, [atom()]} | {:error, reason()}
+  def names(%Pipeline{name: name}), do: {:ok, [name]}
+  def names({:module, module}), do: {:ok, Enum.sort(module.list_pipelines())}
+
+  def names({:file, path}) do
+    with {:ok, pipelines} <- from_file(path) do
+      {:ok, pipelines |> Map.keys() |> Enum.sort()}
+    end
+  end
+
+  def names(:default_module), do: names_configured(Predicate.default_pipeline())
+  def names(other), do: not_a_source!(other)
+
+  defp names_configured(nil), do: {:error, :no_default_pipeline_module}
+  defp names_configured(module), do: names({:module, module})
+
+  # One message, one place. `fetch/2` and `names/1` share a vocabulary, so they
+  # must share the sentence that says what is in it -- two copies would drift
+  # the moment a fifth shape is added to one of them.
+  defp not_a_source!(other) do
     raise ArgumentError,
           "#{inspect(other)} is not a pipeline source -- a source is a " <>
             "#{inspect(Pipeline)} struct, {:module, module}, {:file, path}, or :default_module"
+  end
+
+  defp from_file(path) do
+    with {:ok, definitions} <- Loader.load_file(path),
+         {:ok, instances} <- Loader.create_instances(definitions) do
+      {:ok, instances.pipelines}
+    end
   end
 
   defp from_configured(nil, _name), do: {:error, :no_default_pipeline_module}

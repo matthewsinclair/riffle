@@ -19,6 +19,9 @@ defmodule Riffle.FenceHelpers do
   @waist "Riffle." <> "Ctx"
   @engine "Riffle." <> "Predicate"
   @pattern_layer "Riffle." <> "Sia"
+  @service "Riffle." <> "Service"
+  @cli "Riffle." <> "Cli"
+  @cli_framework "Arca"
 
   @doc "The waist's module namespace."
   def waist_namespace, do: @waist
@@ -29,6 +32,21 @@ defmodule Riffle.FenceHelpers do
   @doc "The pattern layer's module namespace."
   def pattern_layer_namespace, do: @pattern_layer
 
+  @doc "The service layer's module namespace."
+  def service_namespace, do: @service
+
+  @doc "The CLI layer's module namespace."
+  def cli_namespace, do: @cli
+
+  @doc """
+  The CLI framework's root namespace.
+
+  Named here rather than in a fence file for the same reason as the rest: the
+  fence that keeps the framework out of the library must not itself be the
+  place the framework's name first appears.
+  """
+  def cli_framework_namespace, do: @cli_framework
+
   @doc "Every source file in the waist."
   def waist_sources, do: Path.wildcard("lib/riffle/ctx/**/*.ex")
 
@@ -37,6 +55,21 @@ defmodule Riffle.FenceHelpers do
 
   @doc "Every source file in the pattern layer."
   def pattern_layer_sources, do: Path.wildcard("lib/riffle/sia/**/*.ex")
+
+  @doc "Every source file in the service layer."
+  def service_sources, do: Path.wildcard("lib/riffle/service/**/*.ex")
+
+  @doc """
+  Every source file in the CLI layer, the mix task included.
+
+  The mix task lives under `lib/mix/tasks/` rather than `lib/riffle/cli/`,
+  because that is where mix looks for it. It is CLI-layer code wherever it
+  sits, so the fences that bind the layer have to reach it -- a fence scoped by
+  directory rather than by role would let the one file that is easiest to get
+  wrong escape.
+  """
+  def cli_sources,
+    do: Path.wildcard("lib/riffle/cli/**/*.ex") ++ Path.wildcard("lib/mix/tasks/**/*.ex")
 
   @doc "Every source file in the library."
   def library_sources, do: Path.wildcard("lib/**/*.ex")

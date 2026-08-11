@@ -32,6 +32,18 @@ defmodule Riffle.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      # The CLI framework. Pinned to a tag, not tracked on `main`: this project's
+      # whole discipline is a gate that stays green, and a dependency that can
+      # change underneath a green gate defeats it. Moves to hex later, at which
+      # point this line becomes an ordinary version requirement.
+      {:arca_cli, github: "matthewsinclair/arca-cli", tag: "v0.5.0"},
+
+      # CSV reading for the service module's file input. The engine, the waist
+      # and the pattern layer take rows, not files -- reading them is the
+      # service's job, and parsing CSV correctly is not this project's problem
+      # to solve twice.
+      {:nimble_csv, "~> 1.3"},
+
       # Static analysis. The same line every other elixir project in both fleets
       # carries (arca_cli, arca_config, Baize, Prolix), and it is what
       # `bin/riffle test credo` runs. Without it that gate dies with "the task

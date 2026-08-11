@@ -46,6 +46,24 @@
 | Pipeline source resolution              | Riffle.Sia.Pipelines                | closed vocabulary: struct, {:module,_}, {:file,_}, :default_module (DD-8)      |
 | The shipped sense/infer/act definitions | Riffle.Sia.DefaultPipeline          | module form; priv/sia/sia.pred is the same definitions in file form            |
 
+### Service (the application layer)
+
+| Concern                                 | THE Module                          | Notes                                                                          |
+| --------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------ |
+| Running a pipeline over a file of rows  | Riffle.Service                      | THE business logic; every caller enters here; names no CLI framework (DD-2)    |
+| The typed outcome of a service run      | Riffle.Service.Result               | ctx + emissions + summary; the summary is a projection of stage evidence       |
+| CSV input reading                       | Riffle.Service.Csv                  | header row to field maps; NimbleCSV; tagged errors at the file boundary        |
+
+### CLI (thin coordinators)
+
+| Concern                                 | THE Module                          | Notes                                                                          |
+| --------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------ |
+| Command registration                    | Riffle.Cli.Configurator             | BaseConfigurator; the one command list                                         |
+| The `sia` namespace parent              | Riffle.Cli.Commands.SiaCommand      | help-on-empty parent for the dot-notation subcommands                          |
+| `sia.run` -- run a pipeline over input  | Riffle.Cli.Commands.SiaRunCommand   | parse to call to render; reaches the system only through Riffle.Service        |
+| `sia.pipelines` -- list a source's names | Riffle.Cli.Commands.SiaPipelinesCommand | reports what a source defines without running it                           |
+| The mix doorway                         | Mix.Tasks.Riffle.Cli                | `bin/riffle cli` lands here; names Arca.Cli only -- one argv parser exists     |
+
 ### Test support
 
 | Concern                                 | THE Module                          | Notes                                                                          |

@@ -3,9 +3,9 @@ node: cc
 name: Control Claude
 role: control
 session_id: 8b09c4df-a4be-4d1c-87d9-7b8a76293477
-heartbeat_at: 2026-08-11T05:59Z
-status: paused
-focus: "All three threads CLOSED; on the bounce, reassess what's next with hv (hv's instruction, 2026-08-11)"
+heartbeat_at: 2026-08-11T06:03Z
+status: active
+focus: "ST0004: a CLI that runs a SIA pipeline against supplied data (hv's call, 2026-08-11) -- then README + docs/, and the extraction is done"
 claims: []
 ---
 
