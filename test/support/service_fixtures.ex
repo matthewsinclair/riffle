@@ -66,6 +66,68 @@ defmodule Riffle.ServiceFixtures do
     ])
   end
 
+  @doc """
+  The same four-loop idea as a `.pred` file, for callers that can only name a path.
+
+  The CLI cannot pass a pipeline struct -- it takes `--from FILE` or
+  `--from-module MODULE` -- so proving stage-agnosticism at the command line
+  needs the four loops to exist on disk. Over `n` in 1..6 the loops cut
+  6 -> 5 -> 4 -> 3.
+  """
+  @spec four_loop_pred!() :: Path.t()
+  def four_loop_pred! do
+    path =
+      Path.join(
+        System.tmp_dir!(),
+        "riffle_four_loop_#{System.unique_integer([:positive])}.pred"
+      )
+
+    File.write!(path, """
+    predicate(:cli_gt0, "over zero") do
+      expr(@n > 0)
+    end
+
+    predicate(:cli_gt1, "over one") do
+      expr(@n > 1)
+    end
+
+    predicate(:cli_gt2, "over two") do
+      expr(@n > 2)
+    end
+
+    predicate(:cli_gt3, "over three") do
+      expr(@n > 3)
+    end
+
+    loop(:alpha, "First") do
+      predicate(:cli_gt0)
+    end
+
+    loop(:bravo, "Second") do
+      predicate(:cli_gt1)
+    end
+
+    loop(:charlie, "Third") do
+      predicate(:cli_gt2)
+    end
+
+    loop(:delta, "Fourth") do
+      predicate(:cli_gt3)
+    end
+
+    pipeline(:main, "Four loops, arbitrary names") do
+      loop(:alpha)
+      loop(:bravo)
+      loop(:charlie)
+      loop(:delta)
+    end
+    """)
+
+    ExUnit.Callbacks.on_exit(fn -> File.rm_rf!(path) end)
+
+    path
+  end
+
   @doc "A pipeline whose single predicate raises, for propagation tests."
   @spec raising_pipeline() :: Pipeline.t()
   def raising_pipeline do

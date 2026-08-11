@@ -44,7 +44,62 @@ defmodule Riffle.Service do
   alias Riffle.Sia
   alias Riffle.Sia.Pipelines
 
-  @type error :: Csv.error() | {:pipeline_unavailable, Pipelines.reason()}
+  @type error ::
+          Csv.error()
+          | {:pipeline_unavailable, Pipelines.reason()}
+          | {:source_ambiguous, [atom()]}
+          | {:module_not_found, String.t()}
+
+  @doc """
+  Chooses a pipeline source from what a caller supplied.
+
+  `:file` names a `.pred` file, `:module` names a `Riffle.Predicate.PipelineConfig`
+  module, and supplying neither falls back to `:default_module` -- whatever
+  `config :riffle, :default_pipeline` names, which is a clean tagged error when
+  nothing is configured rather than a guess.
+
+  The precedence lives here and not in a command because it is policy, not
+  argument parsing: a second caller should inherit the same answer instead of
+  reinventing one that disagrees. Supplying both is refused rather than silently
+  resolved in favour of one -- a caller who names two sources has a belief about
+  which runs, and half of those beliefs would be wrong.
+  """
+  @spec source(keyword()) :: {:ok, Pipelines.source()} | {:error, error()}
+  def source(opts) do
+    validated = Keyword.validate!(opts, [:file, :module])
+
+    choose(
+      presented(validated, :file),
+      presented(validated, :module)
+    )
+  end
+
+  defp presented(opts, key) do
+    case Keyword.get(opts, key) do
+      value when is_binary(value) and value != "" -> value
+      _absent -> nil
+    end
+  end
+
+  defp choose(file, module) when is_binary(file) and is_binary(module),
+    do: {:error, {:source_ambiguous, [:file, :module]}}
+
+  defp choose(file, nil) when is_binary(file), do: {:ok, {:file, file}}
+  defp choose(nil, module) when is_binary(module), do: as_module(module)
+  defp choose(nil, nil), do: {:ok, :default_module}
+
+  # Concat rather than to_existing_atom: the module a caller names may be
+  # perfectly real and simply not loaded yet, and refusing it for that reason
+  # would be wrong. Loading is what decides, and a name nothing answers to is a
+  # tagged error rather than a stray atom returned as if it were a pipeline.
+  defp as_module(name) do
+    module = Module.concat([name])
+
+    case Code.ensure_loaded?(module) do
+      true -> {:ok, {:module, module}}
+      false -> {:error, {:module_not_found, name}}
+    end
+  end
 
   @doc """
   Runs a pipeline over the rows in a file.
@@ -100,11 +155,23 @@ defmodule Riffle.Service do
   def message({:input_malformed, path, detail}), do: "malformed input file #{path}: #{detail}"
   def message({:pipeline_unavailable, reason}), do: pipeline_message(reason)
 
+  # Deliberately names neither caller's vocabulary. The CLI spells these
+  # `--from` and `--from-module`; a library caller spells them `:file` and
+  # `:module`. A message naming one would be wrong for the other, and a message
+  # table in the command would duplicate this one.
+  def message({:source_ambiguous, _keys}),
+    do: "name one pipeline source, not two -- a file and a module were both given"
+
+  def message({:module_not_found, name}),
+    do: "no pipeline module named #{name} -- is it spelled correctly and compiled in?"
+
   defp pipeline_message({:pipeline_not_found, name, source}),
     do: "no pipeline named #{inspect(name)} in #{inspect(source)}"
 
   defp pipeline_message(:no_default_pipeline_module),
-    do: "no default pipeline module configured -- set config :riffle, :default_pipeline"
+    do:
+      "no pipeline source given and no default configured -- name a .pred file " <>
+        "or a pipeline module, or set config :riffle, :default_pipeline"
 
   defp pipeline_message({:file_load_error, path, reason}),
     do: "cannot load pipeline file #{path}: #{inspect(reason)}"

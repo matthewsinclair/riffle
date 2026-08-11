@@ -150,7 +150,14 @@ defmodule Riffle.ServiceTest do
                "no pipeline named :nope in :src"
 
       assert Service.message({:pipeline_unavailable, :no_default_pipeline_module}) ==
-               "no default pipeline module configured -- set config :riffle, :default_pipeline"
+               "no pipeline source given and no default configured -- name a .pred file " <>
+                 "or a pipeline module, or set config :riffle, :default_pipeline"
+
+      assert Service.message({:source_ambiguous, [:file, :module]}) ==
+               "name one pipeline source, not two -- a file and a module were both given"
+
+      assert Service.message({:module_not_found, "No.Such"}) ==
+               "no pipeline module named No.Such -- is it spelled correctly and compiled in?"
 
       assert Service.message({:pipeline_unavailable, {:file_load_error, "/x.pred", :enoent}}) ==
                "cannot load pipeline file /x.pred: :enoent"

@@ -16,12 +16,22 @@ defmodule Riffle.FenceHelpers do
   literal a source-scanning fence hunts for.
   """
 
+  @root "Riffle"
   @waist "Riffle." <> "Ctx"
   @engine "Riffle." <> "Predicate"
   @pattern_layer "Riffle." <> "Sia"
   @service "Riffle." <> "Service"
   @cli "Riffle." <> "Cli"
   @cli_framework "Arca"
+
+  @doc """
+  The project's root module namespace.
+
+  For fences that ask "does this name anything of ours at all", rather than
+  naming one layer. `named_modules/1` yields strings, so this is a string too
+  -- `riffle_module?/1` answers the same question for an atom.
+  """
+  def root_namespace, do: @root
 
   @doc "The waist's module namespace."
   def waist_namespace, do: @waist
