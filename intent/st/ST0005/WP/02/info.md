@@ -3,7 +3,7 @@ verblock: "11 Aug 2026:v0.1: matts - Initial version"
 wp_id: WP-02
 title: "ex_doc and the README"
 scope: Small
-status: Not Started
+status: Done
 ---
 
 # WP-02: ex_doc and the README

@@ -143,5 +143,26 @@ defmodule Riffle.Docs.DocConformanceTest do
     end
   end
 
+  describe "the README routes somewhere real" do
+    # A README that routes is making claims about where things are, and a route
+    # to a file that does not exist is a false claim a reader acts on. ST0005
+    # nearly shipped one: the language reference was linked a work package
+    # before it was written.
+    test "fence: every link in the README resolves to something in the repository" do
+      links = DocHelpers.local_links("README.md")
+
+      assert links != []
+
+      assert Enum.reject(links, &File.exists?/1) == []
+    end
+
+    test "invariant: the walk sees the routes it is checking" do
+      links = DocHelpers.local_links("README.md")
+
+      assert "docs/pred-language.md" in links
+      assert "LICENSE" in links
+    end
+  end
+
   defp catalog_members, do: @catalogs |> Enum.flat_map(& &1.implementations()) |> Enum.sort()
 end

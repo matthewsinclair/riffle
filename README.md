@@ -28,6 +28,12 @@ What is not here yet: no streaming, no datasource layer beyond reading a CSV, no
 
 ## Using it
 
+Not on hex yet -- neither is `arca_cli`, which the CLI is built on -- so as a dependency it is:
+
+```elixir
+{:riffle, github: "matthewsinclair/riffle"}
+```
+
 From the command line:
 
 ```
@@ -68,10 +74,44 @@ result.emissions    #=> the full evidence of the run
 
 `Riffle.Sia.run/4` is one level below that, for a caller who already has rows and wants the pattern layer directly.
 
-- Architectural commitments and their fences: `intent/docs/bedrock.md`
-- Extrication charter and bill of materials: `intent/docs/extrication-handoff.md`
-- Work tracking: `intent/st/` (steel threads)
-- Design marks: `design/`
+## Defining the predicates
+
+Definitions live either in a `.pred` file or in an Elixir module, and the two forms say the same things in the same words. A predicate is a name, a description and an expression. A loop is a group of predicates, ORed, and one loop is one stage of a run. A pipeline is a sequence of loops, ANDed, so each stage is a strictly narrower cut than the one before it.
+
+```elixir
+predicate(:signal_high_activity, "Users with high login activity") do
+  expr(@login_count > 50)
+end
+
+predicate(:inference_upsell_opportunity, "Identifies upsell opportunities") do
+  expr(has_tag(:signal_high_activity) && !has_tag(:signal_premium_account))
+end
+
+loop(:signal_loop, "Signal detection") do
+  predicate(:signal_high_activity)
+end
+
+pipeline(:main, "The complete sense-infer-act pipeline") do
+  loop(:signal_loop)
+  loop(:inference_loop)
+  loop(:action_loop)
+end
+```
+
+`@login_count` reads that field off the item; `has_tag/1` asks what earlier stages concluded about it. An item carries the name of every predicate that matched it, which is what lets a later stage match on an earlier stage's finding -- and that, rather than anything in the runner, is the whole of sense to infer to act.
+
+`priv/sia/sia.pred` is the full shipped set. `Riffle.Sia.DefaultPipeline` is the same definitions as compiled Elixir, and a test holds the two to producing identical items with identical tags.
+
+## Where to go next
+
+| For                                  | Read                                                                      |
+| ------------------------------------ | ------------------------------------------------------------------------- |
+| The `.pred` language, in full        | [docs/pred-language.md](docs/pred-language.md)                            |
+| The API, module by module            | `mix docs`, then `doc/index.html` -- grouped by the five layers above     |
+| The architecture and what holds it   | `intent/docs/bedrock.md` -- the commitments, each bound to its fence      |
+| What came from where, and why        | `intent/docs/extrication-handoff.md`                                      |
+| The work, thread by thread           | `intent/st/`                                                              |
+| The marks                            | `design/`                                                                 |
 
 ## Licence
 

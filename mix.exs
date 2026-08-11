@@ -28,7 +28,7 @@ defmodule Riffle.MixProject do
       main: "readme",
       # LICENSE rides along because the README links to it. An extra that is
       # not listed is a dead link in the generated docs, and ex_doc says so.
-      extras: ["README.md", "LICENSE"],
+      extras: ["README.md", "docs/pred-language.md", "LICENSE"],
       # The README's mark is written as a repo-relative path, so the docs need
       # `design/` at the same relative position to render it.
       assets: %{"design" => "design"},

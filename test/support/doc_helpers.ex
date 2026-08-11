@@ -12,6 +12,12 @@ defmodule Riffle.DocHelpers do
   is a second answer capable of disagreeing with the first.
   """
 
+  alias Riffle.Predicate.Dsl.Evaluator
+  alias Riffle.Predicate.Dsl.Loader
+  alias Riffle.Predicate.Item
+
+  @standard_lib Riffle.Predicate.StandardLib
+
   @doc "Every module in the compiled application, sorted."
   @spec modules() :: [module()]
   def modules, do: :riffle |> Application.spec(:modules) |> Enum.sort()
@@ -104,6 +110,112 @@ defmodule Riffle.DocHelpers do
 
     Code.ensure_loaded?(target) and
       Enum.any?(exports(target), &(&1 == {name, arity}))
+  end
+
+  @doc """
+  The bodies of every fenced code block in a markdown file carrying `language`.
+
+  The reference doc marks complete `.pred` definitions as `pred` and bare
+  expressions as `expr`, so each kind can be checked by the thing that really
+  reads it rather than by eye.
+  """
+  @spec code_blocks(Path.t(), String.t()) :: [String.t()]
+  def code_blocks(path, language) do
+    {:ok, fence} = Regex.compile("^```#{language}\n(.*?)^```", "ms")
+
+    fence
+    |> Regex.scan(File.read!(path))
+    |> Enum.map(fn [_whole, body] -> body end)
+  end
+
+  @doc "Every non-blank line of every `expr` block in a markdown file, one expression each."
+  @spec expressions(Path.t()) :: [String.t()]
+  def expressions(path) do
+    path
+    |> code_blocks("expr")
+    |> Enum.flat_map(&String.split(&1, "\n"))
+    |> Enum.map(&String.trim/1)
+    |> Enum.reject(&(&1 == ""))
+  end
+
+  @doc """
+  Runs a documented expression against an item.
+
+  `:ok` when the evaluator accepts the form, `{:raised, message}` when it does
+  not. Only `ArgumentError` is caught, which is what an unsupported form
+  raises; anything else is a defect in the evaluator and propagates.
+  """
+  @spec evaluation(String.t(), Item.t()) :: :ok | {:raised, String.t()}
+  def evaluation(expression, %Item{} = item) do
+    {:ok, match?} = Evaluator.parse(expression)
+    match?.(item)
+    :ok
+  rescue
+    error in ArgumentError -> {:raised, Exception.message(error)}
+  end
+
+  @doc """
+  Loads a documented `.pred` snippet the way a `.pred` file is loaded.
+
+  `:ok` when the snippet parses, extracts and materialises -- so a snippet
+  whose references do not resolve fails here rather than misleading a reader.
+  """
+  @spec pred_load(String.t()) :: :ok | {:error, term()}
+  def pred_load(snippet) do
+    with {:ok, definitions} <- Loader.load_string(snippet),
+         {:ok, _instances} <- Loader.create_instances(definitions) do
+      :ok
+    end
+  end
+
+  @doc """
+  Every link in a markdown file that points at something in this repository.
+
+  Markdown link targets and `src` attributes, minus absolute URLs and
+  fragments -- what is left is a promise about a path, which is a promise a
+  machine can keep.
+  """
+  @spec local_links(Path.t()) :: [String.t()]
+  def local_links(path) do
+    text = File.read!(path)
+    links = targets(text, ~r/\[[^\]]*\]\(([^)\s]+)\)/)
+    images = targets(text, ~r/\bsrc="([^"]+)"/)
+
+    (links ++ images) |> Enum.reject(&elsewhere?/1) |> Enum.uniq()
+  end
+
+  @doc "Every public builder in the standard library, as `{module, name, arity}`."
+  @spec standard_lib_predicates() :: [{module(), atom(), arity()}]
+  def standard_lib_predicates do
+    for module <- modules(),
+        standard_lib?(module),
+        {name, arity} <- module.__info__(:functions),
+        do: {module, name, arity}
+  end
+
+  @doc """
+  How a standard-library builder is written inside a `.pred` file.
+
+  `STD` is the name bound where bodies evaluate, so `STD.Text.equals/2` is the
+  reference a reader can act on -- and the token the coverage fence looks for.
+  """
+  @spec standard_lib_reference({module(), atom(), arity()}) :: String.t()
+  def standard_lib_reference({module, name, arity}) do
+    "#{std_alias(module)}.#{name}/#{arity}"
+  end
+
+  defp targets(text, pattern) do
+    pattern |> Regex.scan(text) |> Enum.map(&Enum.at(&1, 1))
+  end
+
+  defp elsewhere?(target), do: target =~ ~r{^([a-z]+:)?//|^#|^mailto:}
+
+  defp standard_lib?(module) do
+    module |> inspect() |> String.starts_with?(inspect(@standard_lib))
+  end
+
+  defp std_alias(module) do
+    module |> inspect() |> String.replace_prefix(inspect(@standard_lib), "STD")
   end
 
   defp exports(module) do

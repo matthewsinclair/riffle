@@ -3,7 +3,7 @@ verblock: "11 Aug 2026:v0.1: matts - Initial version"
 wp_id: WP-03
 title: "The .pred language reference"
 scope: Small
-status: Not Started
+status: Done
 ---
 
 # WP-03: The .pred language reference
