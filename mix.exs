@@ -10,7 +10,46 @@ defmodule Riffle.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
-      escript: escript()
+      escript: escript(),
+      name: "Riffle",
+      source_url: "https://github.com/matthewsinclair/riffle",
+      docs: docs()
+    ]
+  end
+
+  # The generated API reference. Its one job beyond rendering the moduledocs is
+  # to present the architecture: `groups_for_modules` is the five layers in the
+  # order the README gives them, so a reader meets the shape rather than 61
+  # modules in alphabetical order. Every module is placed explicitly -- an
+  # ungrouped leftover would land in a trailing "Modules" bucket, which is the
+  # alphabetical list this grouping exists to avoid.
+  defp docs do
+    [
+      main: "readme",
+      # LICENSE rides along because the README links to it. An extra that is
+      # not listed is a dead link in the generated docs, and ex_doc says so.
+      extras: ["README.md", "LICENSE"],
+      # The README's mark is written as a repo-relative path, so the docs need
+      # `design/` at the same relative position to render it.
+      assets: %{"design" => "design"},
+      logo: "design/riffle-mark.svg",
+      favicon: "design/riffle-favicon.svg",
+      source_ref: "main",
+      nest_modules_by_prefix: [
+        Riffle.Ctx.Perturbation,
+        Riffle.Ctx.Emission,
+        Riffle.Predicate.Dsl,
+        Riffle.Predicate.StandardLib,
+        Riffle.Cli.Commands
+      ],
+      groups_for_modules: [
+        Overview: [Riffle],
+        "The engine (Riffle.Predicate)": [~r/^Riffle\.Predicate($|\.)/, Riffle.Application],
+        "The waist (Riffle.Ctx)": [~r/^Riffle\.Ctx($|\.)/],
+        "The pattern layer (Riffle.Sia)": [~r/^Riffle\.Sia($|\.)/],
+        "The service (Riffle.Service)": [~r/^Riffle\.Service($|\.)/],
+        "The CLI (Riffle.Cli)": [~r/^Riffle\.Cli\./, Mix.Tasks.Riffle.Cli]
+      ]
     ]
   end
 
@@ -61,6 +100,11 @@ defmodule Riffle.MixProject do
       # service's job, and parsing CSV correctly is not this project's problem
       # to solve twice.
       {:nimble_csv, "~> 1.3"},
+
+      # Documentation generation. Dev-only and not loaded at runtime: the docs
+      # are built from moduledocs already in the tree, so nothing a consumer of
+      # this library depends on changes by having them.
+      {:ex_doc, "~> 0.34", only: :dev, runtime: false},
 
       # Static analysis. The same line every other elixir project in both fleets
       # carries (arca_cli, arca_config, Baize, Prolix), and it is what
