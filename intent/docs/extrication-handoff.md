@@ -12,14 +12,14 @@ Riffle = the SIA sense->infer->act pattern + the Predicate engine, extricated fr
 
 ## Bill of materials
 
-| Multiplyer asset                     | LOC    | Disposition                                                                              |
-| ------------------------------------ | ------ | ---------------------------------------------------------------------------------------- |
-| `lib/multiplyer/predicate/` (15 files) | 5,136 | **PORT nearly as-is, with its tests.** The engine is the asset. See stitches below.      |
-| `lib/multiplyer/sia/` (3 files + `sia.pred`) | 1,227 | **Reference material only** -- rewritten red-first in ST0003. Do not graft verbatim.     |
-| `lib/multiplyer/ctx/` (13 files)     | 5,964  | **NOT ported.** ctx-next is rebuilt to the Bowtie spec (ST0002). See measured surface.   |
-| `lib/multiplyer/datasource/` (csv, generator) | 1,251 | **Optional, decide in ST0003** -- useful for examples; or replace with a cleaner ingest boundary. |
-| `lib/multiplyer/ta2/` (54 files)     | 13,542 | **Stays behind** (retired: superseded by state of the art). Preserved-ideas note below.  |
-| `lib/multiplyer/cli/`, `config/`, `registry/`, `utils/` | ~9,100 | **Stays behind.** Riffle grows its own thin CLI later if wanted.                         |
+| Multiplyer asset                                        | LOC    | Disposition                                                                                       |
+| ------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------- |
+| `lib/multiplyer/predicate/` (15 files)                  | 5,136  | **PORT nearly as-is, with its tests.** The engine is the asset. See stitches below.               |
+| `lib/multiplyer/sia/` (3 files + `sia.pred`)            | 1,227  | **Reference material only** -- rewritten red-first in ST0003. Do not graft verbatim.              |
+| `lib/multiplyer/ctx/` (13 files)                        | 5,964  | **NOT ported.** ctx-next is rebuilt to the Bowtie spec (ST0002). See measured surface.            |
+| `lib/multiplyer/datasource/` (csv, generator)           | 1,251  | **Optional, decide in ST0003** -- useful for examples; or replace with a cleaner ingest boundary. |
+| `lib/multiplyer/ta2/` (54 files)                        | 13,542 | **Stays behind** (retired: superseded by state of the art). Preserved-ideas note below.           |
+| `lib/multiplyer/cli/`, `config/`, `registry/`, `utils/` | ~9,100 | **Stays behind.** Riffle grows its own thin CLI later if wanted.                                  |
 
 Preserved-ideas note (TA2): its fixture-based mock-LLM testing harness (`ta2/testing/`) and schema-centric parameter registry (`ta2/schema/`) were ahead of their time; if Riffle ever needs either shape, read them in the archive -- do not pre-import.
 

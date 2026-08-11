@@ -64,29 +64,29 @@ This is why `verbose?` does not survive the translation, and it is what keeps th
 
 The minimum surface is measured, not guessed: the Ctx functions the extricated code actually consumed, by call-site count, from `intent/docs/extrication-handoff.md`. Twenty are expressed through the typed model; four are dropped with reasons. AC-03.1 fences this map against the live catalogs so a mapping cannot rot into a claim.
 
-| Measured call (sites)                          | ctx-next expression                                                    |
-| ---------------------------------------------- | ---------------------------------------------------------------------- |
-| `Ctx.t` (34)                                   | the composite root type                                                |
-| `with_status` (17), `complete` (2)             | status slot + `StatusChanged` emission; a transition is never a setter |
-| `set_metadata_value` (14)                      | the declared `metadata` overlay + `MetadataSet` emission               |
-| `new` (12), `set_opt` (1)                      | construction with typed options, immutable thereafter                  |
-| `debug` (11), `log` (4)                        | `Diagnostic` emission carrying its level; realised by a consumer       |
-| `event_started` (5), `event_completed` (8), `event_progress` (1) | the three event emissions                            |
-| `add_error` (8)                                | errors slot + `ErrorRaised` emission                                   |
-| `set_input` (6), `with_inputs` (5)             | input slot, written by applying a perturbation                         |
-| `set_output` (4)                               | output slot + `OutputProduced` emission                                |
-| `get_input` (4), `get_output` (2)               | typed slots, read by dot -- a pass-through accessor is where a 76-function surface starts |
-| `has_errors?` (3)                              | a derived predicate on the composite root                              |
-| `get_metadata` (1)                             | `fetch_metadata/2`, tagged -- a recorded value may itself be nil       |
+| Measured call (sites)                                            | ctx-next expression                                                                       |
+| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `Ctx.t` (34)                                                     | the composite root type                                                                   |
+| `with_status` (17), `complete` (2)                               | status slot + `StatusChanged` emission; a transition is never a setter                    |
+| `set_metadata_value` (14)                                        | the declared `metadata` overlay + `MetadataSet` emission                                  |
+| `new` (12), `set_opt` (1)                                        | construction with typed options, immutable thereafter                                     |
+| `debug` (11), `log` (4)                                          | `Diagnostic` emission carrying its level; realised by a consumer                          |
+| `event_started` (5), `event_completed` (8), `event_progress` (1) | the three event emissions                                                                 |
+| `add_error` (8)                                                  | errors slot + `ErrorRaised` emission                                                      |
+| `set_input` (6), `with_inputs` (5)                               | input slot, written by applying a perturbation                                            |
+| `set_output` (4)                                                 | output slot + `OutputProduced` emission                                                   |
+| `get_input` (4), `get_output` (2)                                | typed slots, read by dot -- a pass-through accessor is where a 76-function surface starts |
+| `has_errors?` (3)                                                | a derived predicate on the composite root                                                 |
+| `get_metadata` (1)                                               | `fetch_metadata/2`, tagged -- a recorded value may itself be nil                          |
 
 Dropped, each with its reason:
 
-| Dropped (sites)                          | Why                                                                                                                              |
-| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Dropped (sites)                            | Why                                                                                                                                                                                                     |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `set_cargo_item` (5), `get_cargo_item` (1) | Cargo was an untyped scratch bag for inter-stage carry -- exactly what the composite root exists to refuse. A stage's product leaves as an emission; ST0003 owns the concrete carry between its stages. |
-| `record_event` (3)                       | Events are emissions and they leave (DD-6). Recording them into the context is the shape being replaced.                        |
-| `verbose?` (1)                           | The core never branches on who is listening (DD-7). Verbosity is a consumer's concern.                                          |
-| `Stats.get_all_stats` (1)                | Derivable from the emission stream by a consumer. Counters in the waist would make the knot a bookkeeper and invite mutation.   |
+| `record_event` (3)                         | Events are emissions and they leave (DD-6). Recording them into the context is the shape being replaced.                                                                                                |
+| `verbose?` (1)                             | The core never branches on who is listening (DD-7). Verbosity is a consumer's concern.                                                                                                                  |
+| `Stats.get_all_stats` (1)                  | Derivable from the emission stream by a consumer. Counters in the waist would make the knot a bookkeeper and invite mutation.                                                                           |
 
 ## Architecture
 

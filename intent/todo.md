@@ -10,18 +10,9 @@ _(none)_
 
 _(none)_
 
-## DONE:2026-08-10T20:26:29Z
+## DONE:2026-08-11T07:48:12Z
 
-- [x] ST0001: Extricate Predicate and SIA from Multiplyer
-  - [x] 01: D2 root-cause and verdict
-  - [x] 02: Scaffolding and CI gate
-  - [x] 03: Predicate engine port
-  - [x] 04: PFIC transform and hydration consolidation
-- [x] ST0002: ctx-next: the Bowtie waist
-  - [x] 01: Ctx and the typed catalogs
-  - [x] 02: The pure knot
-  - [x] 03: Coverage, bedrock, and close
-- [x] ST0003: SIA pattern layer rewrite
-  - [x] 01: The staged edge
-  - [x] 02: Pipeline sources and the characterisation contract
-  - [x] 03: Record and close
+- [x] ST0005: Documentation: moduledocs, ex_doc, and the .pred language reference
+  - [x] 01: The moduledoc pass
+  - [x] 02: ex_doc and the README
+  - [x] 03: The .pred language reference

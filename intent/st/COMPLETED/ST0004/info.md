@@ -21,7 +21,7 @@ This thread is also the **second consumer** the end-of-extraction reassessment i
 
 Two rulings shape it. **hv, 2026-08-11:** use `arca_cli` properly, and use its features -- the archived layer wrapped it in a 1198-line local `CommandBase` and hand-rolled formatting, error handling and command outcome that the framework already provides. **hv, 2026-08-11:** service module at the centre, CLI and mix task thin over it. "This is the architecture. Stick to it."
 
-The archived CLI is forensics, not a template. One thing in it is a defect this thread exists to make impossible: it reconstructed stage identity by parsing `signal_` / `inference_` / `action_` tag prefixes into three fixed output columns, which contradicts ST0003 DD-2 -- a stage *is* a loop, and its identity is the loop's own name -- and would make the README's "a pipeline with four loops runs as four stages with no code change" false at the command line. See design.md DD-7.
+The archived CLI is forensics, not a template. One thing in it is a defect this thread exists to make impossible: it reconstructed stage identity by parsing `signal_` / `inference_` / `action_` tag prefixes into three fixed output columns, which contradicts ST0003 DD-2 -- a stage _is_ a loop, and its identity is the loop's own name -- and would make the README's "a pipeline with four loops runs as four stages with no code change" false at the command line. See design.md DD-7.
 
 ## Acceptance
 

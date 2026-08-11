@@ -8,73 +8,73 @@
 
 ### Predicate engine
 
-| Concern                                 | THE Module                          | Notes                                                                          |
-| --------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------ |
-| Item shape + field/tag/metadata access  | Riffle.Predicate.Item               | fieldnames/fields/tags/metadata; add_tag prepends + dedups                     |
-| Predicate definition + evaluation       | Riffle.Predicate                    | evaluate/2 is the one cached entry; create/1 the one body-to-function path     |
-| Predicate grouping (OR-any)             | Riffle.Predicate.Loop               | filter/2 rides process/2 -- one evaluation path, cache honoured on streams     |
-| Loop sequencing (AND of ORs)            | Riffle.Predicate.Pipeline           | struct paths only; map shapes normalise through the Resolver                   |
-| Reference resolution + hydration        | Riffle.Predicate.Resolver           | THE path (DD-9); tagged core + bang wrappers; sources: module, defs-map, nil   |
-| Coercion (numeric parse, truthiness)    | Riffle.Predicate.Coerce             | strict, tagged (DD-8); consumed by Evaluator + StandardLib                     |
-| Evaluation cache                        | Riffle.Predicate.Cache              | ETS + GenServer; exact-term {predicate, item} keys                             |
-| Runtime definition registry             | Riffle.Predicate.Registry           | GenServer; its state is a Resolver defs-map source                             |
-| Standard predicate library              | Riffle.Predicate.StandardLib        | Text/Numeric/Boolean/Collection/Date; STD is its alias, nothing else           |
-| Default-pipeline config surface         | Riffle.Predicate.default_pipeline/0 | config :riffle, :default_pipeline; DefaultPipelineConfig is the use-macro side |
-| Pipeline-config behaviour               | Riffle.Predicate.PipelineConfig     | get_pipeline/get_loop/get_predicate callbacks                                  |
-| DSL compile-time macros                 | Riffle.Predicate.Dsl.Macro          | defpredicate/defloop/defpipeline + expr; generated fns call the Resolver       |
-| DSL block statement-shape ladder        | Riffle.Predicate.Dsl.Statements     | THE in-block grammar (refs + inline defs); Macro and Parser both consume it    |
-| DSL expr evaluation                     | Riffle.Predicate.Dsl.Evaluator      | @field syntax; CoercionError converts to no-match at create_function/1         |
-| .pred parsing                           | Riffle.Predicate.Dsl.Parser         | one top-level dispatch (extract_definitions!); junk raises at every level      |
-| .pred loading + instance creation       | Riffle.Predicate.Dsl.Loader         | user-input boundary: raises become tagged errors                               |
-| OTP application                         | Riffle.Application                  | supervises the Cache                                                           |
+| Concern                                | THE Module                          | Notes                                                                          |
+| -------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------ |
+| Item shape + field/tag/metadata access | Riffle.Predicate.Item               | fieldnames/fields/tags/metadata; add_tag prepends + dedups                     |
+| Predicate definition + evaluation      | Riffle.Predicate                    | evaluate/2 is the one cached entry; create/1 the one body-to-function path     |
+| Predicate grouping (OR-any)            | Riffle.Predicate.Loop               | filter/2 rides process/2 -- one evaluation path, cache honoured on streams     |
+| Loop sequencing (AND of ORs)           | Riffle.Predicate.Pipeline           | struct paths only; map shapes normalise through the Resolver                   |
+| Reference resolution + hydration       | Riffle.Predicate.Resolver           | THE path (DD-9); tagged core + bang wrappers; sources: module, defs-map, nil   |
+| Coercion (numeric parse, truthiness)   | Riffle.Predicate.Coerce             | strict, tagged (DD-8); consumed by Evaluator + StandardLib                     |
+| Evaluation cache                       | Riffle.Predicate.Cache              | ETS + GenServer; exact-term {predicate, item} keys                             |
+| Runtime definition registry            | Riffle.Predicate.Registry           | GenServer; its state is a Resolver defs-map source                             |
+| Standard predicate library             | Riffle.Predicate.StandardLib        | Text/Numeric/Boolean/Collection/Date; STD is its alias, nothing else           |
+| Default-pipeline config surface        | Riffle.Predicate.default_pipeline/0 | config :riffle, :default_pipeline; DefaultPipelineConfig is the use-macro side |
+| Pipeline-config behaviour              | Riffle.Predicate.PipelineConfig     | get_pipeline/get_loop/get_predicate callbacks                                  |
+| DSL compile-time macros                | Riffle.Predicate.Dsl.Macro          | defpredicate/defloop/defpipeline + expr; generated fns call the Resolver       |
+| DSL block statement-shape ladder       | Riffle.Predicate.Dsl.Statements     | THE in-block grammar (refs + inline defs); Macro and Parser both consume it    |
+| DSL expr evaluation                    | Riffle.Predicate.Dsl.Evaluator      | @field syntax; CoercionError converts to no-match at create_function/1         |
+| .pred parsing                          | Riffle.Predicate.Dsl.Parser         | one top-level dispatch (extract_definitions!); junk raises at every level      |
+| .pred loading + instance creation      | Riffle.Predicate.Dsl.Loader         | user-input boundary: raises become tagged errors                               |
+| OTP application                        | Riffle.Application                  | supervises the Cache                                                           |
 
 ### ctx-next (the waist)
 
-| Concern                                 | THE Module                          | Notes                                                                          |
-| --------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------ |
-| Run state (typed composite root)        | Riffle.Ctx                          | typed slots read by dot + ONE declared overlay; no pass-through accessors      |
-| State transition (the pure knot)        | Riffle.Ctx.Knot                     | tick/2; pure, total, multi-clause; the single transition point (DD-4)          |
-| Catalog mechanism + the type contract   | Riffle.Ctx.Catalog                  | THE registry machine; both catalogs use it; duplicate tags fail at compile time |
-| Typed inputs (membership + union)       | Riffle.Ctx.Perturbation             | structs under Riffle.Ctx.Perturbation.*; unknown tag loud-fails                |
-| Typed outputs (membership + union)      | Riffle.Ctx.Emission                 | structs under Riffle.Ctx.Emission.*; payloads opaque to the waist              |
+| Concern                               | THE Module              | Notes                                                                           |
+| ------------------------------------- | ----------------------- | ------------------------------------------------------------------------------- |
+| Run state (typed composite root)      | Riffle.Ctx              | typed slots read by dot + ONE declared overlay; no pass-through accessors       |
+| State transition (the pure knot)      | Riffle.Ctx.Knot         | tick/2; pure, total, multi-clause; the single transition point (DD-4)           |
+| Catalog mechanism + the type contract | Riffle.Ctx.Catalog      | THE registry machine; both catalogs use it; duplicate tags fail at compile time |
+| Typed inputs (membership + union)     | Riffle.Ctx.Perturbation | structs under Riffle.Ctx.Perturbation.*; unknown tag loud-fails                 |
+| Typed outputs (membership + union)    | Riffle.Ctx.Emission     | structs under Riffle.Ctx.Emission.*; payloads opaque to the waist               |
 
 ### SIA (the pattern layer)
 
-| Concern                                 | THE Module                          | Notes                                                                          |
-| --------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------ |
-| The edge: a staged run over the waist   | Riffle.Sia                          | run/4; one stage per loop; the only module that names both engine and waist    |
-| Pipeline source resolution              | Riffle.Sia.Pipelines                | closed vocabulary: struct, {:module,_}, {:file,_}, :default_module (DD-8)      |
-| The shipped sense/infer/act definitions | Riffle.Sia.DefaultPipeline          | module form; priv/sia/sia.pred is the same definitions in file form            |
+| Concern                                 | THE Module                 | Notes                                                                       |
+| --------------------------------------- | -------------------------- | --------------------------------------------------------------------------- |
+| The edge: a staged run over the waist   | Riffle.Sia                 | run/4; one stage per loop; the only module that names both engine and waist |
+| Pipeline source resolution              | Riffle.Sia.Pipelines       | closed vocabulary: struct, {:module,_}, {:file,_}, :default_module (DD-8)   |
+| The shipped sense/infer/act definitions | Riffle.Sia.DefaultPipeline | module form; priv/sia/sia.pred is the same definitions in file form         |
 
 ### Service (the application layer)
 
-| Concern                                 | THE Module                          | Notes                                                                          |
-| --------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------ |
-| Running a pipeline over a file of rows  | Riffle.Service                      | THE business logic; every caller enters here; names no CLI framework (DD-2)    |
-| The typed outcome of a service run      | Riffle.Service.Result               | ctx + emissions + summary; the summary is a projection of stage evidence       |
-| CSV input reading                       | Riffle.Service.Csv                  | header row to field maps; NimbleCSV; tagged errors at the file boundary        |
+| Concern                                | THE Module            | Notes                                                                       |
+| -------------------------------------- | --------------------- | --------------------------------------------------------------------------- |
+| Running a pipeline over a file of rows | Riffle.Service        | THE business logic; every caller enters here; names no CLI framework (DD-2) |
+| The typed outcome of a service run     | Riffle.Service.Result | ctx + emissions + summary; the summary is a projection of stage evidence    |
+| CSV input reading                      | Riffle.Service.Csv    | header row to field maps; NimbleCSV; tagged errors at the file boundary     |
 
 ### CLI (thin coordinators)
 
-| Concern                                 | THE Module                          | Notes                                                                          |
-| --------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------ |
-| Command registration                    | Riffle.Cli.Configurator             | BaseConfigurator; the one command list                                         |
-| The `sia` namespace parent              | Riffle.Cli.Commands.SiaCommand      | help-on-empty parent for the dot-notation subcommands                          |
-| `sia.run` -- run a pipeline over input  | Riffle.Cli.Commands.SiaRunCommand   | parse to call to render; reaches the system only through Riffle.Service        |
+| Concern                                  | THE Module                              | Notes                                                                      |
+| ---------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------- |
+| Command registration                     | Riffle.Cli.Configurator                 | BaseConfigurator; the one command list                                     |
+| The `sia` namespace parent               | Riffle.Cli.Commands.SiaCommand          | help-on-empty parent for the dot-notation subcommands                      |
+| `sia.run` -- run a pipeline over input   | Riffle.Cli.Commands.SiaRunCommand       | parse to call to render; reaches the system only through Riffle.Service    |
 | `sia.pipelines` -- list a source's names | Riffle.Cli.Commands.SiaPipelinesCommand | reports what a source defines without running it                           |
-| The mix doorway                         | Mix.Tasks.Riffle.Cli                | `bin/riffle cli` lands here; names Arca.Cli only -- one argv parser exists     |
+| The mix doorway                          | Mix.Tasks.Riffle.Cli                    | `bin/riffle cli` lands here; names Arca.Cli only -- one argv parser exists |
 
 ### Test support
 
-| Concern                                 | THE Module                          | Notes                                                                          |
-| --------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------ |
-| Namespaces + fence introspection        | Riffle.FenceHelpers (test/support)  | namespace, source paths, typespec + AST walks shared by every fence (DD-9)     |
-| :riffle app-env preconditions           | Riffle.ConfigHelpers (test/support) | default-pipeline set/unset with automatic restore; three suites shared one copy |
-| Cache preconditions + spy predicates    | Riffle.CacheHelpers (test/support)  | reset_cache/1, spy_predicate/4                                                 |
-| Pattern-layer test inputs               | Riffle.SiaFixtures (test/support)   | staging pipelines (mechanics) + the four characterisation rows                 |
-| DSL fixture corpus                      | Riffle.DslFixtures (test/support)   | the macro module and `.pred` sources shared by the registry + loader suites    |
-| Service + CLI test inputs               | Riffle.ServiceFixtures (test/support) | temp CSVs, the four-loop pipeline, and its `.pred` twin                      |
-| Documentation introspection             | Riffle.DocHelpers (test/support)    | doc walks for the conformance fences; branching code, so it lives in support   |
+| Concern                              | THE Module                            | Notes                                                                           |
+| ------------------------------------ | ------------------------------------- | ------------------------------------------------------------------------------- |
+| Namespaces + fence introspection     | Riffle.FenceHelpers (test/support)    | namespace, source paths, typespec + AST walks shared by every fence (DD-9)      |
+| :riffle app-env preconditions        | Riffle.ConfigHelpers (test/support)   | default-pipeline set/unset with automatic restore; three suites shared one copy |
+| Cache preconditions + spy predicates | Riffle.CacheHelpers (test/support)    | reset_cache/1, spy_predicate/4                                                  |
+| Pattern-layer test inputs            | Riffle.SiaFixtures (test/support)     | staging pipelines (mechanics) + the four characterisation rows                  |
+| DSL fixture corpus                   | Riffle.DslFixtures (test/support)     | the macro module and `.pred` sources shared by the registry + loader suites     |
+| Service + CLI test inputs            | Riffle.ServiceFixtures (test/support) | temp CSVs, the four-loop pipeline, and its `.pred` twin                         |
+| Documentation introspection          | Riffle.DocHelpers (test/support)      | doc walks for the conformance fences; branching code, so it lives in support    |
 
 <!-- Add entries as modules are created. Group by domain. Example:
 

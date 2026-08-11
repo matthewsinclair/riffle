@@ -50,6 +50,6 @@ The backlog is filed in `intent/wip.md` with each item labelled by what it is wa
 - Every perturbation yields a real emission, never the delivery floor -- `delivery_floor_fence_test.exs`
 - No derived claim outlives its evidence -- `sia/evidence_fence_test.exs`, over a declared matrix of run shapes
 - The pattern layer swallows nothing -- `sia/no_rescue_fence_test.exs`, with positive controls for both AST forms
-- A fence that cannot fail is not a fence: mutation-check every new one, and give it a positive control when its discriminator would otherwise never fire. Two threads running, mutation testing has caught the *test estate* rather than the code
+- A fence that cannot fail is not a fence: mutation-check every new one, and give it a positive control when its discriminator would otherwise never fire. Two threads running, mutation testing has caught the _test estate_ rather than the code
 - `mix gate` green before every commit; it includes `credo --strict`, and warnings-as-errors covers test compilation
 - Archive (`~/Devel/_Archive/Multiplyer`) is read-only forensics

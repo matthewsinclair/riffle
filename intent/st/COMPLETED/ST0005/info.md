@@ -1,10 +1,10 @@
 ---
 verblock: "11 Aug 2026:v0.1: matts - Initial version"
 intent_version: 2.18.0
-status: WIP
+status: Completed
 slug: documentation-moduledocs-ex-doc-and-the-pred
 created: 20260811
-completed:
+completed: 2026-08-11T07:52:56Z
 ---
 
 # ST0005: Documentation: moduledocs, ex_doc, and the .pred language reference

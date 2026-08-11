@@ -4,20 +4,20 @@
 
 Three modules, one shipped data file, and seven test files.
 
-| Path                                      | What it is                                                              |
-| ----------------------------------------- | ----------------------------------------------------------------------- |
-| `lib/riffle/sia/sia.ex`                   | THE pattern layer. `run/4`, `metadata_keys/0`. One stage per loop.      |
-| `lib/riffle/sia/pipelines.ex`             | THE pipeline source vocabulary. `fetch/2`, `default_name/0`.            |
-| `lib/riffle/sia/default_pipeline.ex`      | Riffle's sense/infer/act definitions, module form. `pred_path/0`.       |
-| `priv/sia/sia.pred`                       | The same definitions, file form.                                        |
-| `test/riffle/sia/sia_test.exs`            | Staging order, results, ingest, the declared metadata key. Doctest host. |
-| `test/riffle/sia/evidence_fence_test.exs` | The anti-D2 fences, over a declared matrix of seven run shapes.         |
-| `test/riffle/sia/no_rescue_fence_test.exs`| The anti-D9 fence, plus a raising predicate propagating out of a run.   |
-| `test/riffle/sia/sources_test.exs`        | The closed vocabulary; file-and-module equivalence with the cache off.  |
-| `test/riffle/sia/characterisation_test.exs`| The nine inherited tests, all now asserting something.                 |
-| `test/riffle/single_transition_fence_test.exs` | The knot is the only transition.                                   |
-| `test/riffle/boundary_fence_test.exs`     | Four directions now: waist/engine both ways, and neither names the layer. |
-| `test/support/{sia_fixtures,config_helpers}.ex` | Shared inputs and app-env preconditions.                          |
+| Path                                            | What it is                                                                |
+| ----------------------------------------------- | ------------------------------------------------------------------------- |
+| `lib/riffle/sia/sia.ex`                         | THE pattern layer. `run/4`, `metadata_keys/0`. One stage per loop.        |
+| `lib/riffle/sia/pipelines.ex`                   | THE pipeline source vocabulary. `fetch/2`, `default_name/0`.              |
+| `lib/riffle/sia/default_pipeline.ex`            | Riffle's sense/infer/act definitions, module form. `pred_path/0`.         |
+| `priv/sia/sia.pred`                             | The same definitions, file form.                                          |
+| `test/riffle/sia/sia_test.exs`                  | Staging order, results, ingest, the declared metadata key. Doctest host.  |
+| `test/riffle/sia/evidence_fence_test.exs`       | The anti-D2 fences, over a declared matrix of seven run shapes.           |
+| `test/riffle/sia/no_rescue_fence_test.exs`      | The anti-D9 fence, plus a raising predicate propagating out of a run.     |
+| `test/riffle/sia/sources_test.exs`              | The closed vocabulary; file-and-module equivalence with the cache off.    |
+| `test/riffle/sia/characterisation_test.exs`     | The nine inherited tests, all now asserting something.                    |
+| `test/riffle/single_transition_fence_test.exs`  | The knot is the only transition.                                          |
+| `test/riffle/boundary_fence_test.exs`           | Four directions now: waist/engine both ways, and neither names the layer. |
+| `test/support/{sia_fixtures,config_helpers}.ex` | Shared inputs and app-env preconditions.                                  |
 
 The run, as it actually fires:
 
@@ -35,7 +35,7 @@ Eleven emissions for a two-stage run, pinned as a literal in `sia_test`. The onl
 
 ### Failure, in two kinds
 
-A source that cannot produce the pipeline asked for -- missing file, unknown name, unconfigured default -- is a tagged error, and the run *fails*: `:failed`, the reason in `ctx.errors`, an `ErrorRaised` emission, and no `OutputProduced` anywhere in the stream. One perturbation does all of that (`RunFailed` already accumulates, transitions and emits), so reporting the error first would have recorded it twice.
+A source that cannot produce the pipeline asked for -- missing file, unknown name, unconfigured default -- is a tagged error, and the run _fails_: `:failed`, the reason in `ctx.errors`, an `ErrorRaised` emission, and no `OutputProduced` anywhere in the stream. One perturbation does all of that (`RunFailed` already accumulates, transitions and emits), so reporting the error first would have recorded it twice.
 
 A source outside the declared vocabulary raises, as does input outside the two ingest shapes. The line between the two kinds is whether a correct program could produce it at runtime.
 
@@ -43,23 +43,23 @@ A source outside the declared vocabulary raises, as does input outside the two i
 
 Every fence this thread added, broken on purpose, watched go red, restored. A fence that cannot fail is not a fence.
 
-| #   | Mutation                                                        | Fence that went red                                  |
-| --- | --------------------------------------------------------------- | ---------------------------------------------------- |
-| M1  | `RunCompleted{output: []}` -- the D2 sin exactly                | evidence: results the same in all three places       |
-| M2  | stage count reports `received` where it means `retained`        | evidence: every derived fact arrives with evidence   |
-| M3  | metadata key renamed to `:results_available`                    | evidence: derived facts, and declared-keys           |
-| M4  | a `rescue` added to the layer                                   | no-rescue AST fence                                  |
-| M5  | `%Ctx{ctx \| status: ...}` in the layer                         | single-transition: struct-update, and map-update     |
-| M6  | bare `%{item \| ...}` in the layer                              | single-transition: map-update                        |
-| M7  | `alias Riffle.Sia` in an engine file -- the stitch re-forming   | boundary: the engine names no pattern-layer module   |
-| M8  | `alias Riffle.Sia` in a waist file                              | boundary: the waist names no pattern-layer module    |
-| M9  | `.pred` drifts from its module twin (`> 50` becomes `> 500`)    | sources: file and module produce identical results   |
-| M10 | unresolvable source completes the run instead of failing it     | characterisation: the four that asserted nothing     |
-| M11 | `Keyword.validate!` weakened to `Keyword.get`                   | sources: an unknown option is a loud error           |
+| #   | Mutation                                                      | Fence that went red                                |
+| --- | ------------------------------------------------------------- | -------------------------------------------------- |
+| M1  | `RunCompleted{output: []}` -- the D2 sin exactly              | evidence: results the same in all three places     |
+| M2  | stage count reports `received` where it means `retained`      | evidence: every derived fact arrives with evidence |
+| M3  | metadata key renamed to `:results_available`                  | evidence: derived facts, and declared-keys         |
+| M4  | a `rescue` added to the layer                                 | no-rescue AST fence                                |
+| M5  | `%Ctx{ctx \| status: ...}` in the layer                       | single-transition: struct-update, and map-update   |
+| M6  | bare `%{item \| ...}` in the layer                            | single-transition: map-update                      |
+| M7  | `alias Riffle.Sia` in an engine file -- the stitch re-forming | boundary: the engine names no pattern-layer module |
+| M8  | `alias Riffle.Sia` in a waist file                            | boundary: the waist names no pattern-layer module  |
+| M9  | `.pred` drifts from its module twin (`> 50` becomes `> 500`)  | sources: file and module produce identical results |
+| M10 | unresolvable source completes the run instead of failing it   | characterisation: the four that asserted nothing   |
+| M11 | `Keyword.validate!` weakened to `Keyword.get`                 | sources: an unknown option is a loud error         |
 
 ### M9 found a real hole
 
-The first run of M9 took **one** test red, and it should have taken four. The evaluation cache keys on the predicate's name and the item, and the file and the module share every predicate name -- so the first run of a row warmed the cache and every later run answered from that one entry, whichever source it came from. The file's own predicate bodies never executed. The three "from a file" characterisation tests were proving that the file *parses*, not that it *works*, and a deliberate drift between the two sources left them green.
+The first run of M9 took **one** test red, and it should have taken four. The evaluation cache keys on the predicate's name and the item, and the file and the module share every predicate name -- so the first run of a row warmed the cache and every later run answered from that one entry, whichever source it came from. The file's own predicate bodies never executed. The three "from a file" characterisation tests were proving that the file _parses_, not that it _works_, and a deliberate drift between the two sources left them green.
 
 The characterisation suite now runs with the cache disabled, for the reason recorded in its setup. The same mutation takes four tests red.
 

@@ -12,13 +12,13 @@ Work order per WP is spec then test then code, and the tests are conformance fen
 
 Bedrock commitment 6: inference lives at an edge. The Predicate engine is a rules engine, which is inference, and it is impure -- evaluation runs through an ETS cache owned by a process. So it cannot be inside the knot. The waist is pure and knows nothing of who consumes it.
 
-`Riffle.Sia` names both. Neither names it, in either direction, and both directions are fenced (AC-01.6, AC-01.7). The engine direction matters most: the source layer hardcoded a fallback to its own default-pipeline module *inside the engine*, and that was the one stitch that lived in ported code. Severing it was ST0001's job; keeping it severed is this thread's, and it only becomes checkable now that a pattern layer exists to be named.
+`Riffle.Sia` names both. Neither names it, in either direction, and both directions are fenced (AC-01.6, AC-01.7). The engine direction matters most: the source layer hardcoded a fallback to its own default-pipeline module _inside the engine_, and that was the one stitch that lived in ported code. Severing it was ST0001's job; keeping it severed is this thread's, and it only becomes checkable now that a pattern layer exists to be named.
 
 ### DD-2 -- A stage is a loop
 
 The pipeline's loop sequence **is** the staging. Stage identity is the loop's own name, read off the struct. There is no stage registry, no mapping table, and no convention parsed out of tag prefixes.
 
-This falls out of what the engine already does: a loop ORs its predicates, a pipeline ANDs its loops, and items accumulate tags as they survive each one. Sense/infer/act is then a three-loop pipeline whose loops happen to be named for the three stages -- the shipped `sia.pred` is an *instance* of the pattern, not a structure the layer imposes. A four-stage pipeline works without a line changing.
+This falls out of what the engine already does: a loop ORs its predicates, a pipeline ANDs its loops, and items accumulate tags as they survive each one. Sense/infer/act is then a three-loop pipeline whose loops happen to be named for the three stages -- the shipped `sia.pred` is an _instance_ of the pattern, not a structure the layer imposes. A four-stage pipeline works without a line changing.
 
 The cost is that the layer cannot check "is this really sense-infer-act", and it should not: that is a property of a definition file, not of the runner.
 
@@ -44,7 +44,7 @@ The fence is project-wide and AST-based: no `%Riffle.Ctx{... | ...}` update expr
 
 ### DD-6 -- The layer swallows nothing
 
-D9 in the ledger: the source layer rescued *all* exceptions into a single opaque tag with debug-only logging. The pattern layer contains no `rescue`, `catch` or `after` at all, fenced over its AST, and an exception raised inside predicate evaluation propagates out of a run with its type and message intact.
+D9 in the ledger: the source layer rescued _all_ exceptions into a single opaque tag with debug-only logging. The pattern layer contains no `rescue`, `catch` or `after` at all, fenced over its AST, and an exception raised inside predicate evaluation propagates out of a run with its type and message intact.
 
 The engine's `Loader` does convert raises to tagged errors, and that stays: `.pred` content is user input and the conversion happens at exactly that boundary, scoped to the one failure it names. The distinction the fence encodes is between converting a known failure at a boundary and swallowing everything everywhere.
 
@@ -52,7 +52,7 @@ The engine's `Loader` does convert raises to tagged errors, and that stays: `.pr
 
 Ingest is total over its declared input -- an enumerable of field maps or `Item` structs -- and loud outside it. It runs before the first perturbation, so a bad input shape raises before anything is half-recorded.
 
-The run records the *post*-ingest items as its input. That makes a run replayable from `ctx.input` alone: feed those items back and the same output follows, with no need to re-run ingest and no chance of ingest drifting between the original and the replay. Recording the raw maps instead would make `input` and `output` symmetric-looking while making replay depend on a conversion that is not itself recorded.
+The run records the _post_-ingest items as its input. That makes a run replayable from `ctx.input` alone: feed those items back and the same output follows, with no need to re-run ingest and no chance of ingest drifting between the original and the replay. Recording the raw maps instead would make `input` and `output` symmetric-looking while making replay depend on a conversion that is not itself recorded.
 
 This is what hv's "CSV datasource out, replaced by plain ingest" means concretely: there is no datasource abstraction, no reader, no format. A caller with a CSV converts it and hands over rows.
 
@@ -62,7 +62,7 @@ Four shapes, and nothing else: a `Pipeline` struct, `{:module, module}`, `{:file
 
 `.pred` files are in, per hv's ratified call: the loader is built, tested and green from ST0001, and excluding it would leave working code unreachable. `:default_module` resolves through `config :riffle, :default_pipeline` -- configuration injection, which is what severing the stitch replaced the hardcoded reference with, so exercising it is also exercising the sever.
 
-An unresolvable source is a *typed run failure*, not a raise: a missing file or an absent pipeline name is user input, and the run records `:failed`, accumulates the reason, and emits `ErrorRaised`. A source outside the vocabulary is a programming error and raises. The line between them is whether a correct program could produce it.
+An unresolvable source is a _typed run failure_, not a raise: a missing file or an absent pipeline name is user input, and the run records `:failed`, accumulates the reason, and emits `ErrorRaised`. A source outside the vocabulary is a programming error and raises. The line between them is whether a correct program could produce it.
 
 ### DD-9 -- The fence helpers and the boundary fence move up a level
 

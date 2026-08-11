@@ -70,18 +70,18 @@ Stated negatively, because the failure modes a state-bearing system is prone to 
 
 Each is enforced mechanically, by a fence that enumerates the source of truth exhaustively rather than sampling examples. A fence catches the drift class a hand-written test misses.
 
-| Commitment                    | Fence                                                                              |
-| ----------------------------- | ------------------------------------------------------------------------------------ |
-| Purity (2)                    | `purity_fence_test` -- walks the compiled call closure from the knot                 |
-| Typed composite root (3)      | `ctx_test` -- reads the declared typespec, not the runtime values                    |
-| Closed catalogs (4)           | `catalog_fence_test` -- modules on disk against registry, and union type against membership |
-| Transience (5)                | `ctx_test` -- no slot's type references a catalog namespace                          |
-| Edge separation (6)           | `boundary_fence_test` (parsed AST, four directions), `purity_fence_test` (call closure) |
-| No silent failure (7)         | `delivery_floor_fence_test` -- every perturbation yields a real emission, no default |
-| No silent failure (7)         | `sia/no_rescue_fence_test` -- no rescue, catch or after in the pattern layer         |
-| No derived claim alone (8)    | `sia/evidence_fence_test` -- results agree in three places; every count carries its collection |
-| Single transition point (3)   | `single_transition_fence_test` -- no context update outside the knot, either spelling |
-| Measured surface              | `measured_surface_fence_test` -- both directions, capability to type and back        |
+| Commitment                  | Fence                                                                                          |
+| --------------------------- | ---------------------------------------------------------------------------------------------- |
+| Purity (2)                  | `purity_fence_test` -- walks the compiled call closure from the knot                           |
+| Typed composite root (3)    | `ctx_test` -- reads the declared typespec, not the runtime values                              |
+| Closed catalogs (4)         | `catalog_fence_test` -- modules on disk against registry, and union type against membership    |
+| Transience (5)              | `ctx_test` -- no slot's type references a catalog namespace                                    |
+| Edge separation (6)         | `boundary_fence_test` (parsed AST, four directions), `purity_fence_test` (call closure)        |
+| No silent failure (7)       | `delivery_floor_fence_test` -- every perturbation yields a real emission, no default           |
+| No silent failure (7)       | `sia/no_rescue_fence_test` -- no rescue, catch or after in the pattern layer                   |
+| No derived claim alone (8)  | `sia/evidence_fence_test` -- results agree in three places; every count carries its collection |
+| Single transition point (3) | `single_transition_fence_test` -- no context update outside the knot, either spelling          |
+| Measured surface            | `measured_surface_fence_test` -- both directions, capability to type and back                  |
 
 Every fence is mutation-checked when written: break the thing it guards, and it goes red. A fence that cannot fail is not a fence -- and one of these was exactly that for a while, matching the Erlang remote-type form with the wrong arity so that it silently recognised nothing. Two fences now carry positive controls for that reason.
 

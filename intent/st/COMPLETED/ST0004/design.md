@@ -50,28 +50,28 @@ The mix task delegates to `Arca.Cli.main/1`, not to `Riffle.Service` directly. R
 
 The archived layer wrapped `arca_cli` in a 1198-line local `CommandBase` and hand-rolled output formatting, error handling and command outcome. All three now exist in the framework:
 
-| Need | Framework surface | Not built here |
-| ------------------------ | ---------------------------------------- | --------------------------- |
-| Command definition | `Arca.Cli.Command.BaseCommand` | a local base command |
-| Registration | `Arca.Cli.Configurator.BaseConfigurator` | a local command table |
-| Command context | `Arca.Cli.Ctx` | a local ctx bridge |
-| Output styles + rendering | `Arca.Cli.Output`, `Ctx.parse_style/1` | a local formatter |
-| Outcome / exit status | `Ctx.outcome/1` | local status plumbing |
-| Help, dot-notation | `Arca.Cli.Help` | local help text assembly |
-| REPL | `repl` command | -- |
-| Test driving | `Arca.Cli.Testing.CliCommandHelper` | a local harness |
+| Need                      | Framework surface                        | Not built here           |
+| ------------------------- | ---------------------------------------- | ------------------------ |
+| Command definition        | `Arca.Cli.Command.BaseCommand`           | a local base command     |
+| Registration              | `Arca.Cli.Configurator.BaseConfigurator` | a local command table    |
+| Command context           | `Arca.Cli.Ctx`                           | a local ctx bridge       |
+| Output styles + rendering | `Arca.Cli.Output`, `Ctx.parse_style/1`   | a local formatter        |
+| Outcome / exit status     | `Ctx.outcome/1`                          | local status plumbing    |
+| Help, dot-notation        | `Arca.Cli.Help`                          | local help text assembly |
+| REPL                      | `repl` command                           | --                       |
+| Test driving              | `Arca.Cli.Testing.CliCommandHelper`      | a local harness          |
 
 `handle/3` returns an `Arca.Cli.Ctx`; `Arca.Cli` turns that into `{:ok, Ctx.outcome(ctx), Output.render(ctx)}`. That is the whole contract, and it is why the commands here are short.
 
 ## DD-6 -- Two context types, kept apart
 
-`Arca.Cli.Ctx` is the *command* context: output items, errors, cargo, style, outcome. `Riffle.Ctx` is the bowtie waist: run state that changes only through `Knot.tick/2`. They are unrelated types with the same short name, and conflating them is what produced the archived layer's `set_cargo_item` / `with_status` / `complete` sprawl through what should have been business logic.
+`Arca.Cli.Ctx` is the _command_ context: output items, errors, cargo, style, outcome. `Riffle.Ctx` is the bowtie waist: run state that changes only through `Knot.tick/2`. They are unrelated types with the same short name, and conflating them is what produced the archived layer's `set_cargo_item` / `with_status` / `complete` sprawl through what should have been business logic.
 
-The service returns a `Riffle.Ctx`; the command renders *from* it into an `Arca.Cli.Ctx`. No CLI module constructs or updates a `Riffle.Ctx` -- already swept by `single_transition_fence_test`, which covers `lib/**/*.ex` minus the waist and therefore covers both new layers the moment they exist.
+The service returns a `Riffle.Ctx`; the command renders _from_ it into an `Arca.Cli.Ctx`. No CLI module constructs or updates a `Riffle.Ctx` -- already swept by `single_transition_fence_test`, which covers `lib/**/*.ex` minus the waist and therefore covers both new layers the moment they exist.
 
 ## DD-7 -- The summary is a projection of stage evidence
 
-The archived command reconstructed stage identity by parsing tag prefixes -- `get_tags_with_prefix(item, "signal_")` -- into three fixed output columns. That contradicts ST0003 DD-2 (a stage *is* a loop, and its identity is the loop's own name) and it hardcodes the sense/infer/act shape into the one place a user actually sees, which would make the README's "a pipeline with four loops runs as four stages with no code change" false at the command line.
+The archived command reconstructed stage identity by parsing tag prefixes -- `get_tags_with_prefix(item, "signal_")` -- into three fixed output columns. That contradicts ST0003 DD-2 (a stage _is_ a loop, and its identity is the loop's own name) and it hardcodes the sense/infer/act shape into the one place a user actually sees, which would make the README's "a pipeline with four loops runs as four stages with no code change" false at the command line.
 
 Here the summary is `ctx.metadata[:stage_counts]`: a keyword list computed by the pattern layer as a projection of the `StageCompleted` emissions it already produced. The service passes it through; the command renders it. A four-loop pipeline whose loops are named arbitrarily summarises as four stages under those four names.
 
@@ -79,9 +79,9 @@ Fenced behaviourally, over a pipeline whose loop names follow no convention. Thi
 
 ## DD-8 -- Two kinds of failure, kept different
 
-Consistent with ST0003 DD-8. A path or name that a *correct* caller can get wrong is a tagged error in a closed vocabulary: input file absent, unreadable, carrying no data rows, malformed; pipeline source absent; pipeline name not present in the source. A value outside a declared vocabulary is a programmer error and raises.
+Consistent with ST0003 DD-8. A path or name that a _correct_ caller can get wrong is a tagged error in a closed vocabulary: input file absent, unreadable, carrying no data rows, malformed; pipeline source absent; pipeline name not present in the source. A value outside a declared vocabulary is a programmer error and raises.
 
-The service resolves the pipeline *before* it runs, so a bad source or name is a tagged error rather than a run that fails halfway. What remains inside the run is a raising predicate, which propagates unchanged.
+The service resolves the pipeline _before_ it runs, so a bad source or name is a tagged error rather than a run that fails halfway. What remains inside the run is a raising predicate, which propagates unchanged.
 
 The one rescue in the layer is at the CSV boundary and names its exception type, exactly as `Riffle.Predicate.Dsl.Loader` does for `.pred` text. The fence forbids the rescue-all -- the shape that produced D9 -- rather than the keyword, which is both provable and stricter where it matters.
 
