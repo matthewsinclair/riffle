@@ -1,6 +1,10 @@
 # Intent configuration
 intent/.config/cache/
 intent/.config/backup/
+# `intent agents sync` writes this beside the regenerated AGENTS.md. Ten of
+# the eleven devbin estates already ignored it; this one did not, so the tool's
+# own backup showed up as untracked noise here and nowhere else (sweep #6).
+/AGENTS.md.bak
 
 # OS files
 .DS_Store
