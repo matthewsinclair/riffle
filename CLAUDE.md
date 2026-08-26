@@ -45,7 +45,7 @@ Task(subagent_type="critic-<lang>", prompt="test-check <paths>")
 ## Project-specific
 
 <!-- user:start -->
-<!-- Author: matts. Add project-specific Claude directives below this line. Preserved across regeneration. -->
+<!-- Author: matts, created 2026-08-10. Add project-specific Claude directives below this line. Preserved across regeneration. -->
 
 <!-- user:end -->
 
