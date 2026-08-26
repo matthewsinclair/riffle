@@ -16,7 +16,7 @@ verblock: "11 Aug 2026:v0.7: cc - All five threads closed; the project is done t
 - `README.md` -- what Riffle is, the shape, how to run it, and a routing table to everything else.
 - `intent/wip.md` -- the state of play, the backlog, and what each backlog item is waiting on.
 - `docs/pred-language.md` -- the `.pred` language: definition forms, the expression language, the standard library. Every snippet in it is checked by the loader and every expression by the evaluator.
-- `intent/st/COMPLETED/ST0005/{design,impl}.md` -- the documentation discipline, DD-1..DD-10. `ST0004/` -- the service and the CLI. `ST0003/` -- the pattern layer. `ST0002/` -- the waist. `ST0001/` -- the engine.
+- ST0005's `design.md` and `impl.md` attachments (`intent st show ST0005`) -- the documentation discipline, DD-1..DD-10. ST0004 -- the service and the CLI. ST0003 -- the pattern layer. `ST0002/` -- the waist. `ST0001/` -- the engine.
 - `intent/llm/MODULES.md` -- the Highlander registry, covering all five layers and the test-support modules.
 
 ## The shape, in one line

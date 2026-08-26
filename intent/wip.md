@@ -20,7 +20,7 @@ The defect that started the whole extraction is gone at the level of _class_, no
 
 ## Active Steel Threads
 
-None. ST0001 through ST0005 are all under `intent/st/COMPLETED/`.
+None. ST0001 through ST0005 are all closed; their prose is in the store (`intent st show <ID>`).
 
 ## Upcoming Work
 

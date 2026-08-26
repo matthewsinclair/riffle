@@ -41,3 +41,4 @@ intent/.cache/
 # Intent migration backups (machine-local, never committed).
 .backup/
 intent/events.jsonl
+intent/.backup/
