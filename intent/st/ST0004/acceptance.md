@@ -69,11 +69,11 @@ _(no tests in this group)_
 ### WP-02 -- The arca_cli command surface (status: Done)
 
 - AT-02.1 (legacy) test/riffle/cli/thin_coordinator_fence_test.exs (5: three directions, plus controls that the layer does reach the service and that the file set covers both halves) -- covers AC-02.1 -- status: green
-- AT-02.2 `test/riffle/cli/sia_run_command_test.exs (registration + the Ctx-returning contract)` -- covers AC-02.2 -- status: green
+- AT-02.2 `test/riffle/cli/sia_run_command_test.exs` -- covers AC-02.2 -- status: green -- registration + the Ctx-returning contract
 - AT-02.3 (legacy) test/riffle/cli/sia_run_command_test.exs (4: every declared style accepted, an unknown one refused, and refusal stopping the run) -- covers AC-02.3 -- status: green
-- AT-02.4 `test/riffle/cli/sia_run_command_test.exs (outcome follows the run, both directions, across six failure shapes)` -- covers AC-02.4 -- status: green
-- AT-02.5 `test/riffle/cli/sia_pipelines_command_test.exs (6)` -- covers AC-02.5 -- status: green
-- AT-02.6 `test/riffle/single_transition_fence_test.exs (already sweeps lib/ minus the waist; the CLI layer inherits it)` -- covers AC-02.6 -- status: green
+- AT-02.4 `test/riffle/cli/sia_run_command_test.exs` -- covers AC-02.4 -- status: green -- outcome follows the run, both directions, across six failure shapes
+- AT-02.5 `test/riffle/cli/sia_pipelines_command_test.exs` -- covers AC-02.5 -- status: green -- 6
+- AT-02.6 `test/riffle/single_transition_fence_test.exs` -- covers AC-02.6 -- status: green -- already sweeps lib/ minus the waist; the CLI layer inherits it
 
 ### WP-03 -- Bindings: mix task, escript, devbin, sample (status: Done)
 

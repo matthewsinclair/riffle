@@ -355,11 +355,12 @@
     {
       "id": "AT-02.2",
       "kind": "test",
-      "file": "test/riffle/cli/sia_run_command_test.exs (registration + the Ctx-returning contract)",
+      "file": "test/riffle/cli/sia_run_command_test.exs",
       "covers": [
         "AC-02.2"
       ],
-      "status": "green"
+      "status": "green",
+      "note": "registration + the Ctx-returning contract"
     },
     {
       "id": "AT-02.3",
@@ -375,29 +376,32 @@
     {
       "id": "AT-02.4",
       "kind": "test",
-      "file": "test/riffle/cli/sia_run_command_test.exs (outcome follows the run, both directions, across six failure shapes)",
+      "file": "test/riffle/cli/sia_run_command_test.exs",
       "covers": [
         "AC-02.4"
       ],
-      "status": "green"
+      "status": "green",
+      "note": "outcome follows the run, both directions, across six failure shapes"
     },
     {
       "id": "AT-02.5",
       "kind": "test",
-      "file": "test/riffle/cli/sia_pipelines_command_test.exs (6)",
+      "file": "test/riffle/cli/sia_pipelines_command_test.exs",
       "covers": [
         "AC-02.5"
       ],
-      "status": "green"
+      "status": "green",
+      "note": "6"
     },
     {
       "id": "AT-02.6",
       "kind": "test",
-      "file": "test/riffle/single_transition_fence_test.exs (already sweeps lib/ minus the waist; the CLI layer inherits it)",
+      "file": "test/riffle/single_transition_fence_test.exs",
       "covers": [
         "AC-02.6"
       ],
-      "status": "green"
+      "status": "green",
+      "note": "already sweeps lib/ minus the waist; the CLI layer inherits it"
     },
     {
       "id": "AT-03.1",
