@@ -1,0 +1,374 @@
+{
+  "schema": "intent/thread@3.0",
+  "id": "ST0003",
+  "title": "SIA pattern layer rewrite",
+  "slug": "sia-pattern-layer-rewrite",
+  "status": "completed",
+  "created": "2026-08-10",
+  "completed": "2026-08-10T23:09:11Z",
+  "objective": "Rewrite the SIA pattern layer (sense -> infer -> act staging over the ported Predicate engine) red-first against ctx-next. Multiplyer's glue (`sia/` -- 1.2k LOC) is reference material only: its `.pred` file loading is dead by design (returns `{:error, :invalid_pipeline_format}` unconditionally -- see handoff, D1), and its rescue-all error swallow (D9) must NOT be reproduced. The five Multiplyer characterisation tests pinned at `assert [] = results` become this thread's red-first acceptance tests, strengthened to `assert [%Item{} | _] = results`.\n\nScope decisions this thread owns: whether `.pred` file pipelines return (vs module-defined pipelines only, initially), and whether the CSV datasource ports or a cleaner ingest boundary replaces it.",
+  "context": "See `intent/docs/extrication-handoff.md` for the defect ledger subset, the predicate->sia fallback stitch that must not re-form (dependency inversion: the engine never references the pattern layer), and the test-estate notes.",
+  "body": "## Related Steel Threads\n\n- ST0001 (extrication) -- blocks this thread (needs the ported engine + D2 verdict)\n- ST0002 (ctx-next) -- blocks this thread (needs the waist)",
+  "preamble": "",
+  "related": [
+    {
+      "id": "ST0001",
+      "note": "extrication) -- blocks this thread (needs the ported engine + D2 verdict"
+    },
+    {
+      "id": "ST0002",
+      "note": "ctx-next) -- blocks this thread (needs the waist"
+    }
+  ],
+  "wps": [
+    {
+      "seq": 1,
+      "title": "The staged edge",
+      "scope": "S",
+      "status": "done",
+      "objective": "[Clear statement of what this work package aims to accomplish]",
+      "body": "",
+      "preamble": ""
+    },
+    {
+      "seq": 2,
+      "title": "Pipeline sources and the characterisation contract",
+      "scope": "S",
+      "status": "done",
+      "objective": "[Clear statement of what this work package aims to accomplish]",
+      "body": "",
+      "preamble": ""
+    },
+    {
+      "seq": 3,
+      "title": "Record and close",
+      "scope": "S",
+      "status": "done",
+      "objective": "[Clear statement of what this work package aims to accomplish]",
+      "body": "",
+      "preamble": ""
+    }
+  ],
+  "criteria": [
+    {
+      "id": "AC-00.1",
+      "text": "`mix gate` green at close -- format, compile and test both under warnings-as-errors, `credo --strict`",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": "impl.md Gate section"
+      }
+    },
+    {
+      "id": "AC-00.2",
+      "text": "Every fence this thread adds is mutation-checked: break the thing it guards, watch it go red, restore. A fence that cannot fail is not a fence",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": "impl.md mutation table"
+      }
+    },
+    {
+      "id": "AC-00.3",
+      "text": "Every module created is registered in `intent/llm/MODULES.md` before its file exists",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": "MODULES.md: SIA (the pattern layer) 3 rows + Test support 5 rows, registered before each file was created"
+      }
+    },
+    {
+      "id": "AC-01.1",
+      "text": "A run stages its pipeline loop-by-loop through the knot: `RunStarted` and `InputReceived` bracket the front, each loop contributes `StageEntered` then `StageProgressed` then `StageExited` in that order, and `RunCompleted` closes it. The stage's identity is the loop's own name -- no mapping table, no naming convention parsed out of tags",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-01.2",
+      "text": "A completed run's results are the same value in three places: the final stage's `StageCompleted` output, the `OutputProduced` emission payload, and `ctx.output`. No path exists by which a run reports completion while its results are absent",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-01.3",
+      "text": "Every fact the run derives arrives with its evidence: each `StageProgress` count equals the length of that stage's `StageCompleted` output, and every `MetadataSet` the run emits carries a declared key whose value recomputes exactly from the stage emissions in the same stream. A count cannot be recorded without the collection it counts",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-01.4",
+      "text": "The knot is the only transition: no `Riffle.Ctx` struct-update expression exists anywhere in `lib/` outside the waist, and the pattern layer contains no map-update expression of any kind. It changes run state by applying a perturbation or not at all. (Clarified before building, 2026-08-10: the first draft said \"no `%Riffle.Ctx{... | ...}` anywhere in lib/\", which fences only the explicit form -- the knot itself reaches its slots through bare `%{ctx | ...}`, and so would anything reaching in. The two-clause form above is what is actually provable, and it is stricter inside the layer)",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-01.5",
+      "text": "The pattern layer swallows nothing: it contains no `rescue`, `catch` or `after`, and an exception raised inside predicate evaluation propagates out of the run unchanged, with its type and message intact",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-01.6",
+      "text": "The engine names no pattern-layer module, at any depth -- the source layer's hardcoded fallback to its own default-pipeline module was the one stitch inside ported code, and it must not re-form",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-01.7",
+      "text": "The waist names no pattern-layer module -- the core does not know who is listening",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-01.8",
+      "text": "Ingest is total over its declared input and loud outside it: an enumerable of field maps or `Item` structs is accepted, and anything else raises naming what arrived",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-02.1",
+      "text": "A pipeline resolves from a closed source vocabulary -- a `Pipeline` struct, `{:module, module}`, `{:file, path}`, or `:default_module` -- and a source outside it is a loud failure, never a silent empty run",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-02.2",
+      "text": "The five archived characterisation assertions, every one pinned at `assert [] = results`, are green in Riffle in their strengthened form: each asserts the concrete surviving items and the concrete tags those items carry, not a shape",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-02.3",
+      "text": "The four archived tests that asserted nothing -- missing file, missing pipeline name from a module, missing name from a file, empty input -- each assert a concrete outcome here",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-02.4",
+      "text": "An unresolvable source fails the run as a typed signal: status `:failed`, the reason in `ctx.errors`, an `ErrorRaised` emission carrying it, and no results claimed anywhere in the stream",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-02.5",
+      "text": "Riffle ships its own sense/infer/act pipeline definition in both source forms",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": "priv/sia/sia.pred and lib/riffle/sia/default_pipeline.ex"
+      }
+    },
+    {
+      "id": "AC-02.6",
+      "text": "The file source and the module source agree: the same definitions over the same input produce identical results, item for item and tag for tag",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-03.1",
+      "text": "design.md records the decisions with their rationale, including what was deliberately not built",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": "intent/st/ST0003/design.md"
+      }
+    },
+    {
+      "id": "AC-03.2",
+      "text": "impl.md records the as-built, the critic rounds and their outcomes, and the mutation table",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": "intent/st/ST0003/impl.md"
+      }
+    },
+    {
+      "id": "AC-03.3",
+      "text": "Rule-library conformance at ST0001/ST0002's bar: `critic-elixir` review and test-check over every file this thread touched, every CRITICAL and every Highlander WARNING fixed at source, none suppressed",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": "impl.md Critic rounds"
+      }
+    },
+    {
+      "id": "AC-03.4",
+      "text": "Zero source-project traces in the new files",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": "extrication_gate_test green across the new lib/, priv/ and test/ files"
+      }
+    },
+    {
+      "id": "AC-03.5",
+      "text": "`intent/docs/bedrock.md` reflects the pattern layer: the commitments it adds, or the recorded finding that none changed",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": "intent/docs/bedrock.md"
+      }
+    }
+  ],
+  "tests": [
+    {
+      "id": "AT-01.1",
+      "kind": "test",
+      "covers": [
+        "AC-01.1"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/sia/sia_test.exs::\"invariant: a run stages every loop through the knot, in order\""
+      }
+    },
+    {
+      "id": "AT-01.2",
+      "kind": "test",
+      "covers": [
+        "AC-01.2"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/sia/evidence_fence_test.exs::\"fence: a completed run's results are the same value in all three places\""
+      }
+    },
+    {
+      "id": "AT-01.3",
+      "kind": "test",
+      "covers": [
+        "AC-01.3"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/sia/evidence_fence_test.exs::\"fence: every derived fact arrives with its evidence\""
+      }
+    },
+    {
+      "id": "AT-01.4",
+      "kind": "test",
+      "covers": [
+        "AC-01.4"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/single_transition_fence_test.exs (3: no Ctx struct-update outside the waist, no map update at all in the layer, and a control proving the walk sees both update spellings and neither construction nor match)"
+      }
+    },
+    {
+      "id": "AT-01.5",
+      "kind": "test",
+      "covers": [
+        "AC-01.5"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/sia/no_rescue_fence_test.exs (2: the AST fence over the layer, and a raising predicate propagating out of a run)"
+      }
+    },
+    {
+      "id": "AT-01.6",
+      "kind": "test",
+      "covers": [
+        "AC-01.6"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/boundary_fence_test.exs::\"fence: the engine names no pattern-layer module\""
+      }
+    },
+    {
+      "id": "AT-01.7",
+      "kind": "test",
+      "covers": [
+        "AC-01.7"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/boundary_fence_test.exs::\"fence: the waist names no pattern-layer module\""
+      }
+    },
+    {
+      "id": "AT-01.8",
+      "kind": "test",
+      "covers": [
+        "AC-01.8"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/sia/sia_test.exs (2: field maps and Item structs both ingest; anything else raises naming what arrived)"
+      }
+    },
+    {
+      "id": "AT-02.1",
+      "kind": "test",
+      "covers": [
+        "AC-02.1"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/sia/sources_test.exs::\"invariant: the source vocabulary is closed and an unknown source raises\""
+      }
+    },
+    {
+      "id": "AT-02.2",
+      "kind": "test",
+      "covers": [
+        "AC-02.2"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/sia/characterisation_test.exs (5: main and sense from a module, main, sense and infer from a file"
+      }
+    },
+    {
+      "id": "AT-02.3",
+      "kind": "test",
+      "covers": [
+        "AC-02.3",
+        "AC-02.4"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/sia/characterisation_test.exs (4: the tests that asserted nothing, each now asserting a concrete outcome)"
+      }
+    },
+    {
+      "id": "AT-02.4",
+      "kind": "test",
+      "covers": [
+        "AC-02.6"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/sia/sources_test.exs::\"invariant: the file source and the module source produce identical results\""
+      }
+    }
+  ]
+}

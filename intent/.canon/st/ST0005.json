@@ -1,0 +1,293 @@
+{
+  "schema": "intent/thread@3.0",
+  "id": "ST0005",
+  "title": "Documentation: moduledocs, ex_doc, and the .pred language reference",
+  "slug": "documentation-moduledocs-ex-doc-and-the-pred",
+  "status": "completed",
+  "created": "2026-08-11",
+  "completed": "2026-08-11T07:52:56Z",
+  "objective": "[Clear statement of what this steel thread aims to accomplish]",
+  "context": "[Background information and context for this steel thread, including why it's needed and how it fits into the larger project]",
+  "body": "",
+  "preamble": "",
+  "wps": [
+    {
+      "seq": 1,
+      "title": "The moduledoc pass",
+      "scope": "S",
+      "status": "done",
+      "objective": "[Clear statement of what this work package aims to accomplish]",
+      "body": "",
+      "preamble": ""
+    },
+    {
+      "seq": 2,
+      "title": "ex_doc and the README",
+      "scope": "S",
+      "status": "done",
+      "objective": "[Clear statement of what this work package aims to accomplish]",
+      "body": "",
+      "preamble": ""
+    },
+    {
+      "seq": 3,
+      "title": "The .pred language reference",
+      "scope": "S",
+      "status": "done",
+      "objective": "[Clear statement of what this work package aims to accomplish]",
+      "body": "",
+      "preamble": ""
+    }
+  ],
+  "criteria": [
+    {
+      "id": "AC-00.1",
+      "text": "`mix gate` green at close -- format, compile and test both under warnings-as-errors, `credo --strict`",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": "impl.md WP-03 Gate section"
+      }
+    },
+    {
+      "id": "AC-00.2",
+      "text": "Every fence this thread adds is mutation-checked: break the thing it guards, watch it go red, restore",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": "impl.md mutation tables M1-M10"
+      }
+    },
+    {
+      "id": "AC-00.3",
+      "text": "Documentation claims are checked mechanically wherever a machine can check them, rather than reviewed once and trusted thereafter. A doc that drifts from the code goes red",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-01.1",
+      "text": "No moduledoc teaches a model the architecture refutes. In particular the root `Riffle` moduledoc no longer presents three fixed tag-driven stages: a pipeline has as many stages as it declares loops, and a stage's identity is the loop's own name",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-01.2",
+      "text": "Every `Module.fun/arity` and `fun/arity` reference in every moduledoc and `@doc` resolves to something that exists, and this is enforced over the whole compiled application rather than fixed once",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-01.3",
+      "text": "The typed vocabulary of the waist documents itself: each perturbation and each emission states what it means, what its payload carries, and how it relates to its counterpart across the knot. A reader can tell `StageProgress` from `StageCompleted` -- the distinction the D2 defect turned on -- from the docs alone",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-01.4",
+      "text": "Generated public functions do not appear as undocumented API: a module built from the DSL presents its own surface, not one entry per predicate, loop and pipeline it defines",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-01.5",
+      "text": "A module whose docs make a claim a doctest could check carries that doctest. Applied to the modules the survey found carrying substantial prose and zero executable examples",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-01.6",
+      "text": "Every doctest in the tree passes, so every documented example is a checked example",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-02.1",
+      "text": "`mix docs` produces an API reference from the existing moduledocs, with the deps declared dev-only so the library's runtime dependencies are unchanged",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": "impl.md WP-02 As built"
+      }
+    },
+    {
+      "id": "AC-02.2",
+      "text": "The generated reference is grouped so a reader meets the five layers in order rather than an alphabetical list of 61 modules",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": "mix.exs `docs/0`, group counts in impl.md WP-02"
+      }
+    },
+    {
+      "id": "AC-02.3",
+      "text": "The README routes: what Riffle is, the shape, how to run it, and where to go for the language reference, the API and the architecture",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": "README.md Where to go next; also covered by AT-02.1"
+      }
+    },
+    {
+      "id": "AC-03.1",
+      "text": "`docs/pred-language.md` documents the whole `.pred` surface: the three definition forms, every expression form the evaluator accepts, and every standard-library predicate, each with an example",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": "docs/pred-language.md; surface counts in impl.md WP-03"
+      }
+    },
+    {
+      "id": "AC-03.2",
+      "text": "Every `.pred` snippet in the reference parses. A wrong example goes red rather than misleading a reader",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-03.3",
+      "text": "The reference covers the whole surface rather than a chosen subset: every public standard-library predicate is mentioned, checked against the modules themselves",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-03.4",
+      "text": "design.md and impl.md record the decisions, the as-built and the mutation table",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": "intent/st/ST0005/{design,impl}.md"
+      }
+    },
+    {
+      "id": "AC-03.5",
+      "text": "Rule-library conformance: `intent critic elixir` clean at every severity over every file this thread touches",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": "impl.md WP-03 Critic"
+      }
+    }
+  ],
+  "tests": [
+    {
+      "id": "AT-01.1",
+      "kind": "test",
+      "covers": [
+        "AC-01.1"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/docs/doc_conformance_test.exs (2: no doc describes stages as driven by tag prefixes, plus a control that the walk sees the phrasing)"
+      }
+    },
+    {
+      "id": "AT-01.2",
+      "kind": "test",
+      "covers": [
+        "AC-01.2",
+        "AC-00.3"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/docs/doc_conformance_test.exs (2: every reference resolves over the whole application, plus a both-directions control)"
+      }
+    },
+    {
+      "id": "AT-01.3",
+      "kind": "test",
+      "covers": [
+        "AC-01.3"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/docs/doc_conformance_test.exs (3: every catalog member describes each of its own fields, none left at one line, plus a control the catalogs are non-empty)"
+      }
+    },
+    {
+      "id": "AT-01.4",
+      "kind": "test",
+      "covers": [
+        "AC-01.4"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/docs/doc_conformance_test.exs (2: a DSL module exposes no undocumented function, plus a control that accessors are really generated)"
+      }
+    },
+    {
+      "id": "AT-01.5",
+      "kind": "test",
+      "covers": [
+        "AC-01.5",
+        "AC-01.6"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/docs/doc_conformance_test.exs (2: every module with an example has a doctest running it, plus a control) and the 90 doctests themselves"
+      }
+    },
+    {
+      "id": "AT-02.1",
+      "kind": "test",
+      "covers": [
+        "AC-02.3",
+        "AC-00.3"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/docs/doc_conformance_test.exs (2: every link in the README resolves to something in the repository, plus a control that the walk sees the routes it checks)"
+      }
+    },
+    {
+      "id": "AT-03.1",
+      "kind": "test",
+      "covers": [
+        "AC-03.2"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/docs/pred_reference_test.exs (3: every `pred` snippet loads AND materialises through the loader, plus controls that a non-definition and an unresolvable reference are both reported)"
+      }
+    },
+    {
+      "id": "AT-03.2",
+      "kind": "test",
+      "covers": [
+        "AC-03.3"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/docs/pred_reference_test.exs (2: every public builder the modules declare appears in the reference, plus a control that the surface is derived rather than transcribed)"
+      }
+    },
+    {
+      "id": "AT-03.3",
+      "kind": "test",
+      "covers": [
+        "AC-03.1",
+        "AC-00.3"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/docs/pred_reference_test.exs (2: every documented expression is a form the evaluator accepts, checked by evaluating it, plus a control that a form outside the language is reported)"
+      }
+    }
+  ]
+}

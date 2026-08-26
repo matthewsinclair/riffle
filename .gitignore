@@ -28,3 +28,15 @@ riffle-*.tar
 /tmp/
 .elixir_ls/
 .elixir-tools/
+
+# Per-developer Claude Code settings (paths and tool allowlists vary).
+.claude/settings.local.json
+
+# Treeindex cache (derived, machine-local; regenerate with 'intent treeindex <dir>').
+intent/.treeindex/
+
+# The Intent runtime store: per-machine, rebuilt from the committed extract.
+intent/.cache/
+
+# Intent migration backups (machine-local, never committed).
+.backup/

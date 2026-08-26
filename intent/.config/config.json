@@ -1,11 +1,12 @@
 {
-  "intent_version": "2.18.0",
-  "project_name": "Riffle",
   "author": "matts",
   "created": "2026-08-10",
-  "st_prefix": "ST",
   "dft_width": 120,
+  "intent_version": "3.0.0-dev",
   "languages": [
     "elixir"
-  ]
+  ],
+  "project_id": "81f07d77-9414-4804-92d9-ff8f98b8d0f9",
+  "project_name": "Riffle",
+  "st_prefix": "ST"
 }

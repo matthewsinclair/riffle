@@ -1,0 +1,214 @@
+{
+  "schema": "intent/thread@3.0",
+  "id": "ST0001",
+  "title": "Extricate Predicate and SIA from Multiplyer",
+  "slug": "extricate-predicate-and-sia-from-multiplyer",
+  "status": "completed",
+  "created": "2026-08-10",
+  "completed": "2026-08-10T20:41:48Z",
+  "objective": "Port the Predicate engine and extricate the SIA assets from Multiplyer (post-archive: `~/Devel/_Archive/Multiplyer` -- a runnable repo; read-only forensics there are fine, no new work lands in its history). The engine lifts nearly as-is WITH its tests -- it is Ctx-free (zero Ctx call sites, measured 2026-08-10). SIA glue and datasource are carried over as reference material for ST0003's rewrite, not grafted verbatim.\n\nFIRST TASK, before any porting: root-cause D2 -- `Multiplyer.Sia.process(ctx, :default_module)` yields `[]` where the pre-compiled pipeline should produce tagged items. Five characterisation tests in `test/multiplyer/sia/sia_pipeline_test.exs` pin `assert [] = results` deliberately. The verdict that matters: does the defect live in the Predicate engine (it TRAVELS with the port) or in SIA glue (it dies in ST0003's rewrite)? Ownership of this diagnosis transferred here from Multiplyer ST0042/WP-02 by owner re-sequencing (2026-08-10).",
+  "context": "The full bill of materials, measured dependency facts, ctx-next contract table, stitch-severance notes, and defect ledger live in `intent/docs/extrication-handoff.md` -- read it first. Provenance and the complete triage record: Multiplyer ST0042 (`_Archive/Multiplyer/intent/st/ST0042/`).",
+  "body": "## Related Steel Threads\n\n- ST0002 (ctx-next: the Bowtie waist) -- the engine port does not block on it; SIA rewrite (ST0003) needs both\n- ST0003 (SIA pattern layer rewrite) -- consumes this thread's ported engine + ST0002's waist",
+  "preamble": "",
+  "related": [
+    {
+      "id": "ST0002",
+      "note": "ctx-next: the Bowtie waist) -- the engine port does not block on it; SIA rewrite (ST0003) needs both"
+    },
+    {
+      "id": "ST0003",
+      "note": "SIA pattern layer rewrite) -- consumes this thread's ported engine + ST0002's waist"
+    }
+  ],
+  "wps": [
+    {
+      "seq": 1,
+      "title": "D2 root-cause and verdict",
+      "scope": "S",
+      "status": "done",
+      "objective": "Root-cause D2 in the archive (read-only): `Sia.process(ctx, :default_module)` yields `[]` where the pre-compiled pipeline should produce tagged items. Deliver the verdict that decides whether the Predicate port (WP-03) carries a red-first bug fix: does the defect live in the engine (travels) or in SIA glue (dies in ST0003's rewrite)?",
+      "body": "## Deliverables\n\n- Engine-vs-glue verdict with file:line evidence, recorded in design.md \"D2 verdict\"\n- If engine-side: contract amendment adding the red-first AT to WP-03\n\n## Dependencies\n\n- None. Precedes WP-03 (the verdict may extend its scope). Time-boxed ~2h; on overrun, record the partial trace and escalate to hv.",
+      "preamble": ""
+    },
+    {
+      "seq": 2,
+      "title": "Scaffolding and CI gate",
+      "scope": "S",
+      "status": "done",
+      "objective": "Stand up the quality gate before any ported line lands: `mix format --check-formatted`, compile and `mix test --warnings-as-errors` with the flag covering TEST compilation, wired locally and in GitHub Actions. Green on the empty skeleton proves the gate itself.",
+      "body": "## Deliverables\n\n- `.github/workflows/ci.yml` (format + compile + test, warnings-as-errors)\n- Green local gate run on the empty skeleton\n\n## Dependencies\n\n- None. Precedes WP-03 (the gate exists before ported code lands).",
+      "preamble": ""
+    },
+    {
+      "seq": 3,
+      "title": "Predicate engine port",
+      "scope": "M",
+      "status": "done",
+      "objective": "Port the Predicate engine (15 files, ~5.1k LOC) and its test suite into `lib/riffle/predicate/` / `test/riffle/predicate/` per the design.md rename map. Sever stitch 1 (config-injected default-pipeline resolution, DD-1), fix D5, and land with zero source-project traces (DD-2). Discipline per DD-4 as amended (hv 2026-08-10): engine semantics port; shapes that conflict with the rule library are rewritten -- code and tests -- in layered commits, green at each step.",
+      "body": "## Deliverables\n\n- `Riffle.Predicate` subtree + ported test suite, green under the WP-02 gate\n- AT-03.2 zero-trace gate test and AT-03.3 config-resolution tests (written red-first, per design.md approach order)\n- critic-elixir advisory findings logged for a later thread (not gating)\n\n## Dependencies\n\n- WP-01 (verdict may add a red-first AT to this scope)\n- WP-02 (gate exists before ported code lands)",
+      "preamble": ""
+    },
+    {
+      "seq": 4,
+      "title": "PFIC transform and hydration consolidation",
+      "scope": "M",
+      "status": "done",
+      "objective": "Execute DD-7 (hv ruling): transform the ported engine to house shape -- pattern-matched clause heads, with-railways, tagged tuples -- and collapse the six ad-hoc hydration/resolution sites (four different failure behaviours) into one loud resolver, of which `Loop.resolve_reference!/2` and `Dsl.Macro.hydrate_*_ref!/2` are the seeds. File-by-file, gate green at every step; the behaviour pins landed by WP-03 (un-neutered filtering tests, exact tag/counter pins) are the safety net.",
+      "body": "## Deliverables\n\n- Single hydration/resolution module; pipeline.ex, loop.ex, registry.ex, loader.ex, and the macro layer all route through it (kills the remaining nil-propagation and silent-drop warnings from the critic report)\n- Loop single-item and stream paths share one evaluation entry point (today `process/2` is cached, `filter/2` bypasses the cache entirely)\n- One STD access path (delete the `Riffle.Predicate.STD` / `Dsl.STD` twin)\n- macro/parser block-level unrecognised statements raise instead of silently dropping\n- expr-macro test family consolidated: one canonical expr test file + shared support helper; bug/workaround scratch files deleted (diagnosis lives in git history)\n- DSL coercion contract (to_integer garbage->0, truthiness drift between Evaluator and StandardLib) decided by hv, then enforced in one canonical coercion module\n- critic-elixir re-run on lib/ + test/: zero CRITICAL, zero Highlander/PFIC WARNINGs\n\n## Dependencies\n\n- WP-03 done (behaviour pins in place). The critic advisory suggests a socrates design pass on the resolver consolidation before implementation. AC-04.5 (coercion contract) needs an hv ruling before its implementation starts.",
+      "preamble": ""
+    }
+  ],
+  "criteria": [
+    {
+      "id": "AC-01.1",
+      "text": "D2 root-caused with the engine-vs-glue verdict recorded, file:line evidence from real reads of the archive",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": "design.md \"D2 verdict\" section"
+      }
+    },
+    {
+      "id": "AC-02.1",
+      "text": "CI runs format check + compile + test with warnings-as-errors covering test compilation, green on the skeleton before the port lands",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": ".github/workflows/ci.yml runs `mix gate` (the single local/CI gate alias in mix.exs); local `mix gate` green on skeleton 2026-08-10 (upstream Actions run lands on next hv push)"
+      }
+    },
+    {
+      "id": "AC-03.1",
+      "text": "The ported engine and its full ported test suite are green under `mix test --warnings-as-errors` (D5 class structurally excluded)",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-03.2",
+      "text": "Zero source-project traces in `lib/` and `test/` -- modules, atoms, app-env keys, strings, comments, moduledocs (hv ruling 2026-08-10)",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-03.3",
+      "text": "Default-pipeline resolution is config-injected (`:riffle, :default_pipeline`); unset config surfaces an explicit error; the engine names no pattern-layer module",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-03.4",
+      "text": "Ported code and tests remediated against the rule library -- critic-elixir run on the ported tree with CRITICAL/HIGH findings fixed (hv rewrite-flexibility ruling 2026-08-10; DD-4 as amended)",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": "critic reports (11 CRITICAL: 5 lib + 6 test, all fixed in commits 29eac91, 335a655, bea85fa; structural WARNINGs dispositioned to WP-04 per DD-7)"
+      }
+    },
+    {
+      "id": "AC-04.1",
+      "text": "One hydration/resolution path: pipeline.ex, loop.ex, registry.ex, loader.ex, and macro-generated functions resolve references through a single loud resolver; no residual ad-hoc resolution",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-04.2",
+      "text": "Engine conditional shapes conform to PFIC; critic-elixir re-run on lib/riffle/ reports zero CRITICAL and zero Highlander/PFIC WARNINGs",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": "full-tree re-run post-c10 (0 CRITICAL, 6 WARNING -> 5 fixed in R4a d8cac87, 1 in R4b 7c3c940) + targeted R4b re-review of the four DSL files (0 CRITICAL, 0 WARNING; Highlander/PFIC verified structurally: block ladders exist only in Dsl.Statements); test-check re-run 0 CRITICAL at R4a, and its post-R4b CRITICAL (the STD test proving nothing) exposed-and-fixed at 7c3c940"
+      }
+    },
+    {
+      "id": "AC-04.3",
+      "text": "Loop single-item and stream paths share one evaluation entry point, cache honoured on both",
+      "kind": "test",
+      "state": {
+        "is": "computed"
+      }
+    },
+    {
+      "id": "AC-04.4",
+      "text": "expr-macro test family consolidated to one canonical file + shared support helper; scratch files deleted; suite green",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": "c9 (c0d80fa): five scratch files deleted, `test/riffle/predicate/dsl/expr_test.exs` canonical with ONE shared in-file DSL fixture module (support-helper judgement recorded in impl.md: single consumer, no test/support indirection); gate 274 green"
+      }
+    },
+    {
+      "id": "AC-04.5",
+      "text": "DSL coercion contract (numeric parse, truthiness) ratified by hv and enforced in one canonical module",
+      "kind": "non-test",
+      "state": {
+        "is": "satisfied",
+        "evidence": "hv ruling 2026-08-10 (strict; DD-8 as-built note incl. `:loose` deferral) + `Riffle.Predicate.Coerce` consumed by Evaluator and StandardLib (c10, 577d4f5); coerce_test.exs + evaluator strict-boundary suite"
+      }
+    }
+  ],
+  "tests": [
+    {
+      "id": "AT-03.1",
+      "kind": "test",
+      "covers": [
+        "AC-03.1"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "full ported suite under `mix test --warnings-as-errors` (237 passed: 61 doctests, 176 tests)"
+      }
+    },
+    {
+      "id": "AT-03.2",
+      "kind": "test",
+      "covers": [
+        "AC-03.2"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/extrication_gate_test.exs::\"invariant: lib/ and test/ carry zero source-project traces\""
+      }
+    },
+    {
+      "id": "AT-03.3",
+      "kind": "test",
+      "covers": [
+        "AC-03.3"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/predicate/default_pipeline_resolution_test.exs (4 tests: configured resolution, unset-config raise, missing-predicate raise, default_pipeline/0)"
+      }
+    },
+    {
+      "id": "AT-04.1",
+      "kind": "test",
+      "covers": [
+        "AC-04.1"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/predicate/resolver_test.exs (23 tests, red-first at c1: both source kinds, chains, cycles, invalid refs, bang messages) + default_pipeline_resolution_test.exs nil-source additions + the un-neutered filtering suite's pins holding across the reroute"
+      }
+    },
+    {
+      "id": "AT-04.3",
+      "kind": "test",
+      "covers": [
+        "AC-04.3"
+      ],
+      "status": "green",
+      "legacy": {
+        "raw": "test/riffle/predicate/loop_cache_integration_test.exs::\"invariant: the stream filter path shares the cached evaluation entry point\" (red-first at c3: the stream path was re-evaluating cached items)"
+      }
+    }
+  ]
+}
