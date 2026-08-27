@@ -2,7 +2,7 @@ defmodule Mix.Tasks.Riffle.Cli do
   @moduledoc """
   Runs the Riffle CLI: `mix riffle.cli [command] [args]`.
 
-  This is what `bin/riffle cli` resolves to, and it is a doorway and nothing
+  This is what `bin/devbin cli` resolves to, and it is a doorway and nothing
   more. It hands argv to the CLI framework and returns.
 
   It does **not** call `Riffle.Service` directly. Reading "the mix task is a

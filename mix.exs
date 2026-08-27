@@ -108,7 +108,7 @@ defmodule Riffle.MixProject do
 
       # Static analysis. The same line every other elixir project in both fleets
       # carries (arca_cli, arca_config, Baize, Prolix), and it is what
-      # `bin/riffle test credo` runs. Without it that gate dies with "the task
+      # `bin/devbin test credo` runs. Without it that gate dies with "the task
       # credo could not be found", which reads as a broken launcher rather than
       # as a dependency this project never had.
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false}

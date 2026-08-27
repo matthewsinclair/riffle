@@ -34,7 +34,7 @@ defmodule Riffle.Cli.MixTaskTest do
   end
 
   test "invariant: the task is where the devbin launcher looks for it" do
-    # `bin/riffle cli` shells to `mix <project>.cli`, so the task's name is not
+    # `bin/devbin cli` shells to `mix <project>.cli`, so the task's name is not
     # a free choice -- it is what the launcher resolves. Before this existed the
     # launcher reported "the task riffle.cli could not be found", which reads as
     # a broken launcher rather than a missing feature.

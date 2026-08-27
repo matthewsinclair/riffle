@@ -2,7 +2,7 @@ defmodule Riffle.Cli.ConfigTest do
   use ExUnit.Case, async: true
 
   # This file exists because of a real defect, found by hv rather than by the
-  # suite: `bin/riffle cli` with no arguments raised
+  # suite: `bin/devbin cli` with no arguments raised
   #
   #   could not fetch application environment :url for application :arca_cli
   #

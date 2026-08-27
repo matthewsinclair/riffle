@@ -62,7 +62,7 @@
 | The `sia` namespace parent               | Riffle.Cli.Commands.SiaCommand          | help-on-empty parent for the dot-notation subcommands                      |
 | `sia.run` -- run a pipeline over input   | Riffle.Cli.Commands.SiaRunCommand       | parse to call to render; reaches the system only through Riffle.Service    |
 | `sia.pipelines` -- list a source's names | Riffle.Cli.Commands.SiaPipelinesCommand | reports what a source defines without running it                           |
-| The mix doorway                          | Mix.Tasks.Riffle.Cli                    | `bin/riffle cli` lands here; names Arca.Cli only -- one argv parser exists |
+| The mix doorway                          | Mix.Tasks.Riffle.Cli                    | `bin/devbin cli` lands here; names Arca.Cli only -- one argv parser exists |
 
 ### Test support
 

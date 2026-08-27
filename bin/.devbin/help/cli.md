@@ -2,7 +2,7 @@
 
 Run Riffle's own command-line interface.
 
-`bin/riffle cli [command] [args]` hands its arguments to the CLI and prints what
+`bin/devbin cli [command] [args]` hands its arguments to the CLI and prints what
 comes back. With no arguments it lists every command available.
 
 ## Commands
@@ -15,7 +15,7 @@ Plus the framework's own: `help`, `repl`, `history`, `redo`, `cfg.*`,
 
 ## Running a pipeline
 
-    bin/riffle cli sia.run --input priv/sia/sample.csv --from priv/sia/sia.pred
+    bin/devbin cli sia.run --input priv/sia/sample.csv --from priv/sia/sia.pred
 
     ✓ main: 6 of 10 rows kept
     ┌────────────────┬──────┐
@@ -45,7 +45,7 @@ than quietly running an example pipeline you did not choose.
 
 ## Finding pipeline names
 
-    bin/riffle cli sia.pipelines --from priv/sia/sia.pred
+    bin/devbin cli sia.pipelines --from priv/sia/sia.pred
 
     * infer_pipeline
     * main
@@ -53,16 +53,16 @@ than quietly running an example pipeline you did not choose.
 
 ## Machine-readable output
 
-    bin/riffle cli sia.run --input data.csv --from defs.pred --format json
+    bin/devbin cli sia.run --input data.csv --from defs.pred --format json
 
 ## Interactive
 
-    bin/riffle repl
+    bin/devbin repl
 
 Tab completion, command history and `redo`, all from the CLI framework.
 
 ## Related
 
-- `bin/riffle help repl` -- the interactive shell
+- `bin/devbin help repl` -- the interactive shell
 - `mix riffle.cli` -- the same CLI without the launcher
 - `_build/escript/riffle` -- a standalone binary; build it with `mix escript.build`
