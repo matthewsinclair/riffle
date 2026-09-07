@@ -2,13 +2,13 @@
 
 An index of every steel thread in the project. A steel thread is a self-contained unit of work focused on implementing one piece of functionality.
 
-| ID     | Slug                                             | Status    | Created    | Completed            |
-| ------ | ------------------------------------------------ | --------- | ---------- | -------------------- |
-| ST0005 | documentation-moduledocs-ex-doc-and-the-pred     | Completed | 2026-08-11 | 2026-08-11T07:52:56Z |
-| ST0004 | the-cli-a-thin-coordinator-over-a-service-module | Completed | 2026-08-11 | 2026-08-11T06:55:38Z |
-| ST0003 | sia-pattern-layer-rewrite                        | Completed | 2026-08-10 | 2026-08-10T23:09:11Z |
-| ST0002 | ctx-next-the-bowtie-waist                        | Completed | 2026-08-10 | 2026-08-10T22:32:48Z |
-| ST0001 | extricate-predicate-and-sia-from-multiplyer      | Completed | 2026-08-10 | 2026-08-10T20:41:48Z |
+| ID     | Title                                                               | Status    | Created    | Completed            |
+| ------ | ------------------------------------------------------------------- | --------- | ---------- | -------------------- |
+| ST0005 | Documentation: moduledocs, ex_doc, and the .pred language reference | Completed | 2026-08-11 | 2026-08-11T07:52:56Z |
+| ST0004 | The CLI: a thin coordinator over a service module                   | Completed | 2026-08-11 | 2026-08-11T06:55:38Z |
+| ST0003 | SIA pattern layer rewrite                                           | Completed | 2026-08-10 | 2026-08-10T23:09:11Z |
+| ST0002 | ctx-next: the Bowtie waist                                          | Completed | 2026-08-10 | 2026-08-10T22:32:48Z |
+| ST0001 | Extricate Predicate and SIA from Multiplyer                         | Completed | 2026-08-10 | 2026-08-10T20:41:48Z |
 
 ---
 
