@@ -5,7 +5,7 @@
   },
   "created": "2026-08-10",
   "dft_width": 120,
-  "intent_version": "3.0.3",
+  "intent_version": "3.1.0",
   "languages": [
     "elixir"
   ],
