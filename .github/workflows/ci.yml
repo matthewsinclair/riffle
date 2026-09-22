@@ -16,10 +16,18 @@ on:
   pull_request:
 
 # SUPERSEDED RUNS ARE CANCELLED (hv's ruling of 2026-09-21; devbin#0108 carries
-# the reasoning). The EVENT is part of the key because a push and an on-demand
-# run share a ref, and a group keyed on the ref alone lets each cancel the
-# other. GitHub already replaces a PENDING run in the group; cancel-in-progress
-# adds the one that is RUNNING, which is where the minutes are.
+# the reasoning). The EVENT is part of the key because that is the spelling the
+# whole fleet shares. Where a workflow HAS a dispatch or a schedule trigger, a
+# push and an on-demand run share a ref, so a group keyed on the ref alone lets
+# each cancel the other. THIS workflow has neither -- its only triggers are push
+# and pull_request, checked in this file -- so that hazard is the fleet's reason
+# for the spelling rather than ours. GitHub already replaces a PENDING run in
+# the group; cancel-in-progress adds the one that is RUNNING, which is where the
+# minutes are.
+#
+# The earlier wording asserted the dispatch hazard as this repository's own,
+# which would tell a later reader we have on-demand runs here. Caught at Laksa
+# by laksa/dc, 2026-09-22, and swept to every estate the same sentence reached.
 #
 # There is no tag trigger here, deliberately: the tag trigger exists so a macOS
 # leg can run on a release, and this repository has no macOS job. Adding one
