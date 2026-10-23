@@ -41,3 +41,11 @@ intent/.cache/
 # Intent migration backups (machine-local, never committed).
 .backup/
 intent/.backup/
+
+# Intent's hook carriers are SHIPPED CANON, written by `intent claude upgrade
+# --apply` into whatever `git rev-parse --git-path hooks` resolves to -- .githooks
+# here, since core.hooksPath points at it (the guards adoption pass, 2026-10-23).
+# The dispatchers beside them are tracked so a clone receives them; the carriers
+# are the installer's, and a fresh clone gets them from `intent claude upgrade
+# --apply`, refusing every commit as GATE ABSENT until it runs.
+.githooks/*.intent
