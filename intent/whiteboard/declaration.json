@@ -1,0 +1,8 @@
+{
+  "schema": "intent/team-declaration@1.0",
+  "base": "solo",
+  "layers": [],
+  "mediator": "gc",
+  "human": "hv",
+  "readme_baseline": "7d8ce3ba2da621c98edca45d4257f8e223a7a169a30261e5c121df786387fe4b"
+}
