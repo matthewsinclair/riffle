@@ -1,0 +1,8 @@
+{
+  "id": "AC-02.5",
+  "text": "Replay holds: a recorded perturbation sequence applied to the same initial Ctx reproduces an identical trajectory of `{ctx', emissions}` pairs",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

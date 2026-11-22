@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.6",
+  "text": "Every doctest in the tree passes, so every documented example is a checked example",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

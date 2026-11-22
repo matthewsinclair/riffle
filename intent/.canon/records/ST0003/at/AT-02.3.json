@@ -1,0 +1,12 @@
+{
+  "id": "AT-02.3",
+  "kind": "test",
+  "covers": [
+    "AC-02.3",
+    "AC-02.4"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/sia/characterisation_test.exs (4: the tests that asserted nothing, each now asserting a concrete outcome)"
+  }
+}

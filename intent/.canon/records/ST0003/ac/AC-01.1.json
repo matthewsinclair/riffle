@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.1",
+  "text": "A run stages its pipeline loop-by-loop through the knot: `RunStarted` and `InputReceived` bracket the front, each loop contributes `StageEntered` then `StageProgressed` then `StageExited` in that order, and `RunCompleted` closes it. The stage's identity is the loop's own name -- no mapping table, no naming convention parsed out of tags",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

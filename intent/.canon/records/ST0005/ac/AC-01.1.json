@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.1",
+  "text": "No moduledoc teaches a model the architecture refutes. In particular the root `Riffle` moduledoc no longer presents three fixed tag-driven stages: a pipeline has as many stages as it declares loops, and a stage's identity is the loop's own name",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

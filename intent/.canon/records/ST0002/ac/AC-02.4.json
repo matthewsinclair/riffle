@@ -1,0 +1,8 @@
+{
+  "id": "AC-02.4",
+  "text": "The knot emits the full typed stream unconditionally -- it takes no consumer, mask, or filter argument, and never branches its generation on who is listening",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

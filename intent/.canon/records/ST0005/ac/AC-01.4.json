@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.4",
+  "text": "Generated public functions do not appear as undocumented API: a module built from the DSL presents its own surface, not one entry per predicate, loop and pipeline it defines",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

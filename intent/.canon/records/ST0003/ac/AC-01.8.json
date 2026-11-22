@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.8",
+  "text": "Ingest is total over its declared input and loud outside it: an enumerable of field maps or `Item` structs is accepted, and anything else raises naming what arrived",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

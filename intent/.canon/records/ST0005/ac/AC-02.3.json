@@ -1,0 +1,9 @@
+{
+  "id": "AC-02.3",
+  "text": "The README routes: what Riffle is, the shape, how to run it, and where to go for the language reference, the API and the architecture",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "README.md Where to go next; also covered by AT-02.1"
+  }
+}

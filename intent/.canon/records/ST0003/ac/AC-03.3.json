@@ -1,0 +1,9 @@
+{
+  "id": "AC-03.3",
+  "text": "Rule-library conformance at ST0001/ST0002's bar: `critic-elixir` review and test-check over every file this thread touched, every CRITICAL and every Highlander WARNING fixed at source, none suppressed",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "impl.md Critic rounds"
+  }
+}

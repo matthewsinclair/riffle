@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.2",
+  "text": "The summary names exactly the loops the pipeline declares, in declaration order, by their own names, and is computed from the run's own stage evidence. Proven over a pipeline of four loops whose names follow no convention: a four-loop pipeline summarises as four stages under those four names, with no code change and no naming convention parsed out of tags",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

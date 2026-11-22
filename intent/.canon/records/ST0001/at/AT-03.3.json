@@ -1,0 +1,11 @@
+{
+  "id": "AT-03.3",
+  "kind": "test",
+  "covers": [
+    "AC-03.3"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/predicate/default_pipeline_resolution_test.exs (4 tests: configured resolution, unset-config raise, missing-predicate raise, default_pipeline/0)"
+  }
+}

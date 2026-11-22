@@ -1,0 +1,9 @@
+{
+  "id": "AC-03.1",
+  "text": "`docs/pred-language.md` documents the whole `.pred` surface: the three definition forms, every expression form the evaluator accepts, and every standard-library predicate, each with an example",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "docs/pred-language.md; surface counts in impl.md WP-03"
+  }
+}

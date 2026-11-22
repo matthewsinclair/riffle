@@ -1,0 +1,10 @@
+{
+  "id": "AT-02.4",
+  "kind": "test",
+  "file": "test/riffle/cli/sia_run_command_test.exs",
+  "covers": [
+    "AC-02.4"
+  ],
+  "status": "green",
+  "note": "outcome follows the run, both directions, across six failure shapes"
+}

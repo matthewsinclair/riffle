@@ -1,0 +1,9 @@
+{
+  "id": "AC-03.4",
+  "text": "Ported code and tests remediated against the rule library -- critic-elixir run on the ported tree with CRITICAL/HIGH findings fixed (hv rewrite-flexibility ruling 2026-08-10; DD-4 as amended)",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "critic reports (11 CRITICAL: 5 lib + 6 test, all fixed in commits 29eac91, 335a655, bea85fa; structural WARNINGs dispositioned to WP-04 per DD-7)"
+  }
+}

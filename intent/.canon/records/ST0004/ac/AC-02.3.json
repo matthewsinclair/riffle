@@ -1,0 +1,8 @@
+{
+  "id": "AC-02.3",
+  "text": "Output style is the framework's vocabulary reached through `Arca.Cli.Ctx.parse_style/1`, not a locally-invented format list, and an unrecognised style is refused rather than silently defaulted",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

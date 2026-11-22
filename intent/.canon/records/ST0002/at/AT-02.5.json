@@ -1,0 +1,11 @@
+{
+  "id": "AT-02.5",
+  "kind": "test",
+  "covers": [
+    "AC-02.5"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/ctx/knot_test.exs::\"invariant: a recorded perturbation sequence replays to the pinned trajectory\""
+  }
+}

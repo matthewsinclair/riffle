@@ -1,0 +1,9 @@
+{
+  "id": "AC-04.2",
+  "text": "Engine conditional shapes conform to PFIC; critic-elixir re-run on lib/riffle/ reports zero CRITICAL and zero Highlander/PFIC WARNINGs",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "full-tree re-run post-c10 (0 CRITICAL, 6 WARNING -> 5 fixed in R4a d8cac87, 1 in R4b 7c3c940) + targeted R4b re-review of the four DSL files (0 CRITICAL, 0 WARNING; Highlander/PFIC verified structurally: block ladders exist only in Dsl.Statements); test-check re-run 0 CRITICAL at R4a, and its post-R4b CRITICAL (the STD test proving nothing) exposed-and-fixed at 7c3c940"
+  }
+}

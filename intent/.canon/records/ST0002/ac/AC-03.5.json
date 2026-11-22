@@ -1,0 +1,9 @@
+{
+  "id": "AC-03.5",
+  "text": "`mix gate` green (format, compile and test under warnings-as-errors, `credo --strict`)",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "318 passed (67 doctests, 251 tests), 556 mods/funs, zero credo findings"
+  }
+}

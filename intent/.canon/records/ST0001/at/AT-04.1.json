@@ -1,0 +1,11 @@
+{
+  "id": "AT-04.1",
+  "kind": "test",
+  "covers": [
+    "AC-04.1"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/predicate/resolver_test.exs (23 tests, red-first at c1: both source kinds, chains, cycles, invalid refs, bang messages) + default_pipeline_resolution_test.exs nil-source additions + the un-neutered filtering suite's pins holding across the reroute"
+  }
+}

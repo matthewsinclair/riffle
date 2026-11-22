@@ -1,0 +1,9 @@
+{
+  "id": "AC-03.1",
+  "text": "`bin/riffle cli` reaches the CLI: the `riffle.cli` mix task exists, and the bare `bin/riffle cli`, `bin/riffle cli sia.run`, `bin/riffle help cli` and `bin/riffle repl` all run",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "impl.md"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.2",
+  "text": "A completed run's results are the same value in three places: the final stage's `StageCompleted` output, the `OutputProduced` emission payload, and `ctx.output`. No path exists by which a run reports completion while its results are absent",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

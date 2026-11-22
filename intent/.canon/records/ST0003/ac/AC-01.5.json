@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.5",
+  "text": "The pattern layer swallows nothing: it contains no `rescue`, `catch` or `after`, and an exception raised inside predicate evaluation propagates out of the run unchanged, with its type and message intact",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

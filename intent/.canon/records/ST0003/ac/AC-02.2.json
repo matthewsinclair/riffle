@@ -1,0 +1,8 @@
+{
+  "id": "AC-02.2",
+  "text": "The five archived characterisation assertions, every one pinned at `assert [] = results`, are green in Riffle in their strengthened form: each asserts the concrete surviving items and the concrete tags those items carry, not a shape",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

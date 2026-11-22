@@ -1,0 +1,9 @@
+{
+  "id": "AC-04.4",
+  "text": "expr-macro test family consolidated to one canonical file + shared support helper; scratch files deleted; suite green",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "c9 (c0d80fa): five scratch files deleted, `test/riffle/predicate/dsl/expr_test.exs` canonical with ONE shared in-file DSL fixture module (support-helper judgement recorded in impl.md: single consumer, no test/support indirection); gate 274 green"
+  }
+}

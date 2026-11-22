@@ -1,0 +1,8 @@
+{
+  "id": "AC-02.4",
+  "text": "A run that fails carries its reason into the command context and completes with a non-`:ok` outcome; a run that succeeds completes `:ok`. The exit status a caller sees follows the run, and a failed run never reports success",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

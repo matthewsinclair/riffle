@@ -1,0 +1,12 @@
+{
+  "id": "AT-02.1",
+  "kind": "test",
+  "covers": [
+    "AC-02.3",
+    "AC-00.3"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/docs/doc_conformance_test.exs (2: every link in the README resolves to something in the repository, plus a control that the walk sees the routes it checks)"
+  }
+}

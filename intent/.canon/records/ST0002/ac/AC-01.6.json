@@ -1,0 +1,9 @@
+{
+  "id": "AC-01.6",
+  "text": "The capability map is authored: each of the 24 measured Ctx functions maps to a perturbation, an emission, or a state read, or is dropped with a recorded reason",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "design.md \"Capability map\" section (20 expressed, 4 dropped with reasons: cargo pair, record_event, verbose?, Stats.get_all_stats)"
+  }
+}

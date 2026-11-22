@@ -1,0 +1,11 @@
+{
+  "id": "AT-01.2",
+  "kind": "test",
+  "covers": [
+    "AC-01.2"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/sia/evidence_fence_test.exs::\"fence: a completed run's results are the same value in all three places\""
+  }
+}

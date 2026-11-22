@@ -1,0 +1,8 @@
+{
+  "id": "AC-02.6",
+  "text": "The file source and the module source agree: the same definitions over the same input produce identical results, item for item and tag for tag",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

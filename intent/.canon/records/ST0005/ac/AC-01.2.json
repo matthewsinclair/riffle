@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.2",
+  "text": "Every `Module.fun/arity` and `fun/arity` reference in every moduledoc and `@doc` resolves to something that exists, and this is enforced over the whole compiled application rather than fixed once",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

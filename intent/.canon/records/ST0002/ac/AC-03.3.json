@@ -1,0 +1,9 @@
+{
+  "id": "AC-03.3",
+  "text": "Module registry and as-built design recorded",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "MODULES.md \"ctx-next (the waist)\" section (6 rows incl. Catalog and the test-support helper); design.md DD-1..DD-7 + capability map; impl.md as-built"
+  }
+}

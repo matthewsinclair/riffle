@@ -49,3 +49,12 @@ intent/.backup/
 # are the installer's, and a fresh clone gets them from `intent claude upgrade
 # --apply`, refusing every commit as GATE ABSENT until it runs.
 .githooks/*.intent
+
+# An Intent view of many records: every clone renders its own from the store, so none is committed.
+intent/st/steel_threads.md
+
+# An Intent view of many records: every clone renders its own from the store, so none is committed.
+intent/todo.md
+
+# An Intent view of many records: every clone renders its own from the store, so none is committed.
+intent/st/*/acceptance.md

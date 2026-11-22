@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.1",
+  "text": "One service entry point runs a pipeline over rows read from a file and returns a typed result carrying the run context, its emissions, and a summary. Every caller -- CLI, mix task, or a future one -- reaches the system through it and through nothing else",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

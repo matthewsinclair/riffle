@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.3",
+  "text": "The service names no CLI-framework module at any depth: the library remains usable, and its tests remain runnable, by a caller that never loads `Arca`. The CLI dependency is contained above the service, not threaded through it",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.6",
+  "text": "The engine names no pattern-layer module, at any depth -- the source layer's hardcoded fallback to its own default-pipeline module was the one stitch inside ported code, and it must not re-form",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

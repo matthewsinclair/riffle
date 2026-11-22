@@ -1,0 +1,10 @@
+{
+  "id": "AT-02.6",
+  "kind": "test",
+  "file": "test/riffle/single_transition_fence_test.exs",
+  "covers": [
+    "AC-02.6"
+  ],
+  "status": "green",
+  "note": "already sweeps lib/ minus the waist; the CLI layer inherits it"
+}

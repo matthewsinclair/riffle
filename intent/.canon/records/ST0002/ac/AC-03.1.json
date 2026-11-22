@@ -1,0 +1,8 @@
+{
+  "id": "AC-03.1",
+  "text": "The measured surface is covered by enumeration, not assertion: every capability in the map is checked against the live catalogs and state reads, and a declared drop must carry its reason",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "id": "AC-03.1",
+  "text": "design.md records the decisions with their rationale, including what was deliberately not built",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "intent/st/ST0003/design.md"
+  }
+}

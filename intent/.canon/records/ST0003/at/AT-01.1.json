@@ -1,0 +1,11 @@
+{
+  "id": "AT-01.1",
+  "kind": "test",
+  "covers": [
+    "AC-01.1"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/sia/sia_test.exs::\"invariant: a run stages every loop through the knot, in order\""
+  }
+}

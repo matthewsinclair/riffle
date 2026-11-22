@@ -1,0 +1,11 @@
+{
+  "id": "AT-02.3",
+  "kind": "test",
+  "covers": [
+    "AC-02.3"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/cli/sia_run_command_test.exs (4: every declared style accepted, an unknown one refused, and refusal stopping the run)"
+  }
+}

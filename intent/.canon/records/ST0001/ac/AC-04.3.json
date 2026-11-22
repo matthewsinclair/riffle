@@ -1,0 +1,8 @@
+{
+  "id": "AC-04.3",
+  "text": "Loop single-item and stream paths share one evaluation entry point, cache honoured on both",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

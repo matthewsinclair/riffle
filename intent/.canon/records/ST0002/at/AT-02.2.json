@@ -1,0 +1,11 @@
+{
+  "id": "AT-02.2",
+  "kind": "test",
+  "covers": [
+    "AC-02.2"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/ctx/knot_test.exs::\"invariant: the same perturbation against the same ctx yields the same pinned result\""
+  }
+}

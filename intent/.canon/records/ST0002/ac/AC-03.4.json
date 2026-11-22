@@ -1,0 +1,9 @@
+{
+  "id": "AC-03.4",
+  "text": "Rule-library conformance at ST0001's bar",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "two critic rounds (round 1: 1C/4W code, 6C test; round 2: 0C/3W code, 2C/3W test); every CRITICAL and every Highlander WARNING fixed at source, none suppressed"
+  }
+}

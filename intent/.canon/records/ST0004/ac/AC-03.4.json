@@ -1,0 +1,9 @@
+{
+  "id": "AC-03.4",
+  "text": "`bin/.devbin/help/cli.md` is authored, replacing the \"No authored detail yet\" stub",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "bin/.devbin/help/cli.md, rendered by `bin/riffle help cli`"
+  }
+}

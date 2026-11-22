@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.6",
+  "text": "Reading input is total over its declared form and loud outside it: a CSV whose first row is a header becomes one field map per data row keyed by that header, values carried as read; a file whose header row is absent or whose rows do not match the header is a tagged error, never a truncated or padded row",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

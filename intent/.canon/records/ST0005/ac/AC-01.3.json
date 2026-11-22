@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.3",
+  "text": "The typed vocabulary of the waist documents itself: each perturbation and each emission states what it means, what its payload carries, and how it relates to its counterpart across the knot. A reader can tell `StageProgress` from `StageCompleted` -- the distinction the D2 defect turned on -- from the docs alone",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

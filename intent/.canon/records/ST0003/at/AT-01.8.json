@@ -1,0 +1,11 @@
+{
+  "id": "AT-01.8",
+  "kind": "test",
+  "covers": [
+    "AC-01.8"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/sia/sia_test.exs (2: field maps and Item structs both ingest; anything else raises naming what arrived)"
+  }
+}

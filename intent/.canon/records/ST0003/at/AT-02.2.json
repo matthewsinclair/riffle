@@ -1,0 +1,11 @@
+{
+  "id": "AT-02.2",
+  "kind": "test",
+  "covers": [
+    "AC-02.2"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/sia/characterisation_test.exs (5: main and sense from a module, main, sense and infer from a file"
+  }
+}

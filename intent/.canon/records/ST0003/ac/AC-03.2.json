@@ -1,0 +1,9 @@
+{
+  "id": "AC-03.2",
+  "text": "impl.md records the as-built, the critic rounds and their outcomes, and the mutation table",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "intent/st/ST0003/impl.md"
+  }
+}

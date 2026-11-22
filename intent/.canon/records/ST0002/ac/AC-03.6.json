@@ -1,0 +1,9 @@
+{
+  "id": "AC-03.6",
+  "text": "The inherited \"reference implementation\" claim is struck from ST0002 info.md and `intent/docs/extrication-handoff.md` (hv ruling 2026-08-10) so it stops steering later sessions",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "info.md Context rewritten; handoff carries a dated correction note rather than a silent deletion"
+  }
+}

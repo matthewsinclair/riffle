@@ -1,0 +1,9 @@
+{
+  "id": "AC-01.1",
+  "text": "D2 root-caused with the engine-vs-glue verdict recorded, file:line evidence from real reads of the archive",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "design.md \"D2 verdict\" section"
+  }
+}

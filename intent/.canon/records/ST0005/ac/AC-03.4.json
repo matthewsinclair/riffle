@@ -1,0 +1,9 @@
+{
+  "id": "AC-03.4",
+  "text": "design.md and impl.md record the decisions, the as-built and the mutation table",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "intent/st/ST0005/{design,impl}.md"
+  }
+}

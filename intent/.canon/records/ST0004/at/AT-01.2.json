@@ -1,0 +1,11 @@
+{
+  "id": "AT-01.2",
+  "kind": "test",
+  "covers": [
+    "AC-01.2"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/service/stage_agnostic_fence_test.exs (3: four loops under their own names, loop names disjoint from tag names, counts equal to the recorded per-stage output)"
+  }
+}

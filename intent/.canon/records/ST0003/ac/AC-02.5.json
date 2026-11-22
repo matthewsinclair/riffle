@@ -1,0 +1,9 @@
+{
+  "id": "AC-02.5",
+  "text": "Riffle ships its own sense/infer/act pipeline definition in both source forms",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "priv/sia/sia.pred and lib/riffle/sia/default_pipeline.ex"
+  }
+}

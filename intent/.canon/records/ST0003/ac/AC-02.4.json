@@ -1,0 +1,8 @@
+{
+  "id": "AC-02.4",
+  "text": "An unresolvable source fails the run as a typed signal: status `:failed`, the reason in `ctx.errors`, an `ErrorRaised` emission carrying it, and no results claimed anywhere in the stream",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

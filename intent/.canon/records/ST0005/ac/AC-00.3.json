@@ -1,0 +1,8 @@
+{
+  "id": "AC-00.3",
+  "text": "Documentation claims are checked mechanically wherever a machine can check them, rather than reviewed once and trusted thereafter. A doc that drifts from the code goes red",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

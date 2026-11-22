@@ -1,0 +1,9 @@
+{
+  "id": "AC-03.5",
+  "text": "Rule-library conformance: `intent critic elixir` clean at every severity over every file this thread touches",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "impl.md WP-03 Critic"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "id": "AT-01.3",
+  "kind": "test",
+  "covers": [
+    "AC-01.3"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/docs/doc_conformance_test.exs (3: every catalog member describes each of its own fields, none left at one line, plus a control the catalogs are non-empty)"
+  }
+}

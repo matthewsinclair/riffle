@@ -1,0 +1,9 @@
+{
+  "id": "AC-00.2",
+  "text": "Every fence this thread adds is mutation-checked: break the thing it guards, watch it go red, restore. A fence that cannot fail is not a fence",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "impl.md mutation table"
+  }
+}

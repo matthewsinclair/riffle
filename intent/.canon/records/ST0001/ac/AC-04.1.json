@@ -1,0 +1,8 @@
+{
+  "id": "AC-04.1",
+  "text": "One hydration/resolution path: pipeline.ex, loop.ex, registry.ex, loader.ex, and macro-generated functions resolve references through a single loud resolver; no residual ad-hoc resolution",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

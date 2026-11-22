@@ -1,0 +1,9 @@
+{
+  "id": "AC-02.1",
+  "text": "CI runs format check + compile + test with warnings-as-errors covering test compilation, green on the skeleton before the port lands",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": ".github/workflows/ci.yml runs `mix gate` (the single local/CI gate alias in mix.exs); local `mix gate` green on skeleton 2026-08-10 (upstream Actions run lands on next hv push)"
+  }
+}

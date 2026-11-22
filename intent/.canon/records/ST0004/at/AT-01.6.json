@@ -1,0 +1,11 @@
+{
+  "id": "AT-01.6",
+  "kind": "test",
+  "covers": [
+    "AC-01.6"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/service/csv_test.exs (13: header to maps, values uncoerced, quoting, CRLF, and every refusal)"
+  }
+}

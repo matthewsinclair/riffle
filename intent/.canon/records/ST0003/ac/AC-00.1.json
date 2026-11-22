@@ -1,0 +1,9 @@
+{
+  "id": "AC-00.1",
+  "text": "`mix gate` green at close -- format, compile and test both under warnings-as-errors, `credo --strict`",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "impl.md Gate section"
+  }
+}

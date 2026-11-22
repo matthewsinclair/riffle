@@ -1,0 +1,11 @@
+{
+  "id": "AT-01.1",
+  "kind": "test",
+  "covers": [
+    "AC-01.1"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/service/service_test.exs (5: the shipped pipeline, a narrower named cut, evidence surviving the call, supplied and minted run ids)"
+  }
+}

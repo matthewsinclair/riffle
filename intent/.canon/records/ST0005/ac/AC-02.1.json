@@ -1,0 +1,9 @@
+{
+  "id": "AC-02.1",
+  "text": "`mix docs` produces an API reference from the existing moduledocs, with the deps declared dev-only so the library's runtime dependencies are unchanged",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "impl.md WP-02 As built"
+  }
+}

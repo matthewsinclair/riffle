@@ -1,0 +1,8 @@
+{
+  "id": "AC-03.2",
+  "text": "Every `.pred` snippet in the reference parses. A wrong example goes red rather than misleading a reader",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

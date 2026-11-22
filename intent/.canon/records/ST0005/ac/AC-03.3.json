@@ -1,0 +1,8 @@
+{
+  "id": "AC-03.3",
+  "text": "The reference covers the whole surface rather than a chosen subset: every public standard-library predicate is mentioned, checked against the modules themselves",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

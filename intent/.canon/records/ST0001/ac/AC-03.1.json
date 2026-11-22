@@ -1,0 +1,8 @@
+{
+  "id": "AC-03.1",
+  "text": "The ported engine and its full ported test suite are green under `mix test --warnings-as-errors` (D5 class structurally excluded)",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

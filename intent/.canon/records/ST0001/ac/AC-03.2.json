@@ -1,0 +1,8 @@
+{
+  "id": "AC-03.2",
+  "text": "Zero source-project traces in `lib/` and `test/` -- modules, atoms, app-env keys, strings, comments, moduledocs (hv ruling 2026-08-10)",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

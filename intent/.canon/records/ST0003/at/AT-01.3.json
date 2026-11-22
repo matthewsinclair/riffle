@@ -1,0 +1,11 @@
+{
+  "id": "AT-01.3",
+  "kind": "test",
+  "covers": [
+    "AC-01.3"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/sia/evidence_fence_test.exs::\"fence: every derived fact arrives with its evidence\""
+  }
+}

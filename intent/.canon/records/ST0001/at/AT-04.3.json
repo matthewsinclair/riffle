@@ -1,0 +1,11 @@
+{
+  "id": "AT-04.3",
+  "kind": "test",
+  "covers": [
+    "AC-04.3"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/predicate/loop_cache_integration_test.exs::\"invariant: the stream filter path shares the cached evaluation entry point\" (red-first at c3: the stream path was re-evaluating cached items)"
+  }
+}

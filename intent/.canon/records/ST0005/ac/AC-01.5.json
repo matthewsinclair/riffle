@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.5",
+  "text": "A module whose docs make a claim a doctest could check carries that doctest. Applied to the modules the survey found carrying substantial prose and zero executable examples",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

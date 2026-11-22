@@ -1,0 +1,11 @@
+{
+  "id": "AT-03.1",
+  "kind": "test",
+  "covers": [
+    "AC-03.2"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/cli/mix_task_test.exs (3: names no Riffle module, does name the framework, and resolves where the launcher looks)"
+  }
+}

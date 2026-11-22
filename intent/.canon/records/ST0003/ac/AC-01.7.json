@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.7",
+  "text": "The waist names no pattern-layer module -- the core does not know who is listening",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

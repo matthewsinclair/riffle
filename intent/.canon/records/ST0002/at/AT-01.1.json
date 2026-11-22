@@ -1,0 +1,11 @@
+{
+  "id": "AT-01.1",
+  "kind": "test",
+  "covers": [
+    "AC-01.1"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/ctx/ctx_test.exs (3 invariants: the declared overlay is exactly metadata, every other slot carries a concrete type, no slot accumulates catalog types"
+  }
+}

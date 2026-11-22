@@ -1,0 +1,9 @@
+{
+  "id": "AC-03.9",
+  "text": "Rule-library conformance at the bar of the three prior threads: `intent critic elixir` review and test-check over every file this thread touched, every CRITICAL and every Highlander WARNING fixed at source, none suppressed",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "impl.md Critic rounds"
+  }
+}

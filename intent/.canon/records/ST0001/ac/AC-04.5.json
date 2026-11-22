@@ -1,0 +1,9 @@
+{
+  "id": "AC-04.5",
+  "text": "DSL coercion contract (numeric parse, truthiness) ratified by hv and enforced in one canonical module",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "hv ruling 2026-08-10 (strict; DD-8 as-built note incl. `:loose` deferral) + `Riffle.Predicate.Coerce` consumed by Evaluator and StandardLib (c10, 577d4f5); coerce_test.exs + evaluator strict-boundary suite"
+  }
+}

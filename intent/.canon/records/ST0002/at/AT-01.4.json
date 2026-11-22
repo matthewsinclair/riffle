@@ -1,0 +1,11 @@
+{
+  "id": "AT-01.4",
+  "kind": "test",
+  "covers": [
+    "AC-01.4"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/boundary_fence_test.exs::\"fence: the waist names no engine module\" (AST-based; carries a brace-alias positive control)"
+  }
+}

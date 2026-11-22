@@ -1,0 +1,8 @@
+{
+  "id": "AC-02.3",
+  "text": "The four archived tests that asserted nothing -- missing file, missing pipeline name from a module, missing name from a file, empty input -- each assert a concrete outcome here",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

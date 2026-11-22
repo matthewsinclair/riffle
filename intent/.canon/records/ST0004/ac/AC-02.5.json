@@ -1,0 +1,8 @@
+{
+  "id": "AC-02.5",
+  "text": "`sia.pipelines` reports the pipelines a source defines, by name, without running one",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "id": "AT-01.4",
+  "kind": "test",
+  "covers": [
+    "AC-01.4"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/docs/doc_conformance_test.exs (2: a DSL module exposes no undocumented function, plus a control that accessors are really generated)"
+  }
+}

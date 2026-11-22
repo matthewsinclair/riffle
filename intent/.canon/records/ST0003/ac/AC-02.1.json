@@ -1,0 +1,8 @@
+{
+  "id": "AC-02.1",
+  "text": "A pipeline resolves from a closed source vocabulary -- a `Pipeline` struct, `{:module, module}`, `{:file, path}`, or `:default_module` -- and a source outside it is a loud failure, never a silent empty run",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.4",
+  "text": "Every failure a correct caller can provoke is a tagged error naming what went wrong -- input file absent, input file unreadable, input carrying no data rows, pipeline source absent, pipeline name not present in the source -- and none of them is a silent empty result or a run reported as successful",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

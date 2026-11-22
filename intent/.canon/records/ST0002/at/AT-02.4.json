@@ -1,0 +1,11 @@
+{
+  "id": "AT-02.4",
+  "kind": "test",
+  "covers": [
+    "AC-02.4"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/ctx/knot_test.exs::\"invariant: the knot emits the full stream and takes no consumer argument\""
+  }
+}

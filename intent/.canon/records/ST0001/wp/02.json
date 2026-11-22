@@ -1,0 +1,9 @@
+{
+  "id": "02",
+  "title": "Scaffolding and CI gate",
+  "scope": "S",
+  "status": "done",
+  "objective": "Stand up the quality gate before any ported line lands: `mix format --check-formatted`, compile and `mix test --warnings-as-errors` with the flag covering TEST compilation, wired locally and in GitHub Actions. Green on the empty skeleton proves the gate itself.",
+  "body": "## Deliverables\n\n- `.github/workflows/ci.yml` (format + compile + test, warnings-as-errors)\n- Green local gate run on the empty skeleton\n\n## Dependencies\n\n- None. Precedes WP-03 (the gate exists before ported code lands).",
+  "preamble": ""
+}

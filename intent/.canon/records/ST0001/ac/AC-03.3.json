@@ -1,0 +1,8 @@
+{
+  "id": "AC-03.3",
+  "text": "Default-pipeline resolution is config-injected (`:riffle, :default_pipeline`); unset config surfaces an explicit error; the engine names no pattern-layer module",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

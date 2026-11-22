@@ -1,0 +1,8 @@
+{
+  "id": "AC-03.5",
+  "text": "Riffle ships sample input whose columns match the shipped pipeline definitions: a run of the shipped `.pred` over the shipped sample produces surviving items carrying concrete tags, not an empty result",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

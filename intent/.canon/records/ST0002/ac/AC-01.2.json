@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.2",
+  "text": "Both catalogs are closed registries: every type declares a tag and a typespec, the parent enumerates its implementations in a closed list built at compile time, and an unknown tag loud-fails rather than falling through",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

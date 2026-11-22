@@ -1,0 +1,9 @@
+{
+  "id": "AC-00.2",
+  "text": "Every fence this thread adds is mutation-checked: break the thing it guards, watch it go red, restore",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "impl.md mutation tables M1-M10"
+  }
+}

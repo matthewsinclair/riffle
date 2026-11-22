@@ -1,0 +1,9 @@
+{
+  "id": "AC-02.2",
+  "text": "The generated reference is grouped so a reader meets the five layers in order rather than an alphabetical list of 61 modules",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "mix.exs `docs/0`, group counts in impl.md WP-02"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.4",
+  "text": "The knot is the only transition: no `Riffle.Ctx` struct-update expression exists anywhere in `lib/` outside the waist, and the pattern layer contains no map-update expression of any kind. It changes run state by applying a perturbation or not at all. (Clarified before building, 2026-08-10: the first draft said \"no `%Riffle.Ctx{... | ...}` anywhere in lib/\", which fences only the explicit form -- the knot itself reaches its slots through bare `%{ctx | ...}`, and so would anything reaching in. The two-clause form above is what is actually provable, and it is stricter inside the layer)",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "id": "AT-03.2",
+  "kind": "test",
+  "covers": [
+    "AC-03.3"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/docs/pred_reference_test.exs (2: every public builder the modules declare appears in the reference, plus a control that the surface is derived rather than transcribed)"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "id": "AT-01.1",
+  "kind": "test",
+  "covers": [
+    "AC-01.1"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/docs/doc_conformance_test.exs (2: no doc describes stages as driven by tag prefixes, plus a control that the walk sees the phrasing)"
+  }
+}

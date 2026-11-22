@@ -1,0 +1,11 @@
+{
+  "id": "AT-02.1",
+  "kind": "test",
+  "covers": [
+    "AC-02.1"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/sia/sources_test.exs::\"invariant: the source vocabulary is closed and an unknown source raises\""
+  }
+}

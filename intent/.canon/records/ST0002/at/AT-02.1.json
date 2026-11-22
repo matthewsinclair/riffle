@@ -1,0 +1,11 @@
+{
+  "id": "AT-02.1",
+  "kind": "test",
+  "covers": [
+    "AC-02.1"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/ctx/purity_fence_test.exs (2 fences: the forbidden-call closure, and the closure staying inside the waist)"
+  }
+}

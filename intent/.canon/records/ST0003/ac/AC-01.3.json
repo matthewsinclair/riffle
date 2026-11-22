@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.3",
+  "text": "Every fact the run derives arrives with its evidence: each `StageProgress` count equals the length of that stage's `StageCompleted` output, and every `MetadataSet` the run emits carries a declared key whose value recomputes exactly from the stage emissions in the same stream. A count cannot be recorded without the collection it counts",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

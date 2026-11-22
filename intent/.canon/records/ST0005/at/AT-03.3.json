@@ -1,0 +1,12 @@
+{
+  "id": "AT-03.3",
+  "kind": "test",
+  "covers": [
+    "AC-03.1",
+    "AC-00.3"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/docs/pred_reference_test.exs (2: every documented expression is a form the evaluator accepts, checked by evaluating it, plus a control that a form outside the language is reported)"
+  }
+}

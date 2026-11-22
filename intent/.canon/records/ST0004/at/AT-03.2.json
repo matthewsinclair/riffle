@@ -1,0 +1,11 @@
+{
+  "id": "AT-03.2",
+  "kind": "test",
+  "covers": [
+    "AC-03.5"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/service/sample_test.exs (4: non-empty result, concrete tags from every stage, real attrition, columns matching the shipped predicates)"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "id": "AC-03.3",
+  "text": "The escript builds and the resulting binary runs the same commands as the mix task",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "impl.md"
+  }
+}

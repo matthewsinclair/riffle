@@ -1,0 +1,8 @@
+{
+  "id": "AC-03.11",
+  "text": "Every application-env key the CLI framework requires is configured, checked against the framework's own source rather than transcribed from it. (Added 2026-08-11, after the fact and deliberately recorded as such: every subcommand path was verified green and the binding reported as working, and hv then ran `bin/riffle cli` with no arguments and got a stack trace -- the intro banner reads `:url` with `fetch_env!` and nothing set it. `:prompt_symbol` was missing the same way. Fixing two keys would have left the class open, so the boundary this thread claimed was wrong, not merely unmet, and widening it is the honest correction)",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

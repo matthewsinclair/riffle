@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.3",
+  "text": "Catalog bijection holds: the struct modules present under each catalog namespace are exactly the registry's declared implementations, and tags are unique within each catalog",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "id": "01",
+  "title": "D2 root-cause and verdict",
+  "scope": "S",
+  "status": "done",
+  "objective": "Root-cause D2 in the archive (read-only): `Sia.process(ctx, :default_module)` yields `[]` where the pre-compiled pipeline should produce tagged items. Deliver the verdict that decides whether the Predicate port (WP-03) carries a red-first bug fix: does the defect live in the engine (travels) or in SIA glue (dies in ST0003's rewrite)?",
+  "body": "## Deliverables\n\n- Engine-vs-glue verdict with file:line evidence, recorded in design.md \"D2 verdict\"\n- If engine-side: contract amendment adding the red-first AT to WP-03\n\n## Dependencies\n\n- None. Precedes WP-03 (the verdict may extend its scope). Time-boxed ~2h; on overrun, record the partial trace and escalate to hv.",
+  "preamble": ""
+}

@@ -1,0 +1,9 @@
+{
+  "id": "AC-00.3",
+  "text": "Every module created is registered in `intent/llm/MODULES.md` before its file exists",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "MODULES.md: SIA (the pattern layer) 3 rows + Test support 5 rows, registered before each file was created"
+  }
+}

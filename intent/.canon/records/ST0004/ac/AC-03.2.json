@@ -1,0 +1,8 @@
+{
+  "id": "AC-03.2",
+  "text": "The mix task is a doorway and nothing more: it names the CLI framework's entry point and no other module, so exactly one argv parser exists in the project",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

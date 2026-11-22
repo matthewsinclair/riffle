@@ -1,0 +1,8 @@
+{
+  "id": "AC-02.6",
+  "text": "The two context types stay distinct: no CLI module constructs or updates a `Riffle.Ctx`, which belongs to the waist and changes only through the knot",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

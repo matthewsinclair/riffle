@@ -1,0 +1,9 @@
+{
+  "id": "AC-03.4",
+  "text": "Zero source-project traces in the new files",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "extrication_gate_test green across the new lib/, priv/ and test/ files"
+  }
+}

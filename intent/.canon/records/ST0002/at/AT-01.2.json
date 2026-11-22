@@ -1,0 +1,11 @@
+{
+  "id": "AT-01.2",
+  "kind": "test",
+  "covers": [
+    "AC-01.2"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/ctx/catalog_fence_test.exs::\"invariant: an unknown tag loud-fails at both catalogs\""
+  }
+}

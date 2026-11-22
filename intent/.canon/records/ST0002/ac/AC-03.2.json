@@ -1,0 +1,9 @@
+{
+  "id": "AC-03.2",
+  "text": "`intent/docs/bedrock.md` records the commitments this thread fixes, the negations that matter, and the rule that a contradiction with it is a bug in the contradicting document",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "`intent/docs/bedrock.md` (7 commitments, 5 negations, the fence table binding each commitment to its enforcement)"
+  }
+}

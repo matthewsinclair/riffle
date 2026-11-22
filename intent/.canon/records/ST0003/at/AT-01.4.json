@@ -1,0 +1,11 @@
+{
+  "id": "AT-01.4",
+  "kind": "test",
+  "covers": [
+    "AC-01.4"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/single_transition_fence_test.exs (3: no Ctx struct-update outside the waist, no map update at all in the layer, and a control proving the walk sees both update spellings and neither construction nor match)"
+  }
+}

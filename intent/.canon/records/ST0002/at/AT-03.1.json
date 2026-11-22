@@ -1,0 +1,11 @@
+{
+  "id": "AT-03.1",
+  "kind": "test",
+  "covers": [
+    "AC-03.1"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/ctx/measured_surface_fence_test.exs (3 fences: every capability resolves to a live tag, read, slot or reasoned drop; the composite root declares t(); every catalog type traces back to a capability or a declared exception)"
+  }
+}

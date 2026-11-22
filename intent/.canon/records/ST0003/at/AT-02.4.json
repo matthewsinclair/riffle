@@ -1,0 +1,11 @@
+{
+  "id": "AT-02.4",
+  "kind": "test",
+  "covers": [
+    "AC-02.6"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/sia/sources_test.exs::\"invariant: the file source and the module source produce identical results\""
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "id": "AC-02.2",
+  "text": "The knot is deterministic: the same (ctx, perturbation) yields identical `{ctx', emissions}` on every application",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

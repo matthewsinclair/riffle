@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.5",
+  "text": "The engine names no waist module: zero references to `Riffle.Ctx` anywhere under `lib/riffle/predicate/` -- the dependency inversion holds in both directions, so the two compose only at an edge",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

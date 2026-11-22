@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.4",
+  "text": "The waist names no engine module: zero references to `Riffle.Predicate` anywhere under `lib/riffle/ctx/` -- emission payloads stay opaque to the waist (handoff stitch 2 must not re-form)",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

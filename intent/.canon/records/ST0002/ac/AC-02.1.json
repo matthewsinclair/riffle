@@ -1,0 +1,8 @@
+{
+  "id": "AC-02.1",
+  "text": "The knot is unconditionally pure: no module reachable from it references a clock, a random source, a process, a table, a file, or a logger. Approximate purity is a failure, not a tolerance",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

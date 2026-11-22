@@ -1,0 +1,8 @@
+{
+  "id": "AC-01.1",
+  "text": "`Riffle.Ctx` is a typed composite root, not a bag: every slot carries a declared type, exactly one slot is a declared free-form overlay (`metadata`), and no slot accumulates perturbations or emissions",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

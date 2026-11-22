@@ -1,0 +1,9 @@
+{
+  "id": "AC-03.6",
+  "text": "The README no longer claims Riffle has no CLI, and shows how to run one",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "README.md"
+  }
+}

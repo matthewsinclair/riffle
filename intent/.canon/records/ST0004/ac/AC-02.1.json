@@ -1,0 +1,8 @@
+{
+  "id": "AC-02.1",
+  "text": "No module under the CLI layer names an engine, waist or pattern-layer module at any depth. The commands reach the system through the service alone -- this is \"thin coordinator\" stated mechanically rather than asserted in prose",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

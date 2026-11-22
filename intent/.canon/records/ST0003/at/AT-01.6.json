@@ -1,0 +1,11 @@
+{
+  "id": "AT-01.6",
+  "kind": "test",
+  "covers": [
+    "AC-01.6"
+  ],
+  "status": "green",
+  "legacy": {
+    "raw": "test/riffle/boundary_fence_test.exs::\"fence: the engine names no pattern-layer module\""
+  }
+}

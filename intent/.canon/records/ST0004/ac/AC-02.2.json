@@ -1,0 +1,8 @@
+{
+  "id": "AC-02.2",
+  "text": "Commands are defined and registered through the framework's own surface -- `Arca.Cli.Command.BaseCommand` and a `BaseConfigurator` -- and `handle/3` returns an `Arca.Cli.Ctx`, so command outcome and output rendering are the framework's job. No local base-command, formatter, or outcome machinery is reimplemented",
+  "kind": "test",
+  "state": {
+    "is": "computed"
+  }
+}

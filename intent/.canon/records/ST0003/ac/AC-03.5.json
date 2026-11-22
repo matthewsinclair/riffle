@@ -1,0 +1,9 @@
+{
+  "id": "AC-03.5",
+  "text": "`intent/docs/bedrock.md` reflects the pattern layer: the commitments it adds, or the recorded finding that none changed",
+  "kind": "non-test",
+  "state": {
+    "is": "satisfied",
+    "evidence": "intent/docs/bedrock.md"
+  }
+}
